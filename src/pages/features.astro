@@ -1,0 +1,122 @@
+---
+import MarketingLayout from "@/layouts/MarketingLayout.astro";
+
+const features = [
+  {
+    category: "Comparison",
+    items: [
+      {
+        title: "Side-by-side diff view",
+        description:
+          "Two-column split layout — original on the left, modified on the right. Changed lines are highlighted with distinct colors for additions and removals.",
+      },
+      {
+        title: "Line-level highlighting",
+        description:
+          "Each changed line is marked clearly. Unchanged lines are shown for context. Diff summary shows total additions and removals.",
+      },
+    ],
+  },
+  {
+    category: "Editor",
+    items: [
+      {
+        title: "CodeMirror 6 editor",
+        description:
+          "A full-featured code editor in each panel — line numbers, syntax highlighting, keyboard-friendly navigation.",
+      },
+      {
+        title: "Syntax highlighting",
+        description:
+          "Languages supported: JSON, YAML, JavaScript, TypeScript, Python, Markdown, XML, HTML, and plain text.",
+      },
+      {
+        title: "Language selector",
+        description:
+          "Choose the language for each panel independently. The editor will highlight syntax accordingly.",
+      },
+    ],
+  },
+  {
+    category: "Input",
+    items: [
+      {
+        title: "Paste text",
+        description: "Type or paste any text directly into the editor panels. No file required.",
+      },
+      {
+        title: "Drag & drop files",
+        description:
+          "Drag any text file from your filesystem and drop it onto a panel to load its contents.",
+      },
+      {
+        title: "File open button",
+        description: "Click the Open File button (or press Ctrl+O) to use the native file picker.",
+      },
+    ],
+  },
+  {
+    category: "PWA & Offline",
+    items: [
+      {
+        title: "Installable",
+        description: "Add twish to your home screen or desktop from the browser's install prompt.",
+      },
+      {
+        title: "Fully offline",
+        description:
+          "After the first visit, twish works with no internet connection. All assets are cached by the service worker.",
+      },
+      {
+        title: "No data sent anywhere",
+        description:
+          "There is no server. No file contents, no diffs, no usage data leaves your device.",
+      },
+    ],
+  },
+  {
+    category: "Keyboard Shortcuts",
+    items: [
+      {
+        title: "Ctrl+Enter — Compare",
+        description: "Run the comparison and render the diff view.",
+      },
+      {
+        title: "Ctrl+O — Open file",
+        description: "Open the file picker for the currently focused panel.",
+      },
+      {
+        title: "Ctrl+Shift+C — Clear",
+        description: "Clear both editor panels and reset the diff view.",
+      },
+    ],
+  },
+];
+---
+
+<MarketingLayout title="Features — twish">
+  <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+    <h1 class="mb-4 text-3xl font-bold text-white">Features</h1>
+    <p class="mb-12 text-slate-400">Everything twish can do — and what's coming next.</p>
+
+    <div class="space-y-12">
+      {
+        features.map((section) => (
+          <div>
+            <h2 class="mb-4 text-xs font-semibold uppercase tracking-widest text-indigo-400">
+              {section.category}
+            </h2>
+            <div class="divide-y divide-slate-800 rounded-xl border border-slate-800">
+              {section.items.map((item) => (
+                <div class="px-6 py-4">
+                  <h3 class="mb-1 text-sm font-semibold text-white">{item.title}</h3>
+                  <p class="text-sm text-slate-400">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</MarketingLayout>

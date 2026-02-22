@@ -1,62 +1,72 @@
-# astro-template
+# twish
 
-An opinionated Astro 5 starter template with Tailwind CSS v4, TypeScript strict mode, ESLint, Prettier, Husky, commitlint, Vitest, DevContainer, and GitHub Actions.
+A fully offline, installable PWA for comparing files — configs, code, or plain text — without any data leaving your browser.
+
+Built because managing multiple configs across environments gets cumbersome. No server, no uploads, no tracking.
+
+Live at: **[abijith-suresh.github.io/twish](https://abijith-suresh.github.io/twish)**
+
+## Features
+
+- **Side-by-side diff** — clean split view with line-level highlighting
+- **Rich code editor** — CodeMirror 6 with syntax highlighting for JSON, YAML, JS/TS, Python, Markdown, XML, and more
+- **Drag & drop** — drop any text file onto either panel to load it
+- **Offline-first PWA** — works with no internet after the first visit; installable as a desktop/mobile app
+- **Keyboard shortcuts** — `Ctrl+Enter` to diff, `Ctrl+O` to open a file, `Ctrl+Shift+C` to clear
+- **No data sent anywhere** — purely client-side, all processing in your browser
 
 ## Stack
 
 - [Astro 5](https://astro.build) — static site framework
-- [Tailwind CSS v4](https://tailwindcss.com) — utility-first CSS (via `@tailwindcss/vite`)
-- [TypeScript](https://www.typescriptlang.org) — strict mode
+- [React](https://react.dev) — interactive diff tool
+- [Tailwind CSS v4](https://tailwindcss.com) — utility-first CSS
+- [CodeMirror 6](https://codemirror.net) — code editor
+- [diff](https://github.com/kpdecker/jsdiff) — diffing engine
 - [Bun](https://bun.sh) — package manager and runtime
-- [ESLint](https://eslint.org) — linting (flat config)
-- [Prettier](https://prettier.io) — formatting
-- [Husky](https://typicode.github.io/husky) + [commitlint](https://commitlint.js.org) — git hooks
-- [Vitest](https://vitest.dev) — unit testing
 - [GitHub Actions](https://github.com/features/actions) — CI + deploy to GitHub Pages
-- [DevContainer](https://containers.dev) — reproducible dev environment
-
-## Use This Template
-
-Click the **"Use this template"** button at the top of this repo, then:
-
-1. Clone your new repo
-2. Install dependencies:
-   ```sh
-   bun install
-   ```
-3. Update `name` in `package.json`
-4. Update `site` and `base` in `astro.config.ts`:
-   ```ts
-   site: "https://YOUR-USERNAME.github.io",
-   base: "/YOUR-REPO-NAME/",
-   ```
-5. Update the `name` field in `.devcontainer/devcontainer.json`
-6. Enable GitHub Pages: **Settings → Pages → Source: GitHub Actions**
-7. Replace `AGENTS.md` with project-specific instructions
 
 ## Development
 
 ```sh
-bun dev          # start dev server at localhost:4321
-bun build        # build for production
-bun preview      # preview production build
-bun run lint     # run ESLint
-bun run format   # run Prettier
-bun run test     # run tests
+bun install        # install dependencies
+bun dev            # start dev server at localhost:4321
+bun build          # build for production
+bun preview        # preview production build
+bun run lint       # run ESLint
+bun run format     # run Prettier
+bun run test       # run tests
+bun run type-check # TypeScript check
 ```
 
-See [AGENTS.md](./AGENTS.md) for the full list of commands and project conventions.
+See [AGENTS.md](./AGENTS.md) for full commands, project conventions, and AI agent instructions.
 
 ## Project Structure
 
 ```
 src/
-├── layouts/Layout.astro   # base HTML shell
-├── pages/index.astro      # entry point
-├── styles/global.css      # Tailwind CSS import
-└── test/setup.ts          # Vitest setup
+├── components/
+│   ├── layout/        # Header, Footer
+│   ├── landing/       # Hero, FeatureCard
+│   └── app/           # React diff tool components
+├── layouts/
+│   ├── BaseLayout.astro
+│   ├── MarketingLayout.astro
+│   └── AppLayout.astro
+├── pages/
+│   ├── index.astro    # Landing page
+│   ├── features.astro
+│   ├── about.astro
+│   ├── docs.astro
+│   ├── changelog.astro
+│   └── app.astro      # The diff tool
+└── styles/
+    └── global.css
 ```
+
+## Contributing
+
+All contributions welcome — open an issue or PR. See [AGENTS.md](./AGENTS.md) for code conventions and branch/commit rules.
 
 ## License
 
-MIT
+[MIT](./LICENSE)

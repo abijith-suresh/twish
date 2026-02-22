@@ -1,0 +1,155 @@
+---
+import MarketingLayout from "@/layouts/MarketingLayout.astro";
+
+const shortcuts = [
+  { keys: "Ctrl + Enter", action: "Run comparison" },
+  { keys: "Ctrl + O", action: "Open file (focused panel)" },
+  { keys: "Ctrl + Shift + C", action: "Clear both panels" },
+];
+
+const languages = [
+  "JSON",
+  "YAML",
+  "JavaScript",
+  "TypeScript",
+  "Python",
+  "Markdown",
+  "XML",
+  "HTML",
+  "Plain text",
+];
+---
+
+<MarketingLayout title="Docs — twish">
+  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <h1 class="mb-8 text-3xl font-bold text-white">Documentation</h1>
+
+    <!-- Quick start -->
+    <section class="mb-12">
+      <h2 class="mb-4 text-lg font-semibold text-white">Quick start</h2>
+      <ol class="space-y-3 text-slate-300">
+        <li class="flex gap-3">
+          <span
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
+            >1</span
+          >
+          <span>
+            Go to <a href="/twish/app" class="text-indigo-400 hover:text-indigo-300">twish/app</a> to
+            open the diff tool.
+          </span>
+        </li>
+        <li class="flex gap-3">
+          <span
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
+            >2</span
+          >
+          <span
+            >Paste text into the <strong class="text-white">Original</strong> and <strong
+              class="text-white">Modified</strong
+            > panels — or drag and drop files onto them.</span
+          >
+        </li>
+        <li class="flex gap-3">
+          <span
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
+            >3</span
+          >
+          <span
+            >Select the language for syntax highlighting using the dropdown above each panel.</span
+          >
+        </li>
+        <li class="flex gap-3">
+          <span
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
+            >4</span
+          >
+          <span
+            >Click <strong class="text-white">Compare</strong> or press <kbd
+              class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-xs"
+              >Ctrl+Enter</kbd
+            > to run the diff.
+          </span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Loading files -->
+    <section class="mb-12">
+      <h2 class="mb-4 text-lg font-semibold text-white">Loading files</h2>
+      <div class="space-y-3 text-sm text-slate-300">
+        <p>
+          <strong class="text-white">Drag & drop</strong> — drag any text file from your file manager
+          and drop it onto either editor panel. The file content will load into that panel.
+        </p>
+        <p>
+          <strong class="text-white">File picker</strong> — click the <strong class="text-white"
+            >Open File</strong
+          > button below each panel, or press <kbd
+            class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-xs">Ctrl+O</kbd
+          > when a panel is focused.
+        </p>
+        <p>
+          <strong class="text-white">Paste</strong> — click into any panel and paste text directly from
+          the clipboard.
+        </p>
+      </div>
+    </section>
+
+    <!-- Keyboard shortcuts -->
+    <section class="mb-12">
+      <h2 class="mb-4 text-lg font-semibold text-white">Keyboard shortcuts</h2>
+      <div class="rounded-xl border border-slate-800 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-900">
+              <th class="px-4 py-3 text-left font-semibold text-white">Shortcut</th>
+              <th class="px-4 py-3 text-left font-semibold text-white">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            {
+              shortcuts.map((s) => (
+                <tr>
+                  <td class="px-4 py-3">
+                    <kbd class="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200">
+                      {s.keys}
+                    </kbd>
+                  </td>
+                  <td class="px-4 py-3 text-slate-300">{s.action}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Supported languages -->
+    <section class="mb-12">
+      <h2 class="mb-4 text-lg font-semibold text-white">Supported languages</h2>
+      <div class="flex flex-wrap gap-2">
+        {
+          languages.map((lang) => (
+            <span class="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs text-slate-300">
+              {lang}
+            </span>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Install as PWA -->
+    <section class="mb-12">
+      <h2 class="mb-4 text-lg font-semibold text-white">Install as a PWA</h2>
+      <p class="mb-3 text-sm text-slate-300">
+        twish can be installed as a desktop or mobile app, and will work completely offline after
+        installation.
+      </p>
+      <p class="text-sm text-slate-300">
+        In Chrome/Edge: click the install icon in the address bar. In Safari on iOS: tap Share → Add
+        to Home Screen. Once installed, all assets are cached and the app works without an internet
+        connection.
+      </p>
+    </section>
+  </div>
+</MarketingLayout>

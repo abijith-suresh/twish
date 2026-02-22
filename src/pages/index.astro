@@ -1,32 +1,75 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import FeatureCard from "@/components/landing/FeatureCard.astro";
+import Hero from "@/components/landing/Hero.astro";
+import MarketingLayout from "@/layouts/MarketingLayout.astro";
+
+const features = [
+  {
+    icon: "⇄",
+    title: "Side-by-side diff",
+    description:
+      "Clean split view with line-level highlighting. See exactly what changed at a glance.",
+  },
+  {
+    icon: "✦",
+    title: "Rich code editor",
+    description:
+      "CodeMirror 6 with syntax highlighting for JSON, YAML, JavaScript, TypeScript, Python, Markdown, XML, and more.",
+  },
+  {
+    icon: "↓",
+    title: "Drag & drop",
+    description:
+      "Drop any text file onto either panel to load it instantly — no file picker dialogs needed.",
+  },
+  {
+    icon: "⊘",
+    title: "Fully offline",
+    description: "Works with zero internet after the first visit. Install it as a desktop app.",
+  },
+  {
+    icon: "⌨",
+    title: "Keyboard shortcuts",
+    description:
+      "Ctrl+Enter to compare, Ctrl+O to open a file, Ctrl+Shift+C to clear — stay in the flow.",
+  },
+  {
+    icon: "⚿",
+    title: "Private by design",
+    description:
+      "No server, no uploads, no analytics. Everything runs in your browser and stays there.",
+  },
+];
 ---
 
-<Layout title="Astro Template">
-  <main class="flex min-h-screen flex-col items-center justify-center bg-gray-950 text-white">
-    <div class="text-center">
-      <h1 class="mb-4 text-5xl font-bold tracking-tight">Astro Template</h1>
-      <p class="mb-8 text-lg text-gray-400">
-        Your new project is ready. Start building something great.
-      </p>
-      <div class="flex gap-4 justify-center">
-        <a
-          href="https://docs.astro.build"
-          class="rounded-lg bg-indigo-600 px-6 py-3 font-medium transition-colors hover:bg-indigo-500"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Astro Docs
-        </a>
-        <a
-          href="https://tailwindcss.com/docs"
-          class="rounded-lg border border-gray-700 px-6 py-3 font-medium transition-colors hover:bg-gray-800"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tailwind Docs
-        </a>
+<MarketingLayout title="twish — offline file diff tool">
+  <Hero />
+
+  <!-- Feature grid -->
+  <section class="px-4 pb-24 sm:px-6">
+    <div class="mx-auto max-w-5xl">
+      <h2 class="mb-10 text-center text-2xl font-bold text-white">Everything you need to diff</h2>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          features.map((f) => (
+            <FeatureCard title={f.title} description={f.description} icon={f.icon} />
+          ))
+        }
       </div>
     </div>
-  </main>
-</Layout>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t border-slate-800 px-4 py-20 text-center sm:px-6">
+    <div class="mx-auto max-w-xl">
+      <h2 class="mb-4 text-2xl font-bold text-white">Ready to compare?</h2>
+      <p class="mb-8 text-slate-400">No sign-up. No server. Just paste, drop, and diff.</p>
+      <a
+        href="/twish/app"
+        class="rounded-lg bg-indigo-600 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+      >
+        Open the diff tool
+      </a>
+    </div>
+  </section>
+</MarketingLayout>
