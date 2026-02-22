@@ -1,5 +1,5 @@
 {
-  "name": "Astro Template Dev Environment",
+  "name": "Twish Dev Environment",
   "build": {
     "dockerfile": "Dockerfile"
   },
