@@ -5,8 +5,7 @@ import AstroPWA from "@vite-pwa/astro";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://abijith-suresh.github.io",
-  base: "/twish",
+  site: "https://twish.vercel.app",
   integrations: [
     react(),
     AstroPWA({
@@ -21,12 +20,12 @@ export default defineConfig({
         display: "standalone",
         icons: [
           {
-            src: "/twish/icons/icon-192.png",
+            src: "/icons/icon-192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "/twish/icons/icon-512.png",
+            src: "/icons/icon-512.png",
             sizes: "512x512",
             type: "image/png",
           },
@@ -34,7 +33,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        navigateFallback: "/twish/",
+        navigateFallback: "/",
       },
     }),
   ],
