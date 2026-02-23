@@ -5,12 +5,14 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  bodyClass?: string;
 }
 
 const {
   title,
   description = "Offline file diff tool — compare configs and code without leaving your browser.",
   ogImage = "/og-image.png",
+  bodyClass = "",
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -41,8 +43,9 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalUrl} />
+    <slot name="head" />
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased">
+  <body class:list={bodyClass}>
     <slot />
   </body>
 </html>
