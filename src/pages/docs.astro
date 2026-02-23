@@ -21,101 +21,78 @@ const languages = [
 ---
 
 <MarketingLayout title="Docs — twish">
-  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-    <h1 class="mb-8 text-3xl font-bold text-white">Documentation</h1>
+  <div class="page-wrap">
+    <h1 class="page-heading">Documentation</h1>
 
     <!-- Quick start -->
-    <section class="mb-12">
-      <h2 class="mb-4 text-lg font-semibold text-white">Quick start</h2>
-      <ol class="space-y-3 text-slate-300">
-        <li class="flex gap-3">
-          <span
-            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
-            >1</span
-          >
+    <section class="doc-section">
+      <h2 class="section-heading">Quick start</h2>
+      <ol class="steps">
+        <li class="step">
+          <span class="step-num">1</span>
           <span>
-            Go to <a href="/app" class="text-indigo-400 hover:text-indigo-300">twish/app</a> to open the
-            diff tool.
+            Go to <a href="/app" class="inline-link">twish/app</a> to open the diff tool.
           </span>
         </li>
-        <li class="flex gap-3">
+        <li class="step">
+          <span class="step-num">2</span>
           <span
-            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
-            >2</span
-          >
-          <span
-            >Paste text into the <strong class="text-white">Original</strong> and <strong
-              class="text-white">Modified</strong
-            > panels — or drag and drop files onto them.</span
+            >Paste text into the <strong>Original</strong> and <strong>Modified</strong> panels — or drag
+            and drop files onto them.</span
           >
         </li>
-        <li class="flex gap-3">
-          <span
-            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
-            >3</span
-          >
+        <li class="step">
+          <span class="step-num">3</span>
           <span
             >Select the language for syntax highlighting using the dropdown above each panel.</span
           >
         </li>
-        <li class="flex gap-3">
+        <li class="step">
+          <span class="step-num">4</span>
           <span
-            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold"
-            >4</span
-          >
-          <span
-            >Click <strong class="text-white">Compare</strong> or press <kbd
-              class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-xs"
-              >Ctrl+Enter</kbd
-            > to run the diff.
+            >Click <strong>Compare</strong> or press <kbd>Ctrl+Enter</kbd> to run the diff.
           </span>
         </li>
       </ol>
     </section>
 
     <!-- Loading files -->
-    <section class="mb-12">
-      <h2 class="mb-4 text-lg font-semibold text-white">Loading files</h2>
-      <div class="space-y-3 text-sm text-slate-300">
+    <section class="doc-section">
+      <h2 class="section-heading">Loading files</h2>
+      <div class="prose">
         <p>
-          <strong class="text-white">Drag & drop</strong> — drag any text file from your file manager
-          and drop it onto either editor panel. The file content will load into that panel.
+          <strong>Drag & drop</strong> — drag any text file from your file manager and drop it onto either
+          editor panel. The file content will load into that panel.
         </p>
         <p>
-          <strong class="text-white">File picker</strong> — click the <strong class="text-white"
-            >Open File</strong
-          > button below each panel, or press <kbd
-            class="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-xs">Ctrl+O</kbd
-          > when a panel is focused.
+          <strong>File picker</strong> — click the <strong>Open File</strong> button below each panel,
+          or press <kbd>Ctrl+O</kbd> when a panel is focused.
         </p>
         <p>
-          <strong class="text-white">Paste</strong> — click into any panel and paste text directly from
-          the clipboard.
+          <strong>Paste</strong> — click into any panel and paste text directly from the clipboard.
         </p>
       </div>
     </section>
 
     <!-- Keyboard shortcuts -->
-    <section class="mb-12">
-      <h2 class="mb-4 text-lg font-semibold text-white">Keyboard shortcuts</h2>
-      <div class="rounded-xl border border-slate-800 overflow-hidden">
-        <table class="w-full text-sm">
+    <section class="doc-section">
+      <h2 class="section-heading">Keyboard shortcuts</h2>
+      <div class="table-wrap">
+        <table class="shortcuts-table">
           <thead>
-            <tr class="border-b border-slate-800 bg-slate-900">
-              <th class="px-4 py-3 text-left font-semibold text-white">Shortcut</th>
-              <th class="px-4 py-3 text-left font-semibold text-white">Action</th>
+            <tr class="table-header-row">
+              <th class="table-th">Shortcut</th>
+              <th class="table-th">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
+          <tbody>
             {
               shortcuts.map((s) => (
-                <tr>
-                  <td class="px-4 py-3">
-                    <kbd class="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200">
-                      {s.keys}
-                    </kbd>
+                <tr class="table-row">
+                  <td class="table-td">
+                    <kbd>{s.keys}</kbd>
                   </td>
-                  <td class="px-4 py-3 text-slate-300">{s.action}</td>
+                  <td class="table-td">{s.action}</td>
                 </tr>
               ))
             }
@@ -125,31 +102,171 @@ const languages = [
     </section>
 
     <!-- Supported languages -->
-    <section class="mb-12">
-      <h2 class="mb-4 text-lg font-semibold text-white">Supported languages</h2>
-      <div class="flex flex-wrap gap-2">
-        {
-          languages.map((lang) => (
-            <span class="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs text-slate-300">
-              {lang}
-            </span>
-          ))
-        }
+    <section class="doc-section">
+      <h2 class="section-heading">Supported languages</h2>
+      <div class="lang-list">
+        {languages.map((lang) => <span class="lang-tag">{lang}</span>)}
       </div>
     </section>
 
     <!-- Install as PWA -->
-    <section class="mb-12">
-      <h2 class="mb-4 text-lg font-semibold text-white">Install as a PWA</h2>
-      <p class="mb-3 text-sm text-slate-300">
-        twish can be installed as a desktop or mobile app, and will work completely offline after
-        installation.
-      </p>
-      <p class="text-sm text-slate-300">
-        In Chrome/Edge: click the install icon in the address bar. In Safari on iOS: tap Share → Add
-        to Home Screen. Once installed, all assets are cached and the app works without an internet
-        connection.
-      </p>
+    <section class="doc-section">
+      <h2 class="section-heading">Install as a PWA</h2>
+      <div class="prose">
+        <p>
+          twish can be installed as a desktop or mobile app, and will work completely offline after
+          installation.
+        </p>
+        <p>
+          In Chrome/Edge: click the install icon in the address bar. In Safari on iOS: tap Share →
+          Add to Home Screen. Once installed, all assets are cached and the app works without an
+          internet connection.
+        </p>
+      </div>
     </section>
   </div>
 </MarketingLayout>
+
+<style>
+  .page-wrap {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .page-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 4rem;
+    letter-spacing: 0.05em;
+    color: var(--brutal-black);
+    margin-bottom: 2rem;
+  }
+
+  .doc-section {
+    margin-bottom: 3rem;
+  }
+
+  .section-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.75rem;
+    letter-spacing: 0.05em;
+    color: var(--brutal-black);
+    margin-bottom: 1rem;
+  }
+
+  .steps {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .step {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: var(--brutal-yellow);
+    border: 3px solid var(--brutal-black);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .prose {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  kbd {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    background: var(--brutal-white);
+    border: 3px solid var(--brutal-black);
+    padding: 0.1rem 0.4rem;
+  }
+
+  .inline-link {
+    color: var(--brutal-black);
+    border-bottom: 2px solid var(--brutal-black);
+    text-decoration: none;
+  }
+
+  .inline-link:hover {
+    background: var(--brutal-yellow);
+  }
+
+  .table-wrap {
+    border: 3px solid var(--brutal-black);
+    overflow: hidden;
+  }
+
+  .shortcuts-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .table-header-row {
+    background: var(--brutal-yellow);
+    border-bottom: 3px solid var(--brutal-black);
+  }
+
+  .table-th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+    color: var(--brutal-black);
+  }
+
+  .table-row {
+    border-bottom: 3px solid var(--brutal-black);
+  }
+
+  .table-row:last-child {
+    border-bottom: none;
+  }
+
+  .table-td {
+    padding: 0.75rem 1rem;
+    color: #333;
+  }
+
+  .lang-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .lang-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 3px solid var(--brutal-black);
+    padding: 0.2rem 0.6rem;
+    background: var(--brutal-white);
+    color: var(--brutal-black);
+  }
+</style>

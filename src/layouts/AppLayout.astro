@@ -8,7 +8,11 @@ interface Props {
 const { title = "twish — diff tool" } = Astro.props;
 ---
 
-<BaseLayout title={title} description="Compare files side by side, offline, in your browser.">
+<BaseLayout
+  title={title}
+  description="Compare files side by side, offline, in your browser."
+  bodyClass="bg-slate-950 text-slate-100 antialiased"
+>
   <div class="flex h-screen flex-col overflow-hidden">
     <!-- Minimal header for the app -->
     <header

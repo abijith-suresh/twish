@@ -3,13 +3,90 @@ interface Props {
   title: string;
   description: string;
   icon: string;
+  num?: string;
 }
 
-const { title, description, icon } = Astro.props;
+const { title, description, icon, num } = Astro.props;
 ---
 
-<div class="rounded-xl border border-slate-800 bg-slate-900 p-6">
-  <div class="mb-4 text-2xl" aria-hidden="true">{icon}</div>
-  <h3 class="mb-2 text-base font-semibold text-white">{title}</h3>
-  <p class="text-sm leading-relaxed text-slate-400">{description}</p>
+<div class="card">
+  {
+    num && (
+      <span class="card-num" aria-hidden="true">
+        {num}
+      </span>
+    )
+  }
+  <div class="card-icon" aria-hidden="true">{icon}</div>
+  <h3 class="card-title">{title}</h3>
+  <p class="card-desc">{description}</p>
 </div>
+
+<style>
+  .card {
+    position: relative;
+    background: var(--brutal-white);
+    border: 3px solid var(--brutal-black);
+    box-shadow: var(--brutal-shadow);
+    padding: 1.5rem;
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s,
+      background 0.15s;
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card {
+      transition: background 0.15s;
+    }
+  }
+
+  .card:hover {
+    background: var(--brutal-yellow);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--brutal-black);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover {
+      transform: none;
+      box-shadow: var(--brutal-shadow);
+    }
+  }
+
+  .card-num {
+    position: absolute;
+    top: -0.5rem;
+    right: 0.75rem;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 5rem;
+    color: var(--brutal-black);
+    opacity: 0.06;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--brutal-black);
+    margin-bottom: 0.5rem;
+  }
+
+  .card-desc {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #444;
+  }
+</style>

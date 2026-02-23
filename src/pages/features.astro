@@ -95,22 +95,20 @@ const features = [
 ---
 
 <MarketingLayout title="Features — twish">
-  <div class="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-    <h1 class="mb-4 text-3xl font-bold text-white">Features</h1>
-    <p class="mb-12 text-slate-400">Everything twish can do — and what's coming next.</p>
+  <div class="page-wrap">
+    <h1 class="page-heading">Features</h1>
+    <p class="page-sub">Everything twish can do — and what's coming next.</p>
 
-    <div class="space-y-12">
+    <div class="sections">
       {
         features.map((section) => (
-          <div>
-            <h2 class="mb-4 text-xs font-semibold uppercase tracking-widest text-indigo-400">
-              {section.category}
-            </h2>
-            <div class="divide-y divide-slate-800 rounded-xl border border-slate-800">
+          <div class="section">
+            <div class="category-label">{section.category}</div>
+            <div class="item-list">
               {section.items.map((item) => (
-                <div class="px-6 py-4">
-                  <h3 class="mb-1 text-sm font-semibold text-white">{item.title}</h3>
-                  <p class="text-sm text-slate-400">{item.description}</p>
+                <div class="item">
+                  <h3 class="item-title">{item.title}</h3>
+                  <p class="item-desc">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -120,3 +118,73 @@ const features = [
     </div>
   </div>
 </MarketingLayout>
+
+<style>
+  .page-wrap {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .page-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 4rem;
+    letter-spacing: 0.05em;
+    color: var(--brutal-black);
+    margin-bottom: 0.5rem;
+  }
+
+  .page-sub {
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 3rem;
+  }
+
+  .sections {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .category-label {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    background: var(--brutal-yellow);
+    border: 3px solid var(--brutal-black);
+    padding: 0.2rem 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .item-list {
+    border: 3px solid var(--brutal-black);
+  }
+
+  .item {
+    padding: 1rem 1.25rem;
+    border-bottom: 3px solid var(--brutal-black);
+  }
+
+  .item:last-child {
+    border-bottom: none;
+  }
+
+  .item-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--brutal-black);
+    margin-bottom: 0.35rem;
+  }
+
+  .item-desc {
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.6;
+  }
+</style>

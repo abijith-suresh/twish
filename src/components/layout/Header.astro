@@ -9,43 +9,29 @@ const navLinks = [
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="border-b border-slate-800 bg-slate-950">
-  <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-    <a href="/" class="flex items-center gap-2 text-white">
-      <span class="text-xl font-bold tracking-tight">twish</span>
-    </a>
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="twish home">twish</a>
 
-    <nav class="flex items-center gap-1">
+    <nav class="nav">
       {
         navLinks.map((link) => (
           <a
             href={link.href}
-            class:list={[
-              "rounded px-3 py-1.5 text-sm font-medium transition-colors",
-              currentPath === link.href || currentPath === link.href + "/"
-                ? "bg-slate-800 text-white"
-                : "text-slate-400 hover:bg-slate-800 hover:text-white",
-            ]}
+            class:list={`nav-link${currentPath === link.href || currentPath === link.href + "/" ? " nav-link--active" : ""}`}
           >
             {link.label}
           </a>
         ))
       }
 
-      <div class="ml-2 h-4 w-px bg-slate-700"></div>
-
-      <a
-        href="/app"
-        class="ml-2 rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
-      >
-        Open App
-      </a>
+      <div class="nav-divider" aria-hidden="true"></div>
 
       <a
         href="https://github.com/abijith-suresh/twish"
         target="_blank"
         rel="noopener noreferrer"
-        class="ml-1 rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+        class="github-link"
         aria-label="View on GitHub"
       >
         <svg
@@ -61,6 +47,121 @@ const currentPath = Astro.url.pathname;
           ></path>
         </svg>
       </a>
+
+      <a href="/app" class="open-app-btn">Open App</a>
     </nav>
   </div>
 </header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--brutal-white);
+    border-bottom: 3px solid var(--brutal-black);
+  }
+
+  .header-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0.625rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.05em;
+    color: var(--brutal-black);
+    background: var(--brutal-yellow);
+    border: 3px solid var(--brutal-black);
+    box-shadow: var(--brutal-shadow-sm);
+    padding: 0.1rem 0.6rem;
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brutal-black);
+    text-decoration: none;
+    padding: 0.35rem 0.6rem;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.15s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-link {
+      transition: none;
+    }
+  }
+
+  .nav-link:hover {
+    border-bottom-color: var(--brutal-black);
+  }
+
+  .nav-link--active {
+    background: var(--brutal-yellow);
+    border-bottom-color: transparent;
+  }
+
+  .nav-link--active:hover {
+    border-bottom-color: transparent;
+  }
+
+  .nav-divider {
+    width: 1px;
+    height: 1rem;
+    background: var(--brutal-black);
+    margin: 0 0.5rem;
+  }
+
+  .github-link {
+    color: var(--brutal-black);
+    padding: 0.35rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .open-app-btn {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brutal-white);
+    background: var(--brutal-black);
+    border: 3px solid var(--brutal-black);
+    box-shadow: var(--brutal-shadow-sm);
+    padding: 0.35rem 0.75rem;
+    text-decoration: none;
+    margin-left: 0.5rem;
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .open-app-btn {
+      transition: none;
+    }
+  }
+
+  .open-app-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--brutal-black);
+  }
+</style>
