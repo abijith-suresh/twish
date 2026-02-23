@@ -1,9 +1,9 @@
 ---
 const navLinks = [
-  { href: "/twish/", label: "Home" },
-  { href: "/twish/features", label: "Features" },
-  { href: "/twish/docs", label: "Docs" },
-  { href: "/twish/about", label: "About" },
+  { href: "/", label: "Home" },
+  { href: "/features", label: "Features" },
+  { href: "/docs", label: "Docs" },
+  { href: "/about", label: "About" },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -11,7 +11,7 @@ const currentPath = Astro.url.pathname;
 
 <header class="border-b border-slate-800 bg-slate-950">
   <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-    <a href="/twish/" class="flex items-center gap-2 text-white">
+    <a href="/" class="flex items-center gap-2 text-white">
       <span class="text-xl font-bold tracking-tight">twish</span>
     </a>
 
@@ -35,7 +35,7 @@ const currentPath = Astro.url.pathname;
       <div class="ml-2 h-4 w-px bg-slate-700"></div>
 
       <a
-        href="/twish/app"
+        href="/app"
         class="ml-2 rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
       >
         Open App

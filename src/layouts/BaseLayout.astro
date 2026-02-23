@@ -10,7 +10,7 @@ interface Props {
 const {
   title,
   description = "Offline file diff tool — compare configs and code without leaving your browser.",
-  ogImage = "/twish/og-image.png",
+  ogImage = "/og-image.png",
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -39,7 +39,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="twitter:image" content={ogImageUrl} />
 
     <title>{title}</title>
-    <link rel="icon" type="image/svg+xml" href="/twish/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalUrl} />
   </head>
   <body class="bg-slate-950 text-slate-100 antialiased">
