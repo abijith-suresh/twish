@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+:root {
+  --brutal-black: #000000;
+  --brutal-white: #ffffff;
+  --brutal-yellow: #ffe600;
+  --brutal-shadow: 4px 4px 0 #000;
+  --brutal-shadow-sm: 2px 2px 0 #000;
+}
