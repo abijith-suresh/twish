@@ -21,21 +21,17 @@ const releases = [
 ---
 
 <MarketingLayout title="Changelog — twish">
-  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-    <h1 class="mb-8 text-3xl font-bold text-white">Changelog</h1>
+  <div class="page-wrap">
+    <h1 class="page-heading">Changelog</h1>
 
-    <div class="space-y-10">
+    <div class="releases">
       {
         releases.map((release) => (
-          <div>
-            <div class="mb-4 flex flex-wrap items-baseline gap-3">
-              <h2 class="text-xl font-bold text-white">v{release.version}</h2>
-              {release.tag && (
-                <span class="rounded-full bg-indigo-900/50 px-2.5 py-0.5 text-xs font-medium text-indigo-300 ring-1 ring-indigo-700">
-                  {release.tag}
-                </span>
-              )}
-              <time class="text-sm text-slate-500" datetime={release.date}>
+          <div class="release">
+            <div class="release-meta">
+              <h2 class="version-heading">v{release.version}</h2>
+              {release.tag && <span class="release-tag">{release.tag}</span>}
+              <time class="release-date" datetime={release.date}>
                 {new Date(release.date).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
@@ -43,10 +39,10 @@ const releases = [
                 })}
               </time>
             </div>
-            <ul class="space-y-2">
+            <ul class="change-list">
               {release.changes.map((change) => (
-                <li class="flex gap-3 text-sm text-slate-300">
-                  <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                <li class="change-item">
+                  <span class="bullet" aria-hidden="true" />
                   {change}
                 </li>
               ))}
@@ -57,3 +53,84 @@ const releases = [
     </div>
   </div>
 </MarketingLayout>
+
+<style>
+  .page-wrap {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .page-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 4rem;
+    letter-spacing: 0.05em;
+    color: var(--brutal-black);
+    margin-bottom: 2rem;
+  }
+
+  .releases {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .release-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .version-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 0.05em;
+    color: var(--brutal-black);
+  }
+
+  .release-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--brutal-yellow);
+    border: 3px solid var(--brutal-black);
+    padding: 0.15rem 0.5rem;
+  }
+
+  .release-date {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  .change-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .change-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.875rem;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .bullet {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--brutal-yellow);
+    border: 1px solid var(--brutal-black);
+    flex-shrink: 0;
+    margin-top: 0.45rem;
+  }
+</style>
