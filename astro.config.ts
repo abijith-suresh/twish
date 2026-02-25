@@ -1,5 +1,5 @@
 import tailwindcss from "@tailwindcss/vite";
-import react from "@astrojs/react";
+import solid from "@astrojs/solid-js";
 import { defineConfig } from "astro/config";
 import AstroPWA from "@vite-pwa/astro";
 
@@ -7,7 +7,7 @@ import AstroPWA from "@vite-pwa/astro";
 export default defineConfig({
   site: "https://twish.vercel.app",
   integrations: [
-    react(),
+    solid(),
     AstroPWA({
       registerType: "autoUpdate",
       manifest: {
@@ -15,8 +15,8 @@ export default defineConfig({
         short_name: "Twish",
         description:
           "Offline file diff tool — compare configs and code without leaving your browser.",
-        theme_color: "#0f172a",
-        background_color: "#0f172a",
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
         display: "standalone",
         icons: [
           {

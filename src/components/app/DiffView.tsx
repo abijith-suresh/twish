@@ -1,5 +1,5 @@
 import { type Change, diffLines } from "diff";
-import React, { useMemo } from "react";
+import { createMemo, For, Show } from "solid-js";
 
 interface DiffRow {
   left: string | null;
@@ -14,13 +14,11 @@ function buildRows(changes: Change[]): DiffRow[] {
   let leftLine = 1;
   let rightLine = 1;
 
-  // Pair up removed/added blocks for aligned rows
   let i = 0;
   while (i < changes.length) {
     const change = changes[i];
 
     if (!change.added && !change.removed) {
-      // Equal lines
       const lines = change.value.replace(/\n$/, "").split("\n");
       for (const line of lines) {
         rows.push({
@@ -33,7 +31,6 @@ function buildRows(changes: Change[]): DiffRow[] {
       }
       i++;
     } else if (change.removed && i + 1 < changes.length && changes[i + 1].added) {
-      // Paired removed + added — align side by side
       const removedLines = change.value.replace(/\n$/, "").split("\n");
       const addedLines = changes[i + 1].value.replace(/\n$/, "").split("\n");
       const maxLen = Math.max(removedLines.length, addedLines.length);
@@ -50,7 +47,6 @@ function buildRows(changes: Change[]): DiffRow[] {
       }
       i += 2;
     } else if (change.removed) {
-      // Only removed, no paired addition
       const lines = change.value.replace(/\n$/, "").split("\n");
       for (const line of lines) {
         rows.push({
@@ -63,7 +59,6 @@ function buildRows(changes: Change[]): DiffRow[] {
       }
       i++;
     } else {
-      // Only added, no paired removal
       const lines = change.value.replace(/\n$/, "").split("\n");
       for (const line of lines) {
         rows.push({
@@ -86,136 +81,125 @@ interface Props {
   modified: string;
 }
 
-export default function DiffView({ original, modified }: Props) {
-  const { rows, stats } = useMemo(() => {
-    const changes = diffLines(original, modified);
-    const diffRows = buildRows(changes);
+export default function DiffView(props: Props) {
+  const result = createMemo(() => {
+    const changes = diffLines(props.original, props.modified);
+    const rows = buildRows(changes);
     const added = changes.filter((c) => c.added).reduce((sum, c) => sum + (c.count ?? 0), 0);
     const removed = changes.filter((c) => c.removed).reduce((sum, c) => sum + (c.count ?? 0), 0);
-    return { rows: diffRows, stats: { added, removed } };
-  }, [original, modified]);
+    return { rows, stats: { added, removed } };
+  });
 
-  const hasChanges = stats.added > 0 || stats.removed > 0;
-
-  if (!hasChanges && original === modified) {
-    return (
-      <div className="flex items-center justify-center py-12 text-sm text-slate-500">
-        No differences found.
-      </div>
-    );
-  }
+  const hasChanges = () => result().stats.added > 0 || result().stats.removed > 0;
 
   return (
-    <div className="flex min-h-0 flex-col">
-      {/* Stats bar */}
-      <div className="flex shrink-0 items-center gap-4 border-b border-slate-800 bg-slate-900/50 px-4 py-2 text-xs">
-        <span className="font-medium text-slate-400">Diff</span>
-        {stats.added > 0 && (
-          <span className="text-green-400">
-            +{stats.added} line{stats.added !== 1 ? "s" : ""}
-          </span>
-        )}
-        {stats.removed > 0 && (
-          <span className="text-red-400">
-            -{stats.removed} line{stats.removed !== 1 ? "s" : ""}
-          </span>
-        )}
-        {!hasChanges && <span className="text-slate-500">Identical</span>}
+    <Show
+      when={hasChanges() || props.original !== props.modified}
+      fallback={<div class="diff-empty">No differences found.</div>}
+    >
+      <div class="diff-wrap">
+        {/* Stats bar */}
+        <div class="diff-stats">
+          <span class="diff-stats-label">DIFF</span>
+          <Show when={result().stats.added > 0}>
+            <span class="diff-added">
+              +{result().stats.added} line{result().stats.added !== 1 ? "s" : ""}
+            </span>
+          </Show>
+          <Show when={result().stats.removed > 0}>
+            <span class="diff-removed">
+              -{result().stats.removed} line{result().stats.removed !== 1 ? "s" : ""}
+            </span>
+          </Show>
+          <Show when={!hasChanges()}>
+            <span class="diff-identical">Identical</span>
+          </Show>
+        </div>
+
+        {/* Diff table */}
+        <div class="diff-table-wrap">
+          <table class="diff-table">
+            <colgroup>
+              <col class="col-linenum" />
+              <col class="col-content" />
+              <col class="col-linenum" />
+              <col class="col-content" />
+            </colgroup>
+            <tbody>
+              <For each={result().rows}>
+                {(row) => {
+                  const isRemoved = row.type === "removed" || row.type === "changed";
+                  const isAdded = row.type === "added" || row.type === "changed";
+
+                  return (
+                    <tr class="diff-row">
+                      <td
+                        class={[
+                          "diff-linenum",
+                          isRemoved && row.left !== null ? "diff-linenum--removed" : "",
+                          row.left === null ? "diff-cell--empty" : "",
+                        ]
+                          .join(" ")
+                          .trim()}
+                      >
+                        {row.leftLineNum}
+                      </td>
+                      <td
+                        class={[
+                          "diff-content",
+                          isRemoved && row.left !== null ? "diff-content--removed" : "",
+                          row.left === null ? "diff-cell--empty" : "",
+                        ]
+                          .join(" ")
+                          .trim()}
+                      >
+                        <Show when={row.left !== null}>
+                          <Show when={isRemoved}>
+                            <span class="diff-marker diff-marker--removed" aria-hidden="true">
+                              -
+                            </span>
+                          </Show>
+                          {row.left}
+                        </Show>
+                      </td>
+
+                      <td
+                        class={[
+                          "diff-linenum",
+                          isAdded && row.right !== null ? "diff-linenum--added" : "",
+                          row.right === null ? "diff-cell--empty" : "",
+                        ]
+                          .join(" ")
+                          .trim()}
+                      >
+                        {row.rightLineNum}
+                      </td>
+                      <td
+                        class={[
+                          "diff-content",
+                          isAdded && row.right !== null ? "diff-content--added" : "",
+                          row.right === null ? "diff-cell--empty" : "",
+                        ]
+                          .join(" ")
+                          .trim()}
+                      >
+                        <Show when={row.right !== null}>
+                          <Show when={isAdded}>
+                            <span class="diff-marker diff-marker--added" aria-hidden="true">
+                              +
+                            </span>
+                          </Show>
+                          {row.right}
+                        </Show>
+                      </td>
+                    </tr>
+                  );
+                }}
+              </For>
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      {/* Diff table */}
-      <div className="min-h-0 flex-1 overflow-auto font-mono text-xs">
-        <table className="w-full border-collapse">
-          <colgroup>
-            <col className="w-10" />
-            <col className="w-[calc(50%-2.5rem)]" />
-            <col className="w-10" />
-            <col className="w-[calc(50%-2.5rem)]" />
-          </colgroup>
-          <tbody>
-            {rows.map((row, idx) => {
-              const isRemoved = row.type === "removed" || row.type === "changed";
-              const isAdded = row.type === "added" || row.type === "changed";
-
-              return (
-                <tr key={idx} className="border-b border-slate-800/50">
-                  {/* Left line number */}
-                  <td
-                    className={[
-                      "select-none px-2 py-0.5 text-right text-slate-600",
-                      isRemoved && row.left !== null ? "bg-red-950/40" : "",
-                      row.left === null ? "bg-slate-900/30" : "",
-                    ]
-                      .join(" ")
-                      .trim()}
-                  >
-                    {row.leftLineNum}
-                  </td>
-                  {/* Left content */}
-                  <td
-                    className={[
-                      "px-3 py-0.5 whitespace-pre",
-                      isRemoved && row.left !== null
-                        ? "bg-red-950/40 text-red-200"
-                        : "text-slate-300",
-                      row.left === null ? "bg-slate-900/30" : "",
-                    ]
-                      .join(" ")
-                      .trim()}
-                  >
-                    {row.left !== null && (
-                      <>
-                        {isRemoved && (
-                          <span className="mr-2 text-red-500" aria-hidden="true">
-                            -
-                          </span>
-                        )}
-                        {row.left}
-                      </>
-                    )}
-                  </td>
-
-                  {/* Divider */}
-                  <td
-                    className={[
-                      "select-none px-2 py-0.5 text-right text-slate-600",
-                      isAdded && row.right !== null ? "bg-green-950/40" : "",
-                      row.right === null ? "bg-slate-900/30" : "",
-                    ]
-                      .join(" ")
-                      .trim()}
-                  >
-                    {row.rightLineNum}
-                  </td>
-                  {/* Right content */}
-                  <td
-                    className={[
-                      "px-3 py-0.5 whitespace-pre",
-                      isAdded && row.right !== null
-                        ? "bg-green-950/40 text-green-200"
-                        : "text-slate-300",
-                      row.right === null ? "bg-slate-900/30" : "",
-                    ]
-                      .join(" ")
-                      .trim()}
-                  >
-                    {row.right !== null && (
-                      <>
-                        {isAdded && (
-                          <span className="mr-2 text-green-500" aria-hidden="true">
-                            +
-                          </span>
-                        )}
-                        {row.right}
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </Show>
   );
 }

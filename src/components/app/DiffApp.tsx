@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import DiffView from "./DiffView";
 import EditorPanel from "./EditorPanel";
 import Toolbar from "./Toolbar";
@@ -10,39 +10,38 @@ interface DiffState {
 }
 
 export default function DiffApp() {
-  const [leftContent, setLeftContent] = useState("");
-  const [rightContent, setRightContent] = useState("");
-  const [leftLang, setLeftLang] = useState<Language>("text");
-  const [rightLang, setRightLang] = useState<Language>("text");
-  const [diffResult, setDiffResult] = useState<DiffState | null>(null);
+  const [leftContent, setLeftContent] = createSignal("");
+  const [rightContent, setRightContent] = createSignal("");
+  const [leftLang, setLeftLang] = createSignal<Language>("text");
+  const [rightLang, setRightLang] = createSignal<Language>("text");
+  const [diffResult, setDiffResult] = createSignal<DiffState | null>(null);
 
-  // Track which panel is "focused" for Ctrl+O
-  const focusedPanel = useRef<"left" | "right">("left");
+  function handleCompare() {
+    setDiffResult({ original: leftContent(), modified: rightContent() });
+  }
 
-  const handleCompare = useCallback(() => {
-    setDiffResult({ original: leftContent, modified: rightContent });
-  }, [leftContent, rightContent]);
-
-  const handleSwap = useCallback(() => {
-    setLeftContent(rightContent);
-    setRightContent(leftContent);
-    setLeftLang(rightLang);
-    setRightLang(leftLang);
-    // Re-run diff with swapped contents if diff is visible
-    if (diffResult) {
-      setDiffResult({ original: rightContent, modified: leftContent });
+  function handleSwap() {
+    const prevLeft = leftContent();
+    const prevRight = rightContent();
+    const prevLeftLang = leftLang();
+    const prevRightLang = rightLang();
+    setLeftContent(prevRight);
+    setRightContent(prevLeft);
+    setLeftLang(prevRightLang);
+    setRightLang(prevLeftLang);
+    if (diffResult()) {
+      setDiffResult({ original: prevRight, modified: prevLeft });
     }
-  }, [leftContent, rightContent, leftLang, rightLang, diffResult]);
+  }
 
-  const handleClear = useCallback(() => {
+  function handleClear() {
     setLeftContent("");
     setRightContent("");
     setDiffResult(null);
-  }, []);
+  }
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  onMount(() => {
+    function handleKeyDown(e: KeyboardEvent) {
       if (e.ctrlKey && e.key === "Enter") {
         e.preventDefault();
         handleCompare();
@@ -51,42 +50,31 @@ export default function DiffApp() {
         e.preventDefault();
         handleClear();
       }
-      // Ctrl+O is handled natively by the EditorPanel's file input
-    };
+    }
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleCompare, handleClear]);
+    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
+  });
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div class="diff-app">
       {/* Editor row */}
-      <div className="flex min-h-0 flex-1 divide-x divide-slate-700 overflow-hidden">
-        <div
-          className="min-h-0 flex-1"
-          onFocus={() => {
-            focusedPanel.current = "left";
-          }}
-        >
+      <div class="diff-editors">
+        <div class="diff-panel">
           <EditorPanel
             label="Original"
-            value={leftContent}
-            language={leftLang}
+            value={leftContent()}
+            language={leftLang()}
             onValueChange={setLeftContent}
             onLanguageChange={setLeftLang}
             panelId="left"
           />
         </div>
-        <div
-          className="min-h-0 flex-1"
-          onFocus={() => {
-            focusedPanel.current = "right";
-          }}
-        >
+        <div class="diff-panel diff-panel--right">
           <EditorPanel
             label="Modified"
-            value={rightContent}
-            language={rightLang}
+            value={rightContent()}
+            language={rightLang()}
             onValueChange={setRightContent}
             onLanguageChange={setRightLang}
             panelId="right"
@@ -98,17 +86,19 @@ export default function DiffApp() {
       <Toolbar onCompare={handleCompare} onSwap={handleSwap} onClear={handleClear} />
 
       {/* Diff output */}
-      {diffResult && (
-        <div className="min-h-0 flex-1 overflow-auto border-t border-slate-800">
-          <DiffView original={diffResult.original} modified={diffResult.modified} />
-        </div>
-      )}
+      <Show when={diffResult()}>
+        {(result) => (
+          <div class="diff-output">
+            <DiffView original={result().original} modified={result().modified} />
+          </div>
+        )}
+      </Show>
 
-      {!diffResult && (
-        <div className="flex shrink-0 items-center justify-center py-6 text-xs text-slate-600">
+      <Show when={!diffResult()}>
+        <div class="diff-hint">
           Paste or drop content above, then click Compare or press Ctrl+Enter.
         </div>
-      )}
+      </Show>
     </div>
   );
 }
