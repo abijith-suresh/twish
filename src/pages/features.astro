@@ -95,20 +95,31 @@ const features = [
 ---
 
 <MarketingLayout title="Features — twish">
-  <div class="page-wrap">
-    <h1 class="page-heading">Features</h1>
-    <p class="page-sub">Everything twish can do — and what's coming next.</p>
+  <div class="max-w-3xl mx-auto px-6 py-16">
+    <p class="font-mono text-xs text-dusk-amber uppercase tracking-widest mb-4">Features</p>
+    <h1 class="font-[Manrope,sans-serif] font-extrabold text-4xl text-dusk-text mb-3">
+      What twish can do
+    </h1>
+    <p class="font-[Manrope,sans-serif] text-dusk-muted mb-12">
+      Everything twish can do — and what's coming next.
+    </p>
 
-    <div class="sections">
+    <div class="flex flex-col gap-10">
       {
         features.map((section) => (
-          <div class="section">
-            <div class="category-label">{section.category}</div>
-            <div class="item-list">
+          <div>
+            <span class="inline-block font-mono text-xs text-dusk-amber uppercase tracking-widest border border-dusk-amber px-2 py-0.5 mb-4">
+              {section.category}
+            </span>
+            <div class="border border-dusk-border divide-y divide-dusk-border">
               {section.items.map((item) => (
-                <div class="item">
-                  <h3 class="item-title">{item.title}</h3>
-                  <p class="item-desc">{item.description}</p>
+                <div class="px-5 py-4">
+                  <h3 class="font-[Manrope,sans-serif] font-semibold text-sm text-dusk-text uppercase tracking-wide mb-1">
+                    {item.title}
+                  </h3>
+                  <p class="font-[Manrope,sans-serif] text-sm text-dusk-muted leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -118,73 +129,3 @@ const features = [
     </div>
   </div>
 </MarketingLayout>
-
-<style>
-  .page-wrap {
-    max-width: 56rem;
-    margin: 0 auto;
-    padding: 4rem 1.5rem;
-  }
-
-  .page-heading {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 4rem;
-    letter-spacing: 0.05em;
-    color: var(--brutal-black);
-    margin-bottom: 0.5rem;
-  }
-
-  .page-sub {
-    font-size: 0.9rem;
-    color: #444;
-    margin-bottom: 3rem;
-  }
-
-  .sections {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-  }
-
-  .category-label {
-    display: inline-block;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    background: var(--brutal-yellow);
-    border: 3px solid var(--brutal-black);
-    padding: 0.2rem 0.6rem;
-    margin-bottom: 1rem;
-  }
-
-  .item-list {
-    border: 3px solid var(--brutal-black);
-  }
-
-  .item {
-    padding: 1rem 1.25rem;
-    border-bottom: 3px solid var(--brutal-black);
-  }
-
-  .item:last-child {
-    border-bottom: none;
-  }
-
-  .item-title {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--brutal-black);
-    margin-bottom: 0.35rem;
-  }
-
-  .item-desc {
-    font-size: 0.85rem;
-    color: #444;
-    line-height: 1.6;
-  }
-</style>
