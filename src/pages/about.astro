@@ -3,10 +3,15 @@ import MarketingLayout from "@/layouts/MarketingLayout.astro";
 ---
 
 <MarketingLayout title="About — twish">
-  <div class="page-wrap">
-    <h1 class="page-heading">About twish</h1>
+  <div class="max-w-2xl mx-auto px-6 py-16">
+    <p class="font-mono text-xs text-dusk-amber uppercase tracking-widest mb-4">About</p>
+    <h1 class="font-[Manrope,sans-serif] font-extrabold text-4xl text-dusk-text mb-10">
+      About twish
+    </h1>
 
-    <div class="content">
+    <div
+      class="flex flex-col gap-5 font-[Manrope,sans-serif] text-sm text-dusk-muted leading-relaxed"
+    >
       <p>
         twish started as a solution to a problem I kept running into at work: I manage a lot of
         config files across multiple environments, and knowing exactly what changed between versions
@@ -14,12 +19,16 @@ import MarketingLayout from "@/layouts/MarketingLayout.astro";
       </p>
 
       <p>
-        Tools like <a
+        Tools like{" "}
+        <a
           href="https://www.diffchecker.com"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-link">diffchecker.com</a
-        > are useful, but they're online-only — which means pasting potentially sensitive config values
+          class="text-dusk-text underline underline-offset-2 decoration-dusk-border hover:decoration-dusk-amber transition-colors"
+        >
+          diffchecker.com
+        </a>{" "}
+        are useful, but they're online-only — which means pasting potentially sensitive config values
         into a third-party server. That felt wrong.
       </p>
 
@@ -33,12 +42,12 @@ import MarketingLayout from "@/layouts/MarketingLayout.astro";
         contributions are welcome.
       </p>
 
-      <div class="cta-wrap">
+      <div class="pt-4">
         <a
           href="https://github.com/abijith-suresh/twish"
           target="_blank"
           rel="noopener noreferrer"
-          class="github-btn"
+          class="inline-flex items-center gap-2 font-semibold text-sm text-dusk-amber border border-dusk-amber hover:bg-dusk-amber hover:text-dusk-bg transition-colors px-5 py-2.5 no-underline"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -58,73 +67,3 @@ import MarketingLayout from "@/layouts/MarketingLayout.astro";
     </div>
   </div>
 </MarketingLayout>
-
-<style>
-  .page-wrap {
-    max-width: 40rem;
-    margin: 0 auto;
-    padding: 4rem 1.5rem;
-  }
-
-  .page-heading {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 4rem;
-    letter-spacing: 0.05em;
-    color: var(--brutal-black);
-    margin-bottom: 2rem;
-  }
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    line-height: 1.7;
-    font-size: 0.9rem;
-    color: #333;
-  }
-
-  .inline-link {
-    color: var(--brutal-black);
-    border-bottom: 2px solid var(--brutal-black);
-    text-decoration: none;
-  }
-
-  .inline-link:hover {
-    background: var(--brutal-yellow);
-  }
-
-  .cta-wrap {
-    padding-top: 1rem;
-  }
-
-  .github-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-    padding: 0.65rem 1.25rem;
-    background: var(--brutal-black);
-    color: var(--brutal-white);
-    border: 3px solid var(--brutal-black);
-    box-shadow: var(--brutal-shadow);
-    transition:
-      transform 0.15s,
-      box-shadow 0.15s;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .github-btn {
-      transition: none;
-    }
-  }
-
-  .github-btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 var(--brutal-black);
-  }
-</style>

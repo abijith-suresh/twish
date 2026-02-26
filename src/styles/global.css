@@ -1,9 +1,150 @@
 @import "tailwindcss";
 
-:root {
-  --brutal-black: #000000;
-  --brutal-white: #ffffff;
-  --brutal-yellow: #ffe600;
-  --brutal-shadow: 4px 4px 0 #000;
-  --brutal-shadow-sm: 2px 2px 0 #000;
+@theme {
+  --color-dusk-bg: #16120e;
+  --color-dusk-surface: #1f1a14;
+  --color-dusk-border: #3a3025;
+  --color-dusk-text: #f5ede0;
+  --color-dusk-muted: #9c8b78;
+  --color-dusk-subtle: #5c5048;
+  --color-dusk-amber: #e8963d;
+  --font-manrope: "Manrope", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+@layer components {
+  /* ── App shell ───────────────────────────────────────── */
+  .diff-app {
+    @apply flex flex-col h-full overflow-hidden;
+  }
+  .diff-editors {
+    @apply flex flex-1 min-h-0 overflow-hidden;
+  }
+  .diff-panel {
+    @apply flex-1 min-h-0 flex flex-col;
+  }
+  .diff-panel--right {
+    @apply border-l border-dusk-border;
+  }
+  .diff-output {
+    @apply flex-1 min-h-0 overflow-auto border-t border-dusk-border;
+  }
+  .diff-hint {
+    @apply flex-shrink-0 flex items-center justify-center p-5 font-mono text-xs text-dusk-subtle;
+  }
+
+  /* ── Toolbar ─────────────────────────────────────────── */
+  .toolbar {
+    @apply flex items-center gap-2 flex-shrink-0 px-4 py-2 bg-dusk-surface border-b border-dusk-border;
+  }
+  .btn-compare {
+    @apply flex items-center gap-2 bg-transparent text-dusk-amber border border-dusk-amber hover:bg-dusk-amber hover:text-dusk-bg transition-colors px-3 py-1.5 font-sans text-sm font-semibold cursor-pointer;
+  }
+  .btn-secondary {
+    @apply bg-transparent text-dusk-muted border border-dusk-border hover:text-dusk-text hover:border-dusk-muted transition-colors px-3 py-1.5 font-sans text-sm font-medium cursor-pointer;
+  }
+  .kbd {
+    @apply font-mono text-[0.6rem] bg-dusk-bg text-dusk-subtle border border-dusk-border px-1.5 py-0.5;
+  }
+
+  /* ── Editor panel ────────────────────────────────────── */
+  .editor-panel {
+    @apply flex flex-col flex-1 min-h-0 border border-dusk-border overflow-hidden;
+  }
+  .editor-header {
+    @apply flex items-center justify-between flex-shrink-0 px-3 py-2 bg-dusk-surface border-b border-dusk-border;
+  }
+  .editor-label {
+    @apply font-mono text-xs uppercase tracking-widest text-dusk-muted;
+  }
+  .editor-drop-zone {
+    @apply relative flex-1 min-h-0;
+  }
+  .editor-drop-overlay {
+    @apply absolute inset-0 z-10 flex items-center justify-center bg-amber-500/20 border-2 border-dashed border-dusk-amber pointer-events-none;
+  }
+  .editor-drop-label {
+    @apply font-mono text-sm uppercase tracking-widest text-dusk-amber;
+  }
+  .editor-cm-host {
+    @apply h-full;
+  }
+  .editor-footer {
+    @apply flex-shrink-0 px-3 py-2 bg-dusk-surface border-t border-dusk-border;
+  }
+  .editor-open-btn {
+    @apply font-mono text-xs text-dusk-subtle hover:text-dusk-muted underline underline-offset-2 bg-transparent border-none cursor-pointer;
+  }
+  .lang-select {
+    @apply font-mono text-xs bg-dusk-bg text-dusk-muted border border-dusk-border px-2 py-1 cursor-pointer outline-none focus:border-dusk-amber;
+  }
+
+  /* ── Diff output ─────────────────────────────────────── */
+  .diff-empty {
+    @apply flex items-center justify-center p-12 font-mono text-sm text-dusk-muted;
+  }
+  .diff-wrap {
+    @apply flex flex-col min-h-0;
+  }
+  .diff-stats {
+    @apply flex items-center gap-4 flex-shrink-0 px-4 py-1.5 bg-dusk-surface border-b border-dusk-border font-mono text-xs;
+  }
+  .diff-stats-label {
+    @apply font-bold tracking-widest text-dusk-muted uppercase;
+  }
+  .diff-added {
+    @apply text-green-400 font-bold;
+  }
+  .diff-removed {
+    @apply text-red-400 font-bold;
+  }
+  .diff-identical {
+    @apply text-dusk-subtle;
+  }
+  .diff-table-wrap {
+    @apply flex-1 overflow-auto font-mono text-xs;
+  }
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .col-linenum {
+    width: 2.5rem;
+  }
+  .col-content {
+    width: calc(50% - 2.5rem);
+  }
+  .diff-row {
+    @apply border-b border-dusk-border/30;
+  }
+  .diff-linenum {
+    @apply select-none px-2 py-0.5 text-right text-dusk-subtle bg-dusk-surface whitespace-nowrap;
+  }
+  .diff-linenum--removed {
+    @apply bg-red-950/50 text-red-400;
+  }
+  .diff-linenum--added {
+    @apply bg-green-950/40 text-green-400;
+  }
+  .diff-content {
+    @apply px-3 py-0.5 whitespace-pre text-dusk-text;
+  }
+  .diff-content--removed {
+    @apply bg-red-950/40 text-red-300;
+  }
+  .diff-content--added {
+    @apply bg-green-950/30 text-green-300;
+  }
+  .diff-cell--empty {
+    @apply bg-dusk-bg;
+  }
+  .diff-marker {
+    @apply mr-1.5 font-bold;
+  }
+  .diff-marker--removed {
+    @apply text-red-400;
+  }
+  .diff-marker--added {
+    @apply text-green-400;
+  }
 }

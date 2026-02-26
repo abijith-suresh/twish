@@ -2,61 +2,26 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="footer">
-  <div class="footer-inner">
-    <span class="copyright">&copy; {year} twish · MIT License</span>
-    <div class="footer-links">
-      <a href="/changelog" class="footer-link">Changelog</a>
+<footer class="border-t border-dusk-border">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <span class="font-mono text-xs text-dusk-subtle uppercase tracking-widest">
+      &copy; {year} twish &middot; MIT License
+    </span>
+    <div class="flex items-center gap-6">
+      <a
+        href="/changelog"
+        class="font-mono text-xs text-dusk-subtle hover:text-dusk-muted no-underline transition-colors"
+      >
+        Changelog
+      </a>
       <a
         href="https://github.com/abijith-suresh/twish"
         target="_blank"
         rel="noopener noreferrer"
-        class="footer-link"
+        class="font-mono text-xs text-dusk-subtle hover:text-dusk-muted no-underline transition-colors"
       >
         GitHub
       </a>
     </div>
   </div>
 </footer>
-
-<style>
-  .footer {
-    border-top: 3px solid var(--brutal-black);
-    background: var(--brutal-white);
-  }
-
-  .footer-inner {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .copyright {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--brutal-black);
-  }
-
-  .footer-links {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .footer-link {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    color: var(--brutal-black);
-    text-decoration: none;
-    border-bottom: 1px solid var(--brutal-black);
-  }
-
-  .footer-link:hover {
-    border-bottom-width: 2px;
-  }
-</style>
