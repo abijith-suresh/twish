@@ -46,12 +46,24 @@ function buildRows(changes: Change[]): DiffRow[] {
       i += 2;
     } else if (change.removed) {
       for (const line of change.value.replace(/\n$/, "").split("\n")) {
-        rows.push({ left: line, right: null, leftLineNum: leftLine++, rightLineNum: null, type: "removed" });
+        rows.push({
+          left: line,
+          right: null,
+          leftLineNum: leftLine++,
+          rightLineNum: null,
+          type: "removed",
+        });
       }
       i++;
     } else {
       for (const line of change.value.replace(/\n$/, "").split("\n")) {
-        rows.push({ left: null, right: line, leftLineNum: null, rightLineNum: rightLine++, type: "added" });
+        rows.push({
+          left: null,
+          right: line,
+          leftLineNum: null,
+          rightLineNum: rightLine++,
+          type: "added",
+        });
       }
       i++;
     }
@@ -129,7 +141,11 @@ export default function DiffApp() {
     const changedIdx = new Set<number>();
     allRows.forEach((row, i) => {
       if (row.type !== "equal") {
-        for (let c = Math.max(0, i - CONTEXT); c <= Math.min(allRows.length - 1, i + CONTEXT); c++) {
+        for (
+          let c = Math.max(0, i - CONTEXT);
+          c <= Math.min(allRows.length - 1, i + CONTEXT);
+          c++
+        ) {
           changedIdx.add(c);
         }
       }
