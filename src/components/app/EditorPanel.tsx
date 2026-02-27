@@ -1,29 +1,40 @@
 import { Compartment, EditorState, type Extension } from "@codemirror/state";
-import { json } from "@codemirror/lang-json";
-import { javascript } from "@codemirror/lang-javascript";
-import { markdown } from "@codemirror/lang-markdown";
-import { python } from "@codemirror/lang-python";
-import { xml } from "@codemirror/lang-xml";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { basicSetup, EditorView } from "codemirror";
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import LanguageSelector, { type Language } from "./LanguageSelector";
 
-function getExtensions(lang: Language): Extension[] {
+async function loadExtensions(lang: Language): Promise<Extension[]> {
   switch (lang) {
-    case "json":
+    case "json": {
+      const { json } = await import("@codemirror/lang-json");
       return [json()];
-    case "javascript":
+    }
+    case "yaml": {
+      const { yaml } = await import("@codemirror/lang-yaml");
+      return [yaml()];
+    }
+    case "javascript": {
+      const { javascript } = await import("@codemirror/lang-javascript");
       return [javascript()];
-    case "typescript":
+    }
+    case "typescript": {
+      const { javascript } = await import("@codemirror/lang-javascript");
       return [javascript({ typescript: true })];
-    case "python":
+    }
+    case "python": {
+      const { python } = await import("@codemirror/lang-python");
       return [python()];
-    case "markdown":
+    }
+    case "markdown": {
+      const { markdown } = await import("@codemirror/lang-markdown");
       return [markdown()];
+    }
     case "xml":
-    case "html":
+    case "html": {
+      const { xml } = await import("@codemirror/lang-xml");
       return [xml()];
+    }
     default:
       return [];
   }
@@ -36,6 +47,8 @@ interface Props {
   onValueChange: (val: string) => void;
   onLanguageChange: (lang: Language) => void;
   panelId: string;
+  onFocus?: () => void;
+  onRegisterOpenFile?: (fn: () => void) => void;
 }
 
 export default function EditorPanel(props: Props) {
@@ -47,6 +60,7 @@ export default function EditorPanel(props: Props) {
   // eslint-disable-next-line no-unassigned-vars
   let fileInputEl!: HTMLInputElement;
   const langCompartment = new Compartment();
+  const [langLoading, setLangLoading] = createSignal(false);
   let dragging = false;
 
   function loadFile(file: File) {
@@ -89,12 +103,16 @@ export default function EditorPanel(props: Props) {
   }
 
   onMount(() => {
+    props.onRegisterOpenFile?.(() => fileInputEl.click());
+
+    // Initialize with empty language compartment; the createEffect below
+    // async-loads the initial language pack on first run.
     const state = EditorState.create({
       doc: props.value,
       extensions: [
         basicSetup,
         vscodeDark,
-        langCompartment.of(getExtensions(props.language)),
+        langCompartment.of([]),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             props.onValueChange(update.state.doc.toString());
@@ -106,12 +124,16 @@ export default function EditorPanel(props: Props) {
     onCleanup(() => view?.destroy());
   });
 
-  // Reactively swap language extension
+  // Reactively swap language extension (lazy-loaded per selection)
   createEffect(() => {
     const lang = props.language;
-    if (view) {
-      view.dispatch({ effects: langCompartment.reconfigure(getExtensions(lang)) });
-    }
+    setLangLoading(true);
+    loadExtensions(lang).then((exts) => {
+      if (view) {
+        view.dispatch({ effects: langCompartment.reconfigure(exts) });
+      }
+      setLangLoading(false);
+    });
   });
 
   // Sync external value changes (swap / clear) back into the editor
@@ -142,10 +164,15 @@ export default function EditorPanel(props: Props) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onFocusIn={props.onFocus}
       >
         <div ref={dropOverlay} class="editor-drop-overlay" style="display:none">
           <span class="editor-drop-label">Drop file here</span>
         </div>
+
+        <Show when={langLoading()}>
+          <div class="editor-lang-loading">Loading…</div>
+        </Show>
 
         <div ref={container} class="editor-cm-host" />
       </div>

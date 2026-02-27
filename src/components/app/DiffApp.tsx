@@ -81,6 +81,10 @@ export default function DiffApp() {
   const [diffData, setDiffData] = createSignal<{ original: string; modified: string } | null>(null);
   const [changesOnly, setChangesOnly] = createSignal(true);
   const [pending, setPending] = createSignal(false);
+  const [focusedPanel, setFocusedPanel] = createSignal<"left" | "right">("left");
+
+  let openLeftFile: (() => void) | undefined;
+  let openRightFile: (() => void) | undefined;
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -122,6 +126,14 @@ export default function DiffApp() {
       if (e.ctrlKey && e.shiftKey && e.key === "C") {
         e.preventDefault();
         handleClear();
+      }
+      if (e.ctrlKey && !e.shiftKey && e.key === "o") {
+        e.preventDefault();
+        if (focusedPanel() === "right") {
+          openRightFile?.();
+        } else {
+          openLeftFile?.();
+        }
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -216,6 +228,10 @@ export default function DiffApp() {
             onValueChange={setLeftContent}
             onLanguageChange={setLeftLang}
             panelId="left"
+            onFocus={() => setFocusedPanel("left")}
+            onRegisterOpenFile={(fn) => {
+              openLeftFile = fn;
+            }}
           />
         </div>
 
@@ -378,6 +394,10 @@ export default function DiffApp() {
             onValueChange={setRightContent}
             onLanguageChange={setRightLang}
             panelId="right"
+            onFocus={() => setFocusedPanel("right")}
+            onRegisterOpenFile={(fn) => {
+              openRightFile = fn;
+            }}
           />
         </div>
       </div>

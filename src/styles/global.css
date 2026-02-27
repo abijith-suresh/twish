@@ -66,6 +66,9 @@
   .editor-drop-label {
     @apply font-mono text-sm uppercase tracking-widest text-dusk-amber;
   }
+  .editor-lang-loading {
+    @apply absolute top-2 right-2 z-10 font-mono text-xs text-dusk-muted pointer-events-none;
+  }
   .editor-cm-host {
     @apply h-full;
   }

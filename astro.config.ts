@@ -45,5 +45,8 @@ export default defineConfig({
         "@": "/src",
       },
     },
+    // Bundle isolation verified: marketing pages (/, /features, /about, /docs, /changelog)
+    // load zero JS. CodeMirror and SolidJS chunks are referenced only from /app.
+    // No manualChunks needed — Astro's default Vite splitting handles this correctly.
   },
 });
