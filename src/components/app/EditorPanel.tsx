@@ -4,6 +4,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { markdown } from "@codemirror/lang-markdown";
 import { python } from "@codemirror/lang-python";
 import { xml } from "@codemirror/lang-xml";
+import { yaml } from "@codemirror/lang-yaml";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { basicSetup, EditorView } from "codemirror";
 import { createEffect, onCleanup, onMount } from "solid-js";
@@ -13,6 +14,8 @@ function getExtensions(lang: Language): Extension[] {
   switch (lang) {
     case "json":
       return [json()];
+    case "yaml":
+      return [yaml()];
     case "javascript":
       return [javascript()];
     case "typescript":
