@@ -39,6 +39,8 @@ interface Props {
   onValueChange: (val: string) => void;
   onLanguageChange: (lang: Language) => void;
   panelId: string;
+  onFocus?: () => void;
+  onRegisterOpenFile?: (fn: () => void) => void;
 }
 
 export default function EditorPanel(props: Props) {
@@ -92,6 +94,8 @@ export default function EditorPanel(props: Props) {
   }
 
   onMount(() => {
+    props.onRegisterOpenFile?.(() => fileInputEl.click());
+
     const state = EditorState.create({
       doc: props.value,
       extensions: [
@@ -145,6 +149,7 @@ export default function EditorPanel(props: Props) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onFocusIn={props.onFocus}
       >
         <div ref={dropOverlay} class="editor-drop-overlay" style="display:none">
           <span class="editor-drop-label">Drop file here</span>
