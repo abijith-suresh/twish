@@ -1,77 +1,14 @@
 import { createEffect, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
-import { type Change, diffLines } from "diff";
+import {
+  createDiffRows,
+  DIFF_CONTEXT,
+  type DiffRow,
+  filterRowsWithContext,
+  getChangeSourceIndices,
+  getDiffStats,
+} from "@/lib/diff";
 import EditorPanel from "./EditorPanel";
 import { type Language } from "./LanguageSelector";
-
-interface DiffRow {
-  left: string | null;
-  right: string | null;
-  leftLineNum: number | null;
-  rightLineNum: number | null;
-  type: "equal" | "added" | "removed" | "changed";
-}
-
-function buildRows(changes: Change[]): DiffRow[] {
-  const rows: DiffRow[] = [];
-  let leftLine = 1;
-  let rightLine = 1;
-  let i = 0;
-  while (i < changes.length) {
-    const change = changes[i];
-    if (!change.added && !change.removed) {
-      const lines = change.value.replace(/\n$/, "").split("\n");
-      for (const line of lines) {
-        rows.push({
-          left: line,
-          right: line,
-          leftLineNum: leftLine++,
-          rightLineNum: rightLine++,
-          type: "equal",
-        });
-      }
-      i++;
-    } else if (change.removed && i + 1 < changes.length && changes[i + 1].added) {
-      const removedLines = change.value.replace(/\n$/, "").split("\n");
-      const addedLines = changes[i + 1].value.replace(/\n$/, "").split("\n");
-      const maxLen = Math.max(removedLines.length, addedLines.length);
-      for (let j = 0; j < maxLen; j++) {
-        rows.push({
-          left: j < removedLines.length ? removedLines[j] : null,
-          right: j < addedLines.length ? addedLines[j] : null,
-          leftLineNum: j < removedLines.length ? leftLine++ : null,
-          rightLineNum: j < addedLines.length ? rightLine++ : null,
-          type: "changed",
-        });
-      }
-      i += 2;
-    } else if (change.removed) {
-      for (const line of change.value.replace(/\n$/, "").split("\n")) {
-        rows.push({
-          left: line,
-          right: null,
-          leftLineNum: leftLine++,
-          rightLineNum: null,
-          type: "removed",
-        });
-      }
-      i++;
-    } else {
-      for (const line of change.value.replace(/\n$/, "").split("\n")) {
-        rows.push({
-          left: null,
-          right: line,
-          leftLineNum: null,
-          rightLineNum: rightLine++,
-          type: "added",
-        });
-      }
-      i++;
-    }
-  }
-  return rows;
-}
-
-const CONTEXT = 3;
 
 export default function DiffApp() {
   const [leftContent, setLeftContent] = createSignal("");
@@ -91,6 +28,14 @@ export default function DiffApp() {
   createEffect(() => {
     const _left = leftContent();
     const _right = rightContent();
+
+    if (_left.length === 0 && _right.length === 0) {
+      if (debounceTimer !== undefined) clearTimeout(debounceTimer);
+      setDiffData(null);
+      setPending(false);
+      return;
+    }
+
     setPending(true);
     if (debounceTimer !== undefined) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
@@ -143,33 +88,15 @@ export default function DiffApp() {
   const rows = createMemo((): DiffRow[] => {
     const d = diffData();
     if (!d) return [];
-    const changes = diffLines(d.original, d.modified);
-    return buildRows(changes);
+    return createDiffRows(d.original, d.modified);
   });
 
-  const filteredRows = createMemo((): DiffRow[] => {
-    if (!changesOnly()) return rows();
-    const allRows = rows();
-    const changedIdx = new Set<number>();
-    allRows.forEach((row, i) => {
-      if (row.type !== "equal") {
-        for (
-          let c = Math.max(0, i - CONTEXT);
-          c <= Math.min(allRows.length - 1, i + CONTEXT);
-          c++
-        ) {
-          changedIdx.add(c);
-        }
-      }
-    });
-    return allRows.filter((_, i) => changedIdx.has(i));
+  const filteredRows = createMemo(() => {
+    return filterRowsWithContext(rows(), changesOnly(), DIFF_CONTEXT);
   });
 
   const stats = createMemo(() => {
-    const all = rows();
-    const added = all.filter((r) => r.type === "added" || r.type === "changed").length;
-    const removed = all.filter((r) => r.type === "removed" || r.type === "changed").length;
-    return { added, removed };
+    return getDiffStats(rows());
   });
 
   // eslint-disable-next-line no-unassigned-vars
@@ -178,30 +105,27 @@ export default function DiffApp() {
   let currentChangeIdx = -1;
 
   createEffect(() => {
-    const allRows = rows();
-    changeIndices = allRows.reduce<number[]>((acc, row, i) => {
-      if (row.type !== "equal") acc.push(i);
-      return acc;
-    }, []);
+    changeIndices = getChangeSourceIndices(rows());
     currentChangeIdx = -1;
   });
 
   function jumpToNextChange() {
     if (changeIndices.length === 0) return;
     currentChangeIdx = (currentChangeIdx + 1) % changeIndices.length;
-    const row = diffPanelRef?.querySelector(`[data-row="${changeIndices[currentChangeIdx]}"]`);
+    const targetSourceIndex = changeIndices[currentChangeIdx];
+    const row = diffPanelRef?.querySelector(`[data-source-row="${targetSourceIndex}"]`);
     row?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   return (
-    <div class="flex flex-col h-full overflow-hidden bg-dusk-bg">
+    <div class="flex flex-col h-full overflow-hidden bg-cat-bg">
       {/* Toolbar */}
-      <div class="flex items-center gap-3 flex-shrink-0 px-4 py-2 bg-dusk-surface border-b border-dusk-border">
-        <span class="font-mono text-xs text-dusk-amber font-semibold tracking-widest uppercase">
+      <div class="flex items-center gap-3 flex-shrink-0 px-4 py-2 bg-cat-surface0 border-b border-cat-surface1">
+        <span class="font-mono text-xs text-cat-blue font-semibold tracking-widest uppercase">
           Live diff
         </span>
         <span
-          class="font-mono text-xs text-dusk-subtle transition-opacity"
+          class="font-mono text-xs text-cat-overlay0 transition-opacity"
           style={{ opacity: pending() ? "1" : "0" }}
           aria-live="polite"
         >
@@ -220,7 +144,7 @@ export default function DiffApp() {
       {/* 3-column content row */}
       <div class="flex flex-1 min-h-0 overflow-hidden">
         {/* Left editor */}
-        <div class="flex flex-1 min-w-0 flex-col border-r border-dusk-border">
+        <div class="flex flex-1 min-w-0 flex-col border-r border-cat-surface1">
           <EditorPanel
             label="Original"
             value={leftContent()}
@@ -236,16 +160,16 @@ export default function DiffApp() {
         </div>
 
         {/* Center diff panel */}
-        <div class="flex flex-col border-r border-dusk-border" style="flex: 1.2; min-width: 0;">
+        <div class="flex flex-col border-r border-cat-surface1" style="flex: 1.2; min-width: 0;">
           {/* Diff panel header */}
-          <div class="flex items-center gap-3 flex-shrink-0 px-3 py-2 bg-dusk-surface border-b border-dusk-border">
-            <span class="font-mono text-xs text-dusk-muted uppercase tracking-widest">Diff</span>
+          <div class="flex items-center gap-3 flex-shrink-0 px-3 py-2 bg-cat-surface0 border-b border-cat-surface1">
+            <span class="font-mono text-xs text-cat-subtext0 uppercase tracking-widest">Diff</span>
             <Show when={diffData() && (stats().added > 0 || stats().removed > 0)}>
-              <span class="font-mono text-xs text-green-400">+{stats().added}</span>
-              <span class="font-mono text-xs text-red-400">-{stats().removed}</span>
+              <span class="font-mono text-xs text-cat-green">+{stats().added}</span>
+              <span class="font-mono text-xs text-cat-red">-{stats().removed}</span>
             </Show>
             <Show when={diffData() && stats().added === 0 && stats().removed === 0}>
-              <span class="font-mono text-xs text-dusk-subtle">Identical</span>
+              <span class="font-mono text-xs text-cat-overlay0">Identical</span>
             </Show>
             <div class="ml-auto flex items-center gap-2">
               <button
@@ -265,19 +189,17 @@ export default function DiffApp() {
                   onClick={() => setChangesOnly((v) => !v)}
                   class={[
                     "relative inline-flex w-8 h-4 border transition-colors",
-                    changesOnly()
-                      ? "bg-dusk-amber border-dusk-amber"
-                      : "bg-dusk-bg border-dusk-border",
+                    changesOnly() ? "bg-cat-blue border-cat-blue" : "bg-cat-bg border-cat-surface1",
                   ].join(" ")}
                 >
                   <span
                     class={[
-                      "absolute top-0.5 w-3 h-3 bg-dusk-bg transition-transform",
+                      "absolute top-0.5 w-3 h-3 bg-cat-bg transition-transform",
                       changesOnly() ? "translate-x-3.5" : "translate-x-0.5",
                     ].join(" ")}
                   />
                 </button>
-                <span class="font-mono text-xs text-dusk-muted">Changes only</span>
+                <span class="font-mono text-xs text-cat-subtext0">Changes only</span>
               </label>
             </div>
           </div>
@@ -287,7 +209,7 @@ export default function DiffApp() {
             <Show
               when={diffData()}
               fallback={
-                <div class="flex items-center justify-center h-full font-mono text-xs text-dusk-subtle">
+                <div class="flex items-center justify-center h-full font-mono text-xs text-cat-overlay0">
                   Start typing to compare.
                 </div>
               }
@@ -295,7 +217,7 @@ export default function DiffApp() {
               <Show
                 when={filteredRows().length > 0}
                 fallback={
-                  <div class="flex items-center justify-center h-full font-mono text-xs text-dusk-subtle">
+                  <div class="flex items-center justify-center h-full font-mono text-xs text-cat-overlay0">
                     No differences found.
                   </div>
                 }
@@ -308,11 +230,11 @@ export default function DiffApp() {
                     <col class="col-content" />
                   </colgroup>
                   <tbody>
-                    {filteredRows().map((row, i) => {
+                    {filteredRows().map(({ row, sourceIndex }, i) => {
                       const isRemoved = row.type === "removed" || row.type === "changed";
                       const isAdded = row.type === "added" || row.type === "changed";
                       return (
-                        <tr class="diff-row" data-row={i}>
+                        <tr class="diff-row" data-row={i} data-source-row={sourceIndex}>
                           <td
                             class={[
                               "diff-linenum",

@@ -1,5 +1,5 @@
+import { catppuccinMocha } from "@catppuccin/codemirror";
 import { Compartment, EditorState, type Extension } from "@codemirror/state";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { basicSetup, EditorView } from "codemirror";
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import LanguageSelector, { type Language } from "./LanguageSelector";
@@ -111,7 +111,7 @@ export default function EditorPanel(props: Props) {
       doc: props.value,
       extensions: [
         basicSetup,
-        vscodeDark,
+        catppuccinMocha,
         langCompartment.of([]),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
@@ -124,7 +124,7 @@ export default function EditorPanel(props: Props) {
     onCleanup(() => view?.destroy());
   });
 
-  // Reactively swap language extension (lazy-loaded per selection)
+  // Lazily swap the language extension whenever the selected mode changes.
   createEffect(() => {
     const lang = props.language;
     setLangLoading(true);
