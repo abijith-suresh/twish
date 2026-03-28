@@ -1,23 +1,24 @@
 import { For } from "solid-js";
-import { type Language, SUPPORTED_LANGUAGES } from "@/lib/language";
+import { type Language } from "@/lib/language";
 
-export const LANGUAGES = [
-  { value: SUPPORTED_LANGUAGES[0], label: "Plain text" },
-  { value: SUPPORTED_LANGUAGES[1], label: "JSON" },
-  { value: SUPPORTED_LANGUAGES[2], label: "YAML" },
-  { value: SUPPORTED_LANGUAGES[3], label: ".env" },
-  { value: SUPPORTED_LANGUAGES[4], label: "JavaScript" },
-  { value: SUPPORTED_LANGUAGES[5], label: "TypeScript" },
-  { value: SUPPORTED_LANGUAGES[6], label: "Python" },
-  { value: SUPPORTED_LANGUAGES[7], label: "Markdown" },
-  { value: SUPPORTED_LANGUAGES[8], label: "XML" },
-  { value: SUPPORTED_LANGUAGES[9], label: "HTML" },
+export const LANGUAGES: { value: Language; label: string }[] = [
+  { value: "text", label: "Plain text" },
+  { value: "json", label: "JSON" },
+  { value: "yaml", label: "YAML" },
+  { value: "env", label: ".env" },
+  { value: "javascript", label: "JavaScript" },
+  { value: "typescript", label: "TypeScript" },
+  { value: "python", label: "Python" },
+  { value: "markdown", label: "Markdown" },
+  { value: "xml", label: "XML" },
+  { value: "html", label: "HTML" },
 ];
 
 interface Props {
   value: Language;
   onChange: (lang: Language) => void;
   id: string;
+  loading?: boolean;
 }
 
 export default function LanguageSelector(props: Props) {
@@ -25,8 +26,9 @@ export default function LanguageSelector(props: Props) {
     <select
       id={props.id}
       value={props.value}
+      disabled={props.loading}
       onChange={(e) => props.onChange(e.target.value as Language)}
-      class="lang-select"
+      class={`lang-select${props.loading ? " opacity-50 cursor-not-allowed" : ""}`}
       aria-label="Select language"
     >
       <For each={LANGUAGES}>{(lang) => <option value={lang.value}>{lang.label}</option>}</For>

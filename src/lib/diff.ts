@@ -1,11 +1,14 @@
-import { type Change, diffLines } from "diff";
+import { type Change, diffLines, diffWords } from "diff";
 
 export interface DiffRow {
   left: string | null;
   right: string | null;
   leftLineNum: number | null;
   rightLineNum: number | null;
-  type: "equal" | "added" | "removed" | "changed";
+  type: "equal" | "added" | "removed" | "changed" | "separator";
+  /** HTML markup for intra-line word diff (only set for "changed" rows) */
+  leftHtml?: string;
+  rightHtml?: string;
 }
 
 export interface IndexedDiffRow {
@@ -19,6 +22,43 @@ export interface DiffStats {
 }
 
 export const DIFF_CONTEXT = 3;
+
+/**
+ * Escape a string for safe innerHTML insertion.
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Build intra-line word-level diff HTML for a pair of changed lines.
+ */
+function buildWordDiffHtml(
+  leftText: string,
+  rightText: string
+): { leftHtml: string; rightHtml: string } {
+  const wordChanges = diffWords(leftText, rightText);
+  let leftHtml = "";
+  let rightHtml = "";
+
+  for (const part of wordChanges) {
+    const escaped = escapeHtml(part.value);
+    if (part.removed) {
+      leftHtml += `<mark class="diff-word-removed">${escaped}</mark>`;
+    } else if (part.added) {
+      rightHtml += `<mark class="diff-word-added">${escaped}</mark>`;
+    } else {
+      leftHtml += escaped;
+      rightHtml += escaped;
+    }
+  }
+
+  return { leftHtml, rightHtml };
+}
 
 export function buildRows(changes: Change[]): DiffRow[] {
   const rows: DiffRow[] = [];
@@ -52,14 +92,24 @@ export function buildRows(changes: Change[]): DiffRow[] {
       for (let j = 0; j < maxLen; j++) {
         const hasLeft = j < removedLines.length;
         const hasRight = j < addedLines.length;
+        const rowType = hasLeft && hasRight ? "changed" : hasLeft ? "removed" : "added";
 
-        rows.push({
+        const row: DiffRow = {
           left: hasLeft ? removedLines[j] : null,
           right: hasRight ? addedLines[j] : null,
           leftLineNum: hasLeft ? leftLine++ : null,
           rightLineNum: hasRight ? rightLine++ : null,
-          type: hasLeft && hasRight ? "changed" : hasLeft ? "removed" : "added",
-        });
+          type: rowType,
+        };
+
+        // Add intra-line word diff for "changed" rows (both sides have content)
+        if (rowType === "changed" && row.left !== null && row.right !== null) {
+          const { leftHtml, rightHtml } = buildWordDiffHtml(row.left, row.right);
+          row.leftHtml = leftHtml;
+          row.rightHtml = rightHtml;
+        }
+
+        rows.push(row);
       }
 
       i += 2;
@@ -100,6 +150,23 @@ export function createDiffRows(original: string, modified: string): DiffRow[] {
   return buildRows(diffLines(original, modified));
 }
 
+/**
+ * Returns true if consecutive indexed rows have non-contiguous line numbers
+ * (indicating a gap caused by filtering).
+ */
+function hasGap(a: IndexedDiffRow, b: IndexedDiffRow): boolean {
+  // Check source indices — if they aren't adjacent, there's a gap.
+  return b.sourceIndex - a.sourceIndex > 1;
+}
+
+const SEPARATOR_ROW: DiffRow = {
+  left: null,
+  right: null,
+  leftLineNum: null,
+  rightLineNum: null,
+  type: "separator",
+};
+
 export function filterRowsWithContext(
   rows: DiffRow[],
   changesOnly: boolean,
@@ -125,7 +192,19 @@ export function filterRowsWithContext(
     }
   });
 
-  return indexedRows.filter(({ sourceIndex }) => changedIdx.has(sourceIndex));
+  const filtered = indexedRows.filter(({ sourceIndex }) => changedIdx.has(sourceIndex));
+
+  // Insert separator rows between non-contiguous hunks
+  const result: IndexedDiffRow[] = [];
+  for (let i = 0; i < filtered.length; i++) {
+    if (i > 0 && hasGap(filtered[i - 1], filtered[i])) {
+      // Use a sentinel sourceIndex that won't collide
+      result.push({ row: SEPARATOR_ROW, sourceIndex: -1 });
+    }
+    result.push(filtered[i]);
+  }
+
+  return result;
 }
 
 export function getDiffStats(rows: DiffRow[]): DiffStats {

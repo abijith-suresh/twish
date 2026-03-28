@@ -4,5 +4,18 @@ import AppLayout from "@/layouts/AppLayout.astro";
 ---
 
 <AppLayout title="twish — local config compare">
+  <!-- Mobile / narrow viewport warning (hidden above 900px) -->
+  <div
+    class="hidden max-[900px]:flex fixed inset-0 z-[200] bg-cat-bg flex-col items-center justify-center gap-4 p-8 text-center"
+  >
+    <div class="text-4xl" aria-hidden="true">🖥️</div>
+    <h1 class="text-cat-text font-semibold text-xl">Desktop browser required</h1>
+    <p class="text-cat-subtext0 max-w-sm">
+      twish is a desktop-first tool. Please open it in a wider browser window (at least 900px) for
+      the best experience.
+    </p>
+    <a href="/" class="text-cat-blue hover:underline text-sm">← Back to home</a>
+  </div>
+
   <DiffApp client:load />
 </AppLayout>
