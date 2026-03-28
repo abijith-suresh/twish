@@ -7,6 +7,7 @@ import {
   getChangeSourceIndices,
   getDiffStats,
 } from "@/lib/diff";
+import { prepareStructuredCompare } from "@/lib/structuredCompare";
 import EditorPanel from "./EditorPanel";
 import { type Language } from "./LanguageSelector";
 
@@ -85,10 +86,22 @@ export default function DiffApp() {
     onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
   });
 
-  const rows = createMemo((): DiffRow[] => {
+  const preparedCompare = createMemo(() => {
     const d = diffData();
-    if (!d) return [];
-    return createDiffRows(d.original, d.modified);
+    if (!d) return null;
+
+    return prepareStructuredCompare({
+      original: d.original,
+      modified: d.modified,
+      leftLanguage: leftLang(),
+      rightLanguage: rightLang(),
+    });
+  });
+
+  const rows = createMemo((): DiffRow[] => {
+    const prepared = preparedCompare();
+    if (!prepared) return [];
+    return createDiffRows(prepared.original, prepared.modified);
   });
 
   const filteredRows = createMemo(() => {
@@ -164,6 +177,9 @@ export default function DiffApp() {
           {/* Diff panel header */}
           <div class="flex items-center gap-3 flex-shrink-0 px-3 py-2 bg-cat-surface0 border-b border-cat-surface1">
             <span class="font-mono text-xs text-cat-subtext0 uppercase tracking-widest">Diff</span>
+            <Show when={preparedCompare()?.strategy === "json"}>
+              <span class="font-mono text-xs text-cat-blue">Normalized JSON</span>
+            </Show>
             <Show when={diffData() && (stats().added > 0 || stats().removed > 0)}>
               <span class="font-mono text-xs text-cat-green">+{stats().added}</span>
               <span class="font-mono text-xs text-cat-red">-{stats().removed}</span>
@@ -206,6 +222,14 @@ export default function DiffApp() {
 
           {/* Diff table */}
           <div ref={diffPanelRef} class="flex-1 min-h-0 overflow-auto font-mono text-xs">
+            <Show when={(preparedCompare()?.errors.length ?? 0) > 0}>
+              <div class="border-b border-cat-surface1 bg-cat-bg px-3 py-2 font-mono text-[11px] text-cat-red">
+                Falling back to raw text diff.{" "}
+                {preparedCompare()
+                  ?.errors.map((error) => `${error.side}: ${error.message}`)
+                  .join(" | ")}
+              </div>
+            </Show>
             <Show
               when={diffData()}
               fallback={
