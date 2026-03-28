@@ -7,9 +7,9 @@ import {
   getChangeSourceIndices,
   getDiffStats,
 } from "@/lib/diff";
+import { type Language } from "@/lib/language";
 import { prepareStructuredCompare } from "@/lib/structuredCompare";
 import EditorPanel from "./EditorPanel";
-import { type Language } from "./LanguageSelector";
 
 export default function DiffApp() {
   const [leftContent, setLeftContent] = createSignal("");

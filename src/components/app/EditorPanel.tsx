@@ -2,7 +2,9 @@ import { catppuccinMocha } from "@catppuccin/codemirror";
 import { Compartment, EditorState, type Extension } from "@codemirror/state";
 import { basicSetup, EditorView } from "codemirror";
 import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
-import LanguageSelector, { type Language } from "./LanguageSelector";
+import { detectLanguage } from "@/lib/languageDetection";
+import { type Language } from "@/lib/language";
+import LanguageSelector from "./LanguageSelector";
 
 async function loadExtensions(lang: Language): Promise<Extension[]> {
   switch (lang) {
@@ -69,6 +71,7 @@ export default function EditorPanel(props: Props) {
       const text = e.target?.result;
       if (typeof text === "string") {
         props.onValueChange(text);
+        props.onLanguageChange(detectLanguage({ filename: file.name, content: text }));
       }
     };
     reader.readAsText(file);
