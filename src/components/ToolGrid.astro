@@ -1,0 +1,10 @@
+---
+import { tools } from "@/tools/registry";
+import ToolCard from "@/components/ToolCard.astro";
+---
+
+<section class="w-full">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {tools.map((tool) => <ToolCard tool={tool} />)}
+  </div>
+</section>

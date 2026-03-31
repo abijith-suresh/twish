@@ -1,85 +1,109 @@
 ---
-import FeatureCard from "@/components/landing/FeatureCard.astro";
-import Hero from "@/components/landing/Hero.astro";
-import MarketingLayout from "@/layouts/MarketingLayout.astro";
-
-const features = [
-  {
-    num: "01",
-    icon: "⇄",
-    title: "Live config diff",
-    description:
-      "Compare config files, code, and text instantly as you type, paste, or load local files.",
-  },
-  {
-    num: "02",
-    icon: "{}",
-    title: "Structured-file friendly",
-    description:
-      "Built for JSON, YAML, .env files, and other text-based config workflows where ordering and context matter.",
-  },
-  {
-    num: "03",
-    icon: "↓",
-    title: "Local file input",
-    description:
-      "Paste, drag and drop, or use the native file picker without sending file contents anywhere.",
-  },
-  {
-    num: "04",
-    icon: "⊘",
-    title: "Fully offline",
-    description: "Works with zero internet after the first visit. Install it as a desktop app.",
-  },
-  {
-    num: "05",
-    icon: "⌨",
-    title: "Desktop-first workflow",
-    description:
-      "Live diff keeps the compare loop fast while keyboard shortcuts keep file loading and reset actions in reach.",
-  },
-  {
-    num: "06",
-    icon: "⚿",
-    title: "Private by design",
-    description:
-      "No server, no uploads, no analytics. Everything runs in your browser and stays there.",
-  },
-];
+import Base from "@/layouts/Base.astro";
+import ToolGrid from "@/components/ToolGrid.astro";
+import CommandPalette from "@/components/CommandPalette";
+import ThemePicker from "@/components/ThemePicker";
 ---
 
-<MarketingLayout title="twish — local config compare tool">
-  <Hero />
-
-  <section class="px-6 pb-24">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="font-[Manrope,sans-serif] font-bold text-2xl text-cat-text mb-8">
-        Built for everyday config compare work
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-cat-surface1">
-        {
-          features.map((f) => (
-            <FeatureCard title={f.title} description={f.description} icon={f.icon} num={f.num} />
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="border-t border-cat-surface1 px-6 py-20">
-    <div class="max-w-lg mx-auto">
-      <h2 class="font-[Manrope,sans-serif] font-bold text-3xl text-cat-text mb-3">
-        Ready to compare locally?
-      </h2>
-      <p class="font-[Manrope,sans-serif] text-cat-subtext0 mb-8">
-        No sign-up. No file uploads. Just load two files and inspect the diff.
-      </p>
+<Base title="unwrapped.tools">
+  <div
+    style="display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--bg-primary);"
+  >
+    <!-- Header -->
+    <header
+      style="
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.5rem;
+        height: 3.5rem;
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border);
+      "
+    >
       <a
-        href="/app"
-        class="inline-block font-[Manrope,sans-serif] text-sm font-semibold text-cat-blue border border-cat-blue hover:bg-cat-blue hover:text-cat-bg transition-colors px-6 py-3 no-underline"
+        href="/"
+        style="font-weight: 700; color: var(--text-primary); text-decoration: none; font-size: 1.05rem; letter-spacing: -0.01em;"
       >
-        Open the diff tool
+        unwrapped.tools
       </a>
-    </div>
-  </section>
-</MarketingLayout>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <ThemePicker client:load />
+        <CommandPalette client:load />
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main style="flex: 1;">
+      <!-- Hero -->
+      <section
+        style="
+          text-align: center;
+          padding: 4rem 1.5rem 3rem;
+          max-width: 640px;
+          margin: 0 auto;
+        "
+      >
+        <h1
+          style="
+            font-size: clamp(1.75rem, 5vw, 2.75rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 1rem;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+          "
+        >
+          Developer tools, unwrapped.
+        </h1>
+        <p
+          style="
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.6;
+          "
+        >
+          Fast, local-first tools for everyday dev work. No server, no uploads, no tracking.
+        </p>
+      </section>
+
+      <!-- Tool grid -->
+      <div
+        style="
+          max-width: 72rem;
+          margin: 0 auto;
+          padding: 0 1.5rem 4rem;
+        "
+      >
+        <ToolGrid />
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      style="
+        border-top: 1px solid var(--border);
+        padding: 1.25rem 1.5rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      "
+    >
+      <p style="margin: 0;">
+        MIT License &middot;
+        <a
+          href="https://github.com/abijith-suresh/unwrapped-tools"
+          style="color: var(--accent-primary); text-decoration: none;"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+      </p>
+    </footer>
+  </div>
+</Base>

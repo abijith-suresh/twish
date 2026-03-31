@@ -1,0 +1,35 @@
+---
+import { getToolBySlug, tools } from "@/tools/registry";
+import ToolShell from "@/components/ToolShell.astro";
+
+export function getStaticPaths() {
+  return tools.map((tool) => ({
+    params: { slug: tool.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const tool = getToolBySlug(slug);
+
+if (!tool) {
+  return Astro.redirect("/");
+}
+---
+
+<ToolShell tool={tool}>
+  <!-- Tool components will be added in later phases -->
+  <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+    <p
+      style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;"
+    >
+      {tool.name}
+    </p>
+    <p>This tool is coming soon.</p>
+    <a
+      href="/"
+      style="color: var(--accent-primary); text-decoration: none; margin-top: 1rem; display: inline-block;"
+    >
+      &larr; Back to all tools
+    </a>
+  </div>
+</ToolShell>

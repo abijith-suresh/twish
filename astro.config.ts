@@ -3,24 +3,23 @@ import solid from "@astrojs/solid-js";
 import { defineConfig } from "astro/config";
 import AstroPWA from "@vite-pwa/astro";
 
-// https://astro.build/config
 export default defineConfig({
-  site: "https://twish.vercel.app",
+  site: "https://unwrapped-tools.vercel.app",
   integrations: [
     solid(),
     AstroPWA({
       registerType: "autoUpdate",
       manifest: {
-        id: "/app/",
-        name: "Twish",
-        short_name: "Twish",
+        id: "/",
+        name: "unwrapped.tools",
+        short_name: "unwrapped",
         description:
-          "Desktop-first, local-first config compare tool for JSON, YAML, env files, code, and text.",
-        theme_color: "#1e1e2e",
-        background_color: "#1e1e2e",
+          "A collection of fast, local-first developer tools. No server, no uploads, no tracking.",
+        theme_color: "#282a36",
+        background_color: "#282a36",
         display: "standalone",
-        start_url: "/app/",
-        scope: "/app/",
+        start_url: "/",
+        scope: "/",
         icons: [
           {
             src: "/icons/icon-192.png",
@@ -36,7 +35,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        navigateFallback: "/app/",
+        navigateFallback: "/",
       },
     }),
   ],
@@ -48,8 +47,5 @@ export default defineConfig({
         "@": "/src",
       },
     },
-    // Bundle isolation verified: marketing pages (/, /features, /about, /docs, /changelog)
-    // load zero JS. CodeMirror and SolidJS chunks are referenced only from /app.
-    // No manualChunks needed — Astro's default Vite splitting handles this correctly.
   },
 });

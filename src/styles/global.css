@@ -1,162 +1,77 @@
-@import "@fontsource-variable/manrope";
-@import "@fontsource/jetbrains-mono";
 @import "tailwindcss";
+@import "./themes.css";
 
-@theme {
-  /* Catppuccin Mocha Theme - https://catppuccin.com/palette */
-  --color-cat-bg: #1e1e2e;
-  --color-cat-surface0: #313244;
-  --color-cat-surface1: #45475a;
-  --color-cat-surface2: #585b70;
-  --color-cat-text: #cdd6f4;
-  --color-cat-subtext0: #a6adc8;
-  --color-cat-overlay0: #6c7086;
-  --color-cat-blue: #89b4fa;
-  --color-cat-lavender: #b4befe;
-  --color-cat-mauve: #cba6f7;
-  --color-cat-pink: #f5c2e7;
-  --color-cat-green: #a6e3a1;
-  --color-cat-red: #f38ba8;
-  --font-manrope: "Manrope", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+@font-face {
+  font-family: "Manrope Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2")
+    format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-@layer components {
-  /* ── App shell ───────────────────────────────────────── */
-  .diff-app {
-    @apply flex flex-col h-full overflow-hidden;
-  }
-  .diff-editors {
-    @apply flex flex-1 min-h-0 overflow-hidden;
-  }
-  .diff-panel {
-    @apply flex-1 min-h-0 flex flex-col;
-  }
-  .diff-panel--right {
-    @apply border-l border-cat-surface1;
-  }
-  .diff-output {
-    @apply flex-1 min-h-0 overflow-auto border-t border-cat-surface1;
-  }
-  .diff-hint {
-    @apply flex-shrink-0 flex items-center justify-center p-5 font-mono text-xs text-cat-overlay0;
-  }
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2")
+    format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
-  /* ── Toolbar ─────────────────────────────────────────── */
-  .toolbar {
-    @apply flex items-center gap-2 flex-shrink-0 px-4 py-2 bg-cat-surface0 border-b border-cat-surface1;
-  }
-  .btn-compare {
-    @apply flex items-center gap-2 bg-transparent text-cat-blue border border-cat-blue hover:bg-cat-blue hover:text-cat-bg transition-colors px-3 py-1.5 font-sans text-sm font-semibold cursor-pointer;
-  }
-  .btn-secondary {
-    @apply bg-transparent text-cat-subtext0 border border-cat-surface1 hover:text-cat-text hover:border-cat-subtext0 transition-colors px-3 py-1.5 font-sans text-sm font-medium cursor-pointer;
-  }
-  .kbd {
-    @apply font-mono text-[0.6rem] bg-cat-bg text-cat-overlay0 border border-cat-surface1 px-1.5 py-0.5;
-  }
+@theme {
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
 
-  /* ── Editor panel ────────────────────────────────────── */
-  .editor-panel {
-    @apply flex flex-col flex-1 min-h-0 border border-cat-surface1 overflow-hidden;
-  }
-  .editor-header {
-    @apply flex items-center justify-between flex-shrink-0 px-3 py-2 bg-cat-surface0 border-b border-cat-surface1;
-  }
-  .editor-label {
-    @apply font-mono text-xs uppercase tracking-widest text-cat-subtext0;
-  }
-  .editor-drop-zone {
-    @apply relative flex-1 min-h-0;
-  }
-  .editor-drop-overlay {
-    @apply absolute inset-0 z-10 flex items-center justify-center bg-cat-blue/20 border-2 border-dashed border-cat-blue pointer-events-none;
-  }
-  .editor-drop-label {
-    @apply font-mono text-sm uppercase tracking-widest text-cat-blue;
-  }
-  .editor-lang-loading {
-    @apply absolute top-2 right-2 z-10 font-mono text-xs text-cat-subtext0 pointer-events-none;
-  }
-  .editor-cm-host {
-    @apply h-full;
-  }
-  .editor-footer {
-    @apply flex-shrink-0 px-3 py-2 bg-cat-surface0 border-t border-cat-surface1;
-  }
-  .editor-open-btn {
-    @apply font-mono text-xs text-cat-overlay0 hover:text-cat-subtext0 underline underline-offset-2 bg-transparent border-none cursor-pointer;
-  }
-  .lang-select {
-    @apply font-mono text-xs bg-cat-bg text-cat-subtext0 border border-cat-surface1 px-2 py-1 cursor-pointer outline-none focus:border-cat-blue;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-  /* ── Diff output ─────────────────────────────────────── */
-  .diff-empty {
-    @apply flex items-center justify-center p-12 font-mono text-sm text-cat-subtext0;
-  }
-  .diff-wrap {
-    @apply flex flex-col min-h-0;
-  }
-  .diff-stats {
-    @apply flex items-center gap-4 flex-shrink-0 px-4 py-1.5 bg-cat-surface0 border-b border-cat-surface1 font-mono text-xs;
-  }
-  .diff-stats-label {
-    @apply font-bold tracking-widest text-cat-subtext0 uppercase;
-  }
-  .diff-added {
-    @apply text-cat-green font-bold;
-  }
-  .diff-removed {
-    @apply text-cat-red font-bold;
-  }
-  .diff-identical {
-    @apply text-cat-overlay0;
-  }
-  .diff-table-wrap {
-    @apply flex-1 overflow-auto font-mono text-xs;
-  }
-  .diff-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .col-linenum {
-    width: 2.5rem;
-  }
-  .col-content {
-    width: calc(50% - 2.5rem);
-  }
-  .diff-row {
-    @apply border-b border-cat-surface1/30;
-  }
-  .diff-linenum {
-    @apply select-none px-2 py-0.5 text-right text-cat-overlay0 bg-cat-surface0 whitespace-nowrap;
-  }
-  .diff-linenum--removed {
-    @apply bg-red-950/50 text-cat-red;
-  }
-  .diff-linenum--added {
-    @apply bg-green-950/40 text-cat-green;
-  }
-  .diff-content {
-    @apply px-3 py-0.5 whitespace-pre text-cat-text;
-  }
-  .diff-content--removed {
-    @apply bg-red-950/40 text-red-300;
-  }
-  .diff-content--added {
-    @apply bg-green-950/30 text-green-300;
-  }
-  .diff-cell--empty {
-    @apply bg-cat-bg;
-  }
-  .diff-marker {
-    @apply mr-1.5 font-bold;
-  }
-  .diff-marker--removed {
-    @apply text-cat-red;
-  }
-  .diff-marker--added {
-    @apply text-cat-green;
-  }
+html {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Utility: monospace text */
+.font-code {
+  font-family: var(--font-mono);
 }

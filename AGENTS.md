@@ -6,9 +6,11 @@ This is the canonical instruction file for AI agents and contributors. `CLAUDE.m
 
 ## Project Overview
 
-**twish** is a desktop-first, local-first PWA for comparing config files, code, and plain text. No server, no uploads, no tracking.
+**unwrapped.tools** is a desktop-first, local-first PWA — a collection of fast developer tools. No server, no uploads, no tracking.
 
-Stack: Astro 5 · SolidJS · Tailwind CSS v4 · CodeMirror 6 · TypeScript strict · Bun
+Stack: Astro 5 · SolidJS · Tailwind CSS v4 · TypeScript strict · Bun
+
+Deployment: Vercel · Domain: unwrapped.tools (pending)
 
 ---
 
@@ -17,34 +19,50 @@ Stack: Astro 5 · SolidJS · Tailwind CSS v4 · CodeMirror 6 · TypeScript stric
 ```
 src/
 ├── components/
-│   ├── layout/
-│   │   ├── Header.astro          # Top nav — logo + page links + GitHub link
-│   │   └── Footer.astro          # Minimal footer
-│   ├── landing/
-│   │   ├── Hero.astro            # Landing page hero section
-│   │   └── FeatureCard.astro     # Reusable feature highlight card
-│   └── app/                      # Solid components (client-side only)
-│       ├── DiffApp.tsx           # Root state manager
-│       ├── EditorPanel.tsx       # CodeMirror editor + drag-and-drop + file open
-│       ├── LanguageSelector.tsx  # Language dropdown for syntax highlighting
-│       ├── DiffView.tsx          # Legacy diff renderer (candidate for removal)
-│       └── Toolbar.tsx           # Legacy toolbar (candidate for removal)
+│   ├── CommandPalette.tsx    # SolidJS, global Cmd+K palette
+│   ├── ThemePicker.tsx       # SolidJS, 4-theme switcher
+│   ├── CopyButton.tsx        # SolidJS, reusable copy button
+│   ├── ToolGrid.astro        # Homepage tool grid (reads registry)
+│   ├── ToolCard.astro        # Individual tool card
+│   └── ToolShell.astro       # Per-tool wrapper: title, meta, breadcrumb
 ├── layouts/
-│   ├── BaseLayout.astro          # HTML shell, meta, OG tags, PWA manifest
-│   ├── MarketingLayout.astro     # BaseLayout + Header + Footer
-│   └── AppLayout.astro           # BaseLayout + minimal Header (full-screen tool)
+│   └── Base.astro            # Single HTML shell (replaces 3 old layouts)
 ├── pages/
-│   ├── index.astro               # / — Landing page
-│   ├── features.astro            # /features
-│   ├── about.astro               # /about
-│   ├── docs.astro                # /docs
-│   ├── changelog.astro           # /changelog
-│   └── app.astro                 # /app — the diff tool
-├── styles/
-│   └── global.css                # Tailwind import + custom theme vars
-├── test/
-│   └── setup.ts                  # Vitest setup
-└── env.d.ts                      # Astro type reference
+│   ├── index.astro           # / — Homepage
+│   └── tools/
+│       └── [slug].astro      # /tools/[slug] — Dynamic route (all tools)
+├── tools/
+│   ├── registry.ts           # SINGLE SOURCE OF TRUTH — all tool metadata
+│   ├── jwt-decoder/
+│   │   └── JwtDecoder.tsx    # Phase 1
+│   ├── diff/
+│   │   └── DiffTool.tsx      # Phase 2
+│   ├── base64/
+│   │   └── Base64Tool.tsx    # Phase 3
+│   ├── json-formatter/
+│   │   └── JsonFormatter.tsx # Phase 3
+│   ├── hash-generator/
+│   │   └── HashGenerator.tsx # Phase 4
+│   ├── uuid-generator/
+│   │   └── UuidGenerator.tsx # Phase 4
+│   ├── timestamp/
+│   │   └── TimestampTool.tsx # Phase 4
+│   └── regex-tester/
+│       └── RegexTester.tsx   # Phase 5
+├── lib/
+│   ├── diff.ts               # Diff engine (Myers algorithm via diff npm)
+│   ├── diff.test.ts
+│   ├── structuredCompare.ts  # JSON/YAML/env normalization
+│   ├── structuredCompare.test.ts
+│   ├── languageDetection.ts  # File language heuristics
+│   ├── languageDetection.test.ts
+│   ├── language.ts           # Language type + constants
+│   ├── search.ts             # Fuzzy search for command palette
+│   ├── clipboard.ts          # Copy to clipboard utility
+│   └── theme.ts              # Theme persistence (localStorage)
+└── styles/
+    ├── themes.css            # 4 theme palettes as CSS custom properties
+    └── global.css            # Resets, typography, Tailwind import
 ```
 
 ---
@@ -63,33 +81,77 @@ src/
 | `bun run format:check` | Check formatting without writing   |
 | `bun run test`         | Run tests once                     |
 | `bun run test:watch`   | Run tests in watch mode            |
-| `bun run test:ui`      | Open Vitest UI                     |
+
+---
+
+## Theme System
+
+Four CSS palettes defined in `src/styles/themes.css` as `:root[data-theme="..."]` selectors.
+
+Available themes: `dracula` (default) · `catppuccin` · `nord` · `gruvbox`
+
+CSS custom properties (use these in all components):
+
+- `--bg-primary`, `--bg-secondary`, `--bg-tertiary`
+- `--text-primary`, `--text-secondary`, `--text-muted`
+- `--accent-primary`, `--accent-secondary`
+- `--accent-success`, `--accent-warning`, `--accent-error`
+- `--border`
+
+Theme is persisted in `localStorage` under key `unwrapped-theme`. An inline script in `Base.astro` sets `data-theme` before first paint to prevent flash.
+
+---
+
+## Tool Registry
+
+`src/tools/registry.ts` is the **single source of truth** for all tools. To add a new tool:
+
+1. Add an entry to the `tools` array in `registry.ts`
+2. Create `src/tools/[slug]/ToolName.tsx` (SolidJS component)
+3. Add the import + render in `src/pages/tools/[slug].astro`
+
+Never hardcode tool metadata anywhere else.
 
 ---
 
 ## Tailwind CSS v4
 
-- **No `tailwind.config.*` file** — configuration is done in CSS
-- **Import in CSS**: `@import "tailwindcss"` in `src/styles/global.css`
-- **Custom theme**: Use `@theme` block in `global.css` instead of a JS config file
-- **Vite plugin**: `@tailwindcss/vite` in `astro.config.ts`
+- **No `tailwind.config.*` file** — configuration is in CSS
+- **Import**: `@import "tailwindcss"` in `src/styles/global.css`
+- **Custom theme**: `@theme` block in `global.css`
+- **Arbitrary CSS vars**: Use `bg-[var(--bg-secondary)]` pattern in class names, or inline `style` attributes with `var(--...)` for complex theming
 
 ---
 
 ## TypeScript
 
 - **Strict mode** via `astro/tsconfigs/strict`
-- **Path alias**: `@` maps to `src/` — use `@/components/Foo.astro` instead of relative paths
+- **Path alias**: `@` maps to `src/`
 
 ---
 
-## Solid Components (in `/app`)
+## Solid Components
 
-All interactive app components live in `src/components/app/` and are loaded with `client:load` in `src/pages/app.astro`.
+All tool components are SolidJS `.tsx` files loaded with `client:load`.
 
-- State is managed in `DiffApp.tsx` — pass props/callbacks down; don't use a state library
-- Keep components focused; avoid putting business logic in Astro files
-- The diff engine (`diff` package) is called in `DiffApp.tsx` only
+- Use `createSignal`, `createEffect`, `onMount`, `onCleanup`, `For`, `Show`, etc.
+- Props flow down; no global state library
+- Keep business logic in `src/lib/`, not in components
+
+---
+
+## Dependency Decisions
+
+| Need                              | Solution                          | Why                               |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| Diff algorithm                    | `diff` npm package                | Myers diff is solved CS           |
+| JWT decoding                      | Hand-rolled                       | Just `atob()` + padding fix       |
+| Hashing                           | Web Crypto API                    | Native browser                    |
+| UUID                              | `crypto.randomUUID()`             | Native browser                    |
+| Icons                             | `lucide-solid`                    | Tree-shakeable, developer-focused |
+| Themes                            | CSS custom properties             | Zero JS, zero runtime             |
+| Fuzzy search                      | Hand-rolled (`src/lib/search.ts`) | 30 lines, fast for 50 tools       |
+| Syntax highlight (JSON formatter) | `shiki` (Phase 3)                 | Zero runtime, VS Code quality     |
 
 ---
 
@@ -97,30 +159,7 @@ All interactive app components live in `src/components/app/` and are loaded with
 
 Config: `eslint.config.ts` (flat config format)
 
-Key rules:
-
-- `no-console`: warn (allows `console.warn` and `console.error`)
-- `sort-imports`: error (case-insensitive, declaration sort ignored)
-- `@typescript-eslint/no-unused-vars`: error (ignores `_`-prefixed names)
-- `prefer-const`, `no-var`: error
-
----
-
-## Prettier
-
-Config: `.prettierrc`
-
-- `printWidth: 100`, `singleQuote: false`, `trailingComma: "es5"`
-- Astro plugin enabled for `.astro` files
-
----
-
-## Testing (Vitest)
-
-- **Environment**: jsdom
-- **Globals**: enabled
-- **Test files**: `src/**/*.{test,spec}.{js,ts}`
-- Utility functions (diff logic, language detection) should have unit tests
+Key rules: `no-console` (warn), `sort-imports` (error), `@typescript-eslint/no-unused-vars` (error, ignores `_`-prefixed), `prefer-const`, `no-var` (error)
 
 ---
 
@@ -128,61 +167,27 @@ Config: `.prettierrc`
 
 ### Commit Convention
 
-Uses [Conventional Commits](https://www.conventionalcommits.org/).
+[Conventional Commits](https://www.conventionalcommits.org/): `<type>(<scope>): <description>`
 
 Allowed types: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`
-
-Format: `<type>(<optional scope>): <description>`
 
 ### Branch Naming
 
 ```
 feat/<short-description>
 fix/<short-description>
-docs/<short-description>
-chore/<short-description>
 ```
 
 ### PR Flow
 
-1. Branch from `main`
-2. Commit with conventional format
-3. Push and open PR against `main`
-4. CI must pass
-5. No reviewers required — self-merge is fine
-6. Squash merge preferred
+Branch from `main` → commit → push → PR → CI must pass → squash merge
 
-**Direct pushes to `main` are blocked by a branch ruleset.**
+**Direct pushes to `main` are blocked.**
 
 ---
 
 ## CI/CD
 
-### `ci.yml`
-
-Triggered on push to `main` and all PRs. Runs type-check, lint, format check, test, build.
-
-### Production deploy
-
-Production is hosted on Vercel at `https://twish.vercel.app`.
-
-### `audit.yml`
-
-Runs weekly. Audits production dependencies with `bun audit --prod`.
-
----
-
-## PWA
-
-- **Manifest**: defined in `astro.config.ts` via `@vite-pwa/astro`
-- **Icons**: `public/icons/icon-192.png` and `public/icons/icon-512.png`
-- **Service worker**: Workbox cache-first strategy for all static assets
-- **Offline**: app must work fully offline after first load
-
----
-
-## DevContainer
-
-- **Base image**: `node:24-slim` with Bun and GitHub CLI
-- **Port**: 4321 forwarded for Astro dev server
-- **Post-create**: `bun install` runs automatically
+- `ci.yml`: type-check, lint, format check, test, build on push/PR to main
+- `audit.yml`: weekly bun audit --prod
+- Production: Vercel at `https://unwrapped-tools.vercel.app` (domain: unwrapped.tools pending)
