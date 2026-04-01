@@ -1,109 +1,203 @@
 ---
-import Base from "@/layouts/Base.astro";
-import ToolGrid from "@/components/ToolGrid.astro";
-import CommandPalette from "@/components/CommandPalette";
-import ThemePicker from "@/components/ThemePicker";
+import EditorShell from "@/layouts/EditorShell.astro";
+import { tools } from "@/tools/registry";
+import type { ToolCategory } from "@/tools/registry";
+
+const catColor: Record<ToolCategory, string> = {
+  security: "var(--accent-error)",
+  text: "var(--accent-primary)",
+  encoding: "var(--accent-secondary)",
+  data: "var(--accent-secondary)",
+  generators: "var(--accent-success)",
+  time: "var(--accent-warning)",
+  network: "var(--accent-primary)",
+};
+
+// Build camelCase JS identifier from slug
+function toCamelCase(slug: string): string {
+  return slug
+    .split("-")
+    .map((part, i) => (i === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)))
+    .join("");
+}
 ---
 
-<Base title="unwrapped.tools">
-  <div
-    style="display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--bg-primary);"
-  >
-    <!-- Header -->
-    <header
-      style="
-        position: sticky;
-        top: 0;
-        z-index: 40;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 1.5rem;
-        height: 3.5rem;
-        background-color: var(--bg-primary);
-        border-bottom: 1px solid var(--border);
-      "
-    >
-      <a
-        href="/"
-        style="font-weight: 700; color: var(--text-primary); text-decoration: none; font-size: 1.05rem; letter-spacing: -0.01em;"
-      >
-        unwrapped.tools
-      </a>
-      <div style="display: flex; align-items: center; gap: 1rem;">
-        <ThemePicker client:load />
-        <CommandPalette client:load />
+<EditorShell title="unwrapped.tools">
+  <div class="readme-pane">
+    <!-- Syntax-highlighted code block -->
+    <pre
+      class="code-block"><code><!-- line 1 --><span class="tok-kw">import</span> <span class="tok-punct">{"{"}</span> <span class="tok-id">unwrapped</span> <span class="tok-punct">{"}"}</span> <span class="tok-kw">from</span> <span class="tok-str">"unwrapped.tools"</span><span class="tok-punct">;</span>
+<!-- line 2 -->&nbsp;
+<!-- line 3 --><span class="tok-comment">// Fast, local-first developer tools.</span>
+<!-- line 4 --><span class="tok-comment">// No server. No uploads. No tracking.</span>
+<!-- line 5 -->&nbsp;
+<!-- line 6 --><span class="tok-kw">const</span> <span class="tok-id">tools</span> <span class="tok-punct">=</span> <span class="tok-punct">{"{"}</span>
+{tools.map((tool) => (
+<a href={`/tools/${tool.slug}`} class="code-line-link">  <span class="tok-id">{toCamelCase(tool.slug)}</span><span class="tok-punct">:</span> <span class="tok-punct">{"{"}</span> <span class="tok-cat" style={`color: ${catColor[tool.category]}`}>[{tool.category}]</span> <span class="tok-str">"{tool.name}"</span> <span class="tok-punct">{"}"}</span><span class="tok-punct">,</span>
+</a>
+))}<span class="tok-punct">{"}"}</span><span class="tok-punct">;</span>
+&nbsp;
+<span class="tok-cursor">▌</span></code></pre>
+
+    <!-- Tool reference list -->
+    <div class="tool-ref">
+      <div class="tool-ref-header">
+        <span class="tok-comment">// Tool Reference</span>
       </div>
-    </header>
-
-    <!-- Main content -->
-    <main style="flex: 1;">
-      <!-- Hero -->
-      <section
-        style="
-          text-align: center;
-          padding: 4rem 1.5rem 3rem;
-          max-width: 640px;
-          margin: 0 auto;
-        "
-      >
-        <h1
-          style="
-            font-size: clamp(1.75rem, 5vw, 2.75rem);
-            font-weight: 800;
-            color: var(--text-primary);
-            margin: 0 0 1rem;
-            letter-spacing: -0.03em;
-            line-height: 1.15;
-          "
-        >
-          Developer tools, unwrapped.
-        </h1>
-        <p
-          style="
-            font-size: 1.05rem;
-            color: var(--text-muted);
-            margin: 0;
-            line-height: 1.6;
-          "
-        >
-          Fast, local-first tools for everyday dev work. No server, no uploads, no tracking.
-        </p>
-      </section>
-
-      <!-- Tool grid -->
-      <div
-        style="
-          max-width: 72rem;
-          margin: 0 auto;
-          padding: 0 1.5rem 4rem;
-        "
-      >
-        <ToolGrid />
-      </div>
-    </main>
-
-    <!-- Footer -->
-    <footer
-      style="
-        border-top: 1px solid var(--border);
-        padding: 1.25rem 1.5rem;
-        text-align: center;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-      "
-    >
-      <p style="margin: 0;">
-        MIT License &middot;
-        <a
-          href="https://github.com/abijith-suresh/unwrapped-tools"
-          style="color: var(--accent-primary); text-decoration: none;"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>
-      </p>
-    </footer>
+      {
+        tools.map((tool) => (
+          <a href={`/tools/${tool.slug}`} class="tool-ref-row">
+            <span class="tool-ref-cat" style={`color: ${catColor[tool.category]}`}>
+              [{tool.category}]
+            </span>
+            <span class="tool-ref-name">{tool.slug}.ts</span>
+            <span class="tool-ref-sep">—</span>
+            <span class="tool-ref-desc">{tool.description}</span>
+          </a>
+        ))
+      }
+    </div>
   </div>
-</Base>
+</EditorShell>
+
+<style>
+  .readme-pane {
+    padding: 1.5rem 2rem;
+    min-height: 100%;
+    font-family: var(--font-mono);
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    margin: 0 0 2rem;
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.75;
+    color: var(--text-primary);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .code-block code {
+    display: block;
+  }
+
+  /* Token colours */
+  .tok-kw {
+    color: var(--accent-primary);
+  }
+  .tok-id {
+    color: var(--text-primary);
+  }
+  .tok-str {
+    color: var(--accent-success);
+  }
+  .tok-comment {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .tok-punct {
+    color: var(--text-secondary);
+  }
+
+  /* Blinking cursor */
+  .tok-cursor {
+    color: var(--accent-primary);
+    animation: blink 1.1s step-start infinite;
+  }
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* Clickable import lines */
+  .code-line-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 2px;
+    transition: background-color 0.1s;
+  }
+  .code-line-link:hover {
+    background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  }
+
+  /* ── TOOL REFERENCE ── */
+  .tool-ref {
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+  }
+
+  .tool-ref-header {
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .tool-ref-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: inherit;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    transition: background-color 0.1s;
+  }
+  .tool-ref-row:hover {
+    background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  }
+
+  .tool-ref-cat {
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .tool-ref-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .tool-ref-sep {
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .tool-ref-desc {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .readme-pane {
+      padding: 1rem;
+    }
+
+    .code-block {
+      font-size: 0.78rem;
+    }
+
+    .tool-ref-desc {
+      display: none;
+    }
+
+    .tool-ref-row {
+      gap: 0.5rem;
+    }
+  }
+</style>
