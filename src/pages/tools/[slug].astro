@@ -1,8 +1,10 @@
 ---
 import { getToolBySlug, tools } from "@/tools/registry";
 import ToolShell from "@/components/ToolShell.astro";
-import JwtDecoder from "@/tools/jwt-decoder/JwtDecoder";
+import Base64Tool from "@/tools/base64/Base64Tool";
 import DiffTool from "@/tools/diff/DiffTool";
+import JsonFormatter from "@/tools/json-formatter/JsonFormatter";
+import JwtDecoder from "@/tools/jwt-decoder/JwtDecoder";
 
 export function getStaticPaths() {
   return tools.map((tool) => ({
@@ -24,6 +26,10 @@ if (!tool) {
       <JwtDecoder client:load />
     ) : slug === "diff" ? (
       <DiffTool client:load />
+    ) : slug === "base64" ? (
+      <Base64Tool client:load />
+    ) : slug === "json-formatter" ? (
+      <JsonFormatter client:load />
     ) : (
       <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
         <p style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
