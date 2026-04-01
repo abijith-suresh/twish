@@ -6,6 +6,7 @@ import DiffTool from "@/tools/diff/DiffTool";
 import HashGenerator from "@/tools/hash-generator/HashGenerator";
 import JsonFormatter from "@/tools/json-formatter/JsonFormatter";
 import JwtDecoder from "@/tools/jwt-decoder/JwtDecoder";
+import RegexTester from "@/tools/regex-tester/RegexTester";
 import TimestampTool from "@/tools/timestamp/TimestampTool";
 import UuidGenerator from "@/tools/uuid-generator/UuidGenerator";
 
@@ -39,6 +40,8 @@ if (!tool) {
       <UuidGenerator client:load />
     ) : slug === "timestamp" ? (
       <TimestampTool client:load />
+    ) : slug === "regex-tester" ? (
+      <RegexTester client:load />
     ) : (
       <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
         <p style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
