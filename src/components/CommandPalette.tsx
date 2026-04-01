@@ -7,22 +7,14 @@ import {
   KeyRound,
   Regex,
   Search,
+  Settings,
   Shuffle,
 } from "lucide-solid";
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import type { JSX } from "solid-js";
 
 import { searchTools } from "@/lib/search";
-import { getTheme, setTheme, type ThemeName, THEMES } from "@/lib/theme";
 import { type Tool, tools } from "@/tools/registry";
-
-// Hardcoded accent hex values for cross-theme color dot previews (explicitly allowed)
-const THEME_ACCENTS: Record<string, string> = {
-  dracula: "#bd93f9",
-  catppuccin: "#cba6f7",
-  nord: "#88c0d0",
-  gruvbox: "#d3869b",
-};
 
 // Map of lucide icon name → component
 const ICON_MAP: Record<string, (props: { size?: number; class?: string }) => JSX.Element> = {
@@ -47,21 +39,17 @@ export default function CommandPalette() {
   const [query, setQuery] = createSignal("");
   const [selectedIndex, setSelectedIndex] = createSignal(0);
   const [results, setResults] = createSignal<Tool[]>(tools);
-  const [activeTheme, setActiveTheme] = createSignal<ThemeName>(getTheme());
+
+  // Show Preferences command when query is empty or matches settings-related terms
+  const showPreferences = () => query() === "" || /settings|preferences|theme|color/i.test(query());
+
+  // Total navigable items = tool results + Preferences (when shown)
+  const totalItems = () => results().length + (showPreferences() ? 1 : 0);
 
   // eslint-disable-next-line no-unassigned-vars
   let inputRef: HTMLInputElement | undefined;
   // eslint-disable-next-line no-unassigned-vars
   let listRef: HTMLUListElement | undefined;
-
-  // Show theme section when query is empty or matches theme-related terms
-  const showThemeSection = () => {
-    const q = query().toLowerCase();
-    return q === "" || /theme|color|dracula|catppuccin|nord|gruvbox/.test(q);
-  };
-
-  // Total navigable items = tool results + (theme rows when section visible)
-  const totalItems = () => results().length + (showThemeSection() ? THEMES.length : 0);
 
   // Update results when query changes
   createEffect(() => {
@@ -103,13 +91,9 @@ export default function CommandPalette() {
       if (selectedIndex() < rlen) {
         const tool = results()[selectedIndex()];
         if (tool) navigateTo(tool.slug);
-      } else if (showThemeSection()) {
-        const themeIdx = selectedIndex() - rlen;
-        const theme = THEMES[themeIdx];
-        if (theme) {
-          setTheme(theme.name);
-          setActiveTheme(theme.name);
-        }
+      } else if (showPreferences() && selectedIndex() === rlen) {
+        closePalette();
+        document.dispatchEvent(new CustomEvent("open-settings"));
       }
     } else if (e.key === "Escape") {
       e.preventDefault();
@@ -152,15 +136,10 @@ export default function CommandPalette() {
   });
 
   // Scroll selected item into view
-  // Theme section header row (aria-hidden, non-interactive) sits between tool rows and theme rows.
-  // We offset by 1 to skip it when scrolling to theme rows.
   createEffect(() => {
     const idx = selectedIndex();
-    const rlen = results().length;
     if (listRef) {
-      // If index is in tool rows, scroll directly; if in theme rows, offset +1 for header li
-      const domIdx = idx < rlen ? idx : idx + 1;
-      const item = listRef.children[domIdx] as HTMLElement | undefined;
+      const item = listRef.children[idx] as HTMLElement | undefined;
       item?.scrollIntoView({ block: "nearest" });
     }
   });
@@ -364,79 +343,71 @@ export default function CommandPalette() {
                 </For>
               </Show>
 
-              {/* COLOR THEME section */}
-              <Show when={showThemeSection()}>
-                {/* Section header — non-interactive, skipped by arrow key nav */}
+              {/* Preferences command */}
+              <Show when={showPreferences()}>
                 <li
-                  class="px-3 py-1"
+                  role="option"
+                  aria-selected={selectedIndex() === results().length}
+                  onClick={() => {
+                    closePalette();
+                    document.dispatchEvent(new CustomEvent("open-settings"));
+                  }}
+                  onMouseEnter={() => setSelectedIndex(results().length)}
+                  class="flex cursor-pointer items-center gap-3 rounded-none px-3 py-2 transition-colors"
                   style={{
+                    "background-color":
+                      selectedIndex() === results().length
+                        ? "color-mix(in srgb, var(--accent-primary) 15%, transparent)"
+                        : "transparent",
+                    "border-left":
+                      selectedIndex() === results().length
+                        ? "2px solid var(--accent-primary)"
+                        : "2px solid transparent",
                     "border-top": "1px solid var(--border)",
-                    "background-color": "var(--bg-tertiary)",
+                    "padding-left":
+                      selectedIndex() === results().length ? "calc(0.75rem - 2px)" : "0.75rem",
                   }}
-                  aria-hidden="true"
                 >
+                  {/* Icon */}
                   <span
-                    class="text-[10px] font-semibold uppercase tracking-widest"
-                    style={{ color: "var(--text-muted)" }}
+                    style={{
+                      color:
+                        selectedIndex() === results().length
+                          ? "var(--accent-primary)"
+                          : "var(--text-secondary)",
+                      "flex-shrink": "0",
+                      display: "flex",
+                    }}
                   >
-                    COLOR THEME
+                    <Settings size={16} />
                   </span>
+
+                  {/* Text */}
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                        Preferences
+                      </span>
+                    </div>
+                    <p class="mt-0.5 truncate text-[12px]" style={{ color: "var(--text-muted)" }}>
+                      Color theme, keyboard shortcuts &amp; more
+                    </p>
+                  </div>
+
+                  {/* Enter hint */}
+                  <Show when={selectedIndex() === results().length}>
+                    <kbd
+                      class="hidden shrink-0 rounded px-1.5 py-0.5 text-[10px] font-mono sm:block"
+                      style={{
+                        "background-color": "var(--bg-primary)",
+                        border: "1px solid var(--border)",
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      ↵
+                    </kbd>
+                  </Show>
                 </li>
-                <For each={THEMES}>
-                  {(theme, themeIndex) => {
-                    const itemIndex = () => results().length + themeIndex();
-                    const isActive = () => activeTheme() === theme.name;
-                    const isSelected = () => selectedIndex() === itemIndex();
-                    return (
-                      <li
-                        role="option"
-                        aria-selected={isSelected()}
-                        onClick={() => {
-                          setTheme(theme.name);
-                          setActiveTheme(theme.name);
-                          setSelectedIndex(itemIndex());
-                        }}
-                        onMouseEnter={() => setSelectedIndex(itemIndex())}
-                        class="flex cursor-pointer items-center gap-3 rounded-none py-2 transition-colors"
-                        style={{
-                          "background-color": isSelected()
-                            ? "color-mix(in srgb, var(--accent-primary) 15%, transparent)"
-                            : "transparent",
-                          "border-left": isSelected()
-                            ? "2px solid var(--accent-primary)"
-                            : "2px solid transparent",
-                          "padding-left": isSelected() ? "calc(0.75rem - 2px)" : "0.75rem",
-                          "padding-right": "0.75rem",
-                        }}
-                      >
-                        {/* Color dot */}
-                        <span
-                          style={{
-                            display: "inline-block",
-                            width: "12px",
-                            height: "12px",
-                            "border-radius": "50%",
-                            "background-color": THEME_ACCENTS[theme.name],
-                            "flex-shrink": "0",
-                          }}
-                        />
-                        {/* Theme name */}
-                        <span
-                          class="flex-1 text-sm font-semibold"
-                          style={{ color: "var(--text-primary)" }}
-                        >
-                          {theme.label}
-                        </span>
-                        {/* Active checkmark */}
-                        <Show when={isActive()}>
-                          <span class="text-sm" style={{ color: "var(--accent-primary)" }}>
-                            ✓
-                          </span>
-                        </Show>
-                      </li>
-                    );
-                  }}
-                </For>
               </Show>
             </ul>
           </div>

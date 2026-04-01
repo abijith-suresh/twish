@@ -2,6 +2,7 @@
 import { ViewTransitions } from "astro:transitions";
 
 import CommandPalette from "@/components/CommandPalette";
+import SettingsModal from "@/components/SettingsModal";
 import "@/styles/global.css";
 import { tools } from "@/tools/registry";
 import type { ToolCategory } from "@/tools/registry";
@@ -216,6 +217,8 @@ const grouped: GroupedTool[] = categoryOrder
         </div>
 
         <div class="status-right">
+          <SettingsModal client:load />
+          <span class="status-sep" aria-hidden="true">|</span>
           <span class="status-item status-gh">
             <a
               href="https://github.com/abijith-suresh/unwrapped-tools"
