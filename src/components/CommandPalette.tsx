@@ -146,17 +146,30 @@ export default function CommandPalette() {
       >
         <Search size={12} />
         <span>Search</span>
-        <kbd
-          class="rounded px-1 py-0.5 text-[10px] font-mono"
-          style={{
-            "background-color": "var(--bg-primary)",
-            "border-color": "var(--border)",
-            color: "var(--text-muted)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          ⌘K
-        </kbd>
+        <span class="flex items-center gap-0.5">
+          <kbd
+            class="rounded px-1 py-0.5 text-[10px] font-mono"
+            style={{
+              "background-color": "var(--bg-primary)",
+              "border-color": "var(--border)",
+              color: "var(--text-muted)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            ⌘
+          </kbd>
+          <kbd
+            class="rounded px-1 py-0.5 text-[10px] font-mono"
+            style={{
+              "background-color": "var(--bg-primary)",
+              "border-color": "var(--border)",
+              color: "var(--text-muted)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            K
+          </kbd>
+        </span>
       </button>
 
       {/* Overlay + Modal */}
