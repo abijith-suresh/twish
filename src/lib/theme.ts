@@ -1,7 +1,7 @@
 export type ThemeName = "dracula" | "catppuccin" | "nord" | "gruvbox";
 
 const STORAGE_KEY = "unwrapped-theme";
-const DEFAULT_THEME: ThemeName = "dracula";
+const DEFAULT_THEME: ThemeName = "catppuccin";
 
 export const THEMES: { name: ThemeName; label: string }[] = [
   { name: "dracula", label: "Dracula" },

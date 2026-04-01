@@ -87,7 +87,7 @@ const grouped: GroupedTool[] = categoryOrder
         const stored = localStorage.getItem("unwrapped-theme");
         const theme = ["dracula", "catppuccin", "nord", "gruvbox"].includes(stored)
           ? stored
-          : "dracula";
+          : "catppuccin";
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>

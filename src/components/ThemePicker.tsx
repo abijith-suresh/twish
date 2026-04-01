@@ -10,7 +10,7 @@ const THEME_COLORS: Record<ThemeName, string> = {
 };
 
 export default function ThemePicker() {
-  const [activeTheme, setActiveTheme] = createSignal<ThemeName>("dracula");
+  const [activeTheme, setActiveTheme] = createSignal<ThemeName>("catppuccin");
 
   onMount(() => {
     setActiveTheme(getTheme());
