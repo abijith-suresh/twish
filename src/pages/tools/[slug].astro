@@ -1,14 +1,19 @@
 ---
+import ToolHost from "@/components/ToolHost";
 import EditorShell from "@/layouts/EditorShell.astro";
-import Base64Tool from "@/tools/base64/Base64Tool";
-import DiffTool from "@/tools/diff/DiffTool";
-import HashGenerator from "@/tools/hash-generator/HashGenerator";
-import JsonFormatter from "@/tools/json-formatter/JsonFormatter";
-import JwtDecoder from "@/tools/jwt-decoder/JwtDecoder";
-import RegexTester from "@/tools/regex-tester/RegexTester";
-import TimestampTool from "@/tools/timestamp/TimestampTool";
-import UuidGenerator from "@/tools/uuid-generator/UuidGenerator";
-import { getToolBySlug, tools } from "@/tools/registry";
+import { getToolBySlug, tools, validateToolRegistry } from "@/tools/registry";
+
+const toolModules = import.meta.glob("../../tools/*/*.tsx");
+
+const availableToolComponentPaths = Object.keys(toolModules).map((path) =>
+  path.startsWith("../../") ? `/src/${path.slice(6)}` : path
+);
+
+const registryErrors = validateToolRegistry(availableToolComponentPaths);
+
+if (registryErrors.length > 0) {
+  throw new Error(`Invalid tool registry:\n${registryErrors.join("\n")}`);
+}
 
 export function getStaticPaths() {
   return tools.map((tool) => ({
@@ -37,33 +42,7 @@ if (!tool) {
 
     <!-- Tool component -->
     <div class="tool-body">
-      {
-        slug === "jwt-decoder" ? (
-          <JwtDecoder client:load />
-        ) : slug === "diff" ? (
-          <DiffTool client:load />
-        ) : slug === "base64" ? (
-          <Base64Tool client:load />
-        ) : slug === "json-formatter" ? (
-          <JsonFormatter client:load />
-        ) : slug === "hash-generator" ? (
-          <HashGenerator client:load />
-        ) : slug === "uuid-generator" ? (
-          <UuidGenerator client:load />
-        ) : slug === "timestamp" ? (
-          <TimestampTool client:load />
-        ) : slug === "regex-tester" ? (
-          <RegexTester client:load />
-        ) : (
-          <div class="tool-coming-soon">
-            <p class="tool-soon-name">{tool.name}</p>
-            <p>This tool is coming soon.</p>
-            <a href="/" class="tool-soon-link">
-              &larr; Back to all tools
-            </a>
-          </div>
-        )
-      }
+      <ToolHost componentPath={tool.componentPath} client:load />
     </div>
   </div>
 </EditorShell>
@@ -99,26 +78,6 @@ if (!tool) {
   .tool-body {
     flex: 1;
     padding: 1.5rem;
-  }
-
-  .tool-coming-soon {
-    padding: 2rem;
-    text-align: center;
-    color: var(--text-muted);
-  }
-
-  .tool-soon-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-  }
-
-  .tool-soon-link {
-    color: var(--accent-primary);
-    text-decoration: none;
-    margin-top: 1rem;
-    display: inline-block;
   }
 
   @media (max-width: 600px) {

@@ -4,7 +4,7 @@ import { ViewTransitions } from "astro:transitions";
 import CommandPalette from "@/components/CommandPalette";
 import SettingsModal from "@/components/SettingsModal";
 import "@/styles/global.css";
-import { tools } from "@/tools/registry";
+import { getToolRoute, tools } from "@/tools/registry";
 import type { ToolCategory } from "@/tools/registry";
 
 interface Props {
@@ -157,7 +157,7 @@ const grouped: GroupedTool[] = categoryOrder
                   {group.items.map((tool) => (
                     <li>
                       <a
-                        href={`/tools/${tool.slug}`}
+                        href={getToolRoute(tool.slug)}
                         class:list={[
                           "sidebar-item",
                           { "sidebar-item--active": tool.slug === activeSlug },

@@ -14,7 +14,7 @@ import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid
 import type { JSX } from "solid-js";
 
 import { searchTools } from "@/lib/search";
-import { type Tool, tools } from "@/tools/registry";
+import { getToolRoute, type Tool, tools } from "@/tools/registry";
 
 // Map of lucide icon name → component
 const ICON_MAP: Record<string, (props: { size?: number; class?: string }) => JSX.Element> = {
@@ -71,7 +71,7 @@ export default function CommandPalette() {
 
   function navigateTo(slug: string) {
     closePalette();
-    window.location.href = `/tools/${slug}`;
+    window.location.href = getToolRoute(slug);
   }
 
   function handleKeyDown(e: KeyboardEvent) {

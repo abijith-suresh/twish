@@ -1,6 +1,6 @@
 ---
 import EditorShell from "@/layouts/EditorShell.astro";
-import { tools } from "@/tools/registry";
+import { getToolRoute, tools } from "@/tools/registry";
 import type { ToolCategory } from "@/tools/registry";
 
 const catColor: Record<ToolCategory, string> = {
@@ -33,7 +33,7 @@ function toCamelCase(slug: string): string {
 <!-- line 5 -->&nbsp;
 <!-- line 6 --><span class="tok-kw">const</span> <span class="tok-id">tools</span> <span class="tok-punct">=</span> <span class="tok-punct">{"{"}</span>
 {tools.map((tool) => (
-<a href={`/tools/${tool.slug}`} class="code-line-link">  <span class="tok-id">{toCamelCase(tool.slug)}</span><span class="tok-punct">:</span> <span class="tok-punct">{"{"}</span> <span class="tok-cat" style={`color: ${catColor[tool.category]}`}>[{tool.category}]</span> <span class="tok-str">"{tool.name}"</span> <span class="tok-punct">{"}"}</span><span class="tok-punct">,</span>
+<a href={getToolRoute(tool.slug)} class="code-line-link">  <span class="tok-id">{toCamelCase(tool.slug)}</span><span class="tok-punct">:</span> <span class="tok-punct">{"{"}</span> <span class="tok-cat" style={`color: ${catColor[tool.category]}`}>[{tool.category}]</span> <span class="tok-str">"{tool.name}"</span> <span class="tok-punct">{"}"}</span><span class="tok-punct">,</span>
 </a>
 ))}<span class="tok-punct">{"}"}</span><span class="tok-punct">;</span>
 &nbsp;
@@ -46,7 +46,7 @@ function toCamelCase(slug: string): string {
       </div>
       {
         tools.map((tool) => (
-          <a href={`/tools/${tool.slug}`} class="tool-ref-row">
+          <a href={getToolRoute(tool.slug)} class="tool-ref-row">
             <span class="tool-ref-cat" style={`color: ${catColor[tool.category]}`}>
               [{tool.category}]
             </span>
