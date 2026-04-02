@@ -6,6 +6,7 @@ import {
   getChangeSourceIndices,
   getDiffStats,
 } from "@/lib/diff";
+import { DEFAULT_IMPORT_MAX_BYTES, formatBytes, readImportedFile } from "@/lib/fileImport";
 import { type Language, SUPPORTED_LANGUAGES } from "@/lib/language";
 import { detectLanguage } from "@/lib/languageDetection";
 import { prepareStructuredCompare } from "@/lib/structuredCompare";
@@ -36,19 +37,6 @@ const STRATEGY_LABELS: Record<string, string> = {
   env: "Normalized .env",
   text: "Text",
 };
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function readFileAsText(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve((e.target?.result as string) ?? "");
-    reader.onerror = () => reject(new Error("Failed to read file"));
-    reader.readAsText(file);
-  });
-}
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -260,6 +248,8 @@ export default function DiffTool() {
   const [changesOnly, setChangesOnly] = createSignal(true);
   const [pending, setPending] = createSignal(false);
   const [currentChangeIdx, setCurrentChangeIdx] = createSignal(0);
+  const [fileError, setFileError] = createSignal<string | null>(null);
+  const [fileNotice, setFileNotice] = createSignal<string | null>(null);
 
   // diffData holds the committed snapshot used for computing the diff
   const [diffData, setDiffData] = createSignal<{
@@ -337,16 +327,37 @@ export default function DiffTool() {
 
   // --- File handling --------------------------------------------------------
   async function handleFileLoad(side: "left" | "right", file: File) {
-    const text = await readFileAsText(file);
-    const lang = detectLanguage({ filename: file.name, content: text });
+    setFileError(null);
+    setFileNotice(null);
+
+    const result = await readImportedFile(file, { as: "text" });
+
+    if (!result.ok) {
+      if (result.error.code === "file-too-large") {
+        setFileError(
+          `${file.name} is too large to open here. Maximum supported size is ${formatBytes(result.error.maxBytes)}.`
+        );
+      } else {
+        setFileError(`${file.name} could not be read. ${result.error.message}.`);
+      }
+      return;
+    }
+
+    if (result.decision.status === "warn") {
+      setFileNotice(
+        `${file.name} is ${formatBytes(result.file.size)}. Large files may take longer to compare.`
+      );
+    }
+
+    const lang = detectLanguage({ filename: file.name, content: result.value });
     if (side === "left") {
       batch(() => {
-        setLeftContent(text);
+        setLeftContent(result.value);
         setLeftLang(lang);
       });
     } else {
       batch(() => {
-        setRightContent(text);
+        setRightContent(result.value);
         setRightLang(lang);
       });
     }
@@ -481,6 +492,37 @@ export default function DiffTool() {
           }}
         >
           Paste two texts to compare, or open files with the buttons above.
+        </div>
+      </Show>
+
+      <Show when={fileError()}>
+        <div
+          role="alert"
+          style={{
+            padding: "0.6rem 0.875rem",
+            "border-radius": "0.375rem",
+            border: "1px solid var(--accent-error)",
+            background: "color-mix(in srgb, var(--accent-error) 10%, transparent)",
+            color: "var(--accent-error)",
+            "font-size": "0.8125rem",
+          }}
+        >
+          {fileError()}
+        </div>
+      </Show>
+
+      <Show when={fileNotice()}>
+        <div
+          style={{
+            padding: "0.6rem 0.875rem",
+            "border-radius": "0.375rem",
+            border: "1px solid color-mix(in srgb, var(--accent-warning) 60%, transparent)",
+            background: "color-mix(in srgb, var(--accent-warning) 10%, transparent)",
+            color: "var(--accent-warning)",
+            "font-size": "0.8125rem",
+          }}
+        >
+          {fileNotice()}
         </div>
       </Show>
 
@@ -626,6 +668,15 @@ export default function DiffTool() {
           >
             ⇅ Swap
           </button>
+
+          <span
+            style={{
+              "font-size": "0.75rem",
+              color: "var(--text-muted)",
+            }}
+          >
+            File limit {formatBytes(DEFAULT_IMPORT_MAX_BYTES)}
+          </span>
         </div>
 
         {/* ------------------------------------------------------------------ */}

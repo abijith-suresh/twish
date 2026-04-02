@@ -1,6 +1,12 @@
 import { createSignal, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
+import {
+  DEFAULT_IMPORT_MAX_BYTES,
+  type FileImportError,
+  formatBytes,
+  readImportedFile,
+} from "@/lib/fileImport";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -32,6 +38,14 @@ interface Result {
   error: string | null;
 }
 
+function encodeBytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
 function process(input: string, mode: Mode): Result {
   const trimmed = input.trim();
   if (!trimmed) return { value: "", error: null };
@@ -59,44 +73,61 @@ function process(input: string, mode: Mode): Result {
 export default function Base64Tool() {
   const [mode, setMode] = createSignal<Mode>("encode");
   const [input, setInput] = createSignal("");
+  const [fileError, setFileError] = createSignal<FileImportError | null>(null);
+  const [fileNotice, setFileNotice] = createSignal<string | null>(null);
 
   const result = (): Result => process(input(), mode());
 
   function swap() {
     const current = result().value;
+    setFileError(null);
+    setFileNotice(null);
     setMode((m) => (m === "encode" ? "decode" : "encode"));
     setInput(current);
   }
 
-  function handleFile(file: File) {
-    if (file.size > 2 * 1024 * 1024) {
-      setInput(""); // clear input and let error show via the signal
-      // We need to signal the oversize case separately
-      setInput("__FILE_TOO_LARGE__");
+  async function handleFile(file: File) {
+    setFileError(null);
+    setFileNotice(null);
+
+    if (mode() === "encode") {
+      const result = await readImportedFile(file, {
+        as: "bytes",
+        policy: { maxBytes: DEFAULT_IMPORT_MAX_BYTES },
+      });
+
+      if (!result.ok) {
+        setFileError(result.error);
+        return;
+      }
+
+      if (result.decision.status === "warn") {
+        setFileNotice(
+          `${file.name} is ${formatBytes(result.file.size)}. Large files may take longer to encode.`
+        );
+      }
+
+      setInput(encodeBytesToBase64(result.value));
       return;
     }
-    const reader = new FileReader();
-    if (mode() === "encode") {
-      reader.onload = () => {
-        const arr = new Uint8Array(reader.result as ArrayBuffer);
-        let binary = "";
-        for (let i = 0; i < arr.length; i++) {
-          binary += String.fromCharCode(arr[i]);
-        }
-        setInput(btoa(binary));
-        // Switch to decode mode after reading so user sees the base64 output
-        setMode("decode");
-        // Actually keep in encode mode — file -> show base64
-        setMode("encode");
-        setInput(btoa(binary));
-      };
-      reader.readAsArrayBuffer(file);
-    } else {
-      reader.onload = () => {
-        setInput(reader.result as string);
-      };
-      reader.readAsText(file);
+
+    const result = await readImportedFile(file, {
+      as: "text",
+      policy: { maxBytes: DEFAULT_IMPORT_MAX_BYTES },
+    });
+
+    if (!result.ok) {
+      setFileError(result.error);
+      return;
     }
+
+    if (result.decision.status === "warn") {
+      setFileNotice(
+        `${file.name} is ${formatBytes(result.file.size)}. Large files may take longer to decode.`
+      );
+    }
+
+    setInput(result.value);
   }
 
   function onDrop(e: DragEvent) {
@@ -104,6 +135,15 @@ export default function Base64Tool() {
     const file = e.dataTransfer?.files?.[0];
     if (file) handleFile(file);
   }
+
+  const fileReadErrorMessage = () => {
+    const error = fileError();
+    if (!error || error.code !== "read-failed") {
+      return null;
+    }
+
+    return `${error.file.name} could not be read. ${error.message}.`;
+  };
 
   const tabStyle = (active: boolean) => ({
     padding: "0.375rem 1rem",
@@ -199,8 +239,12 @@ export default function Base64Tool() {
           style={{ position: "relative" }}
         >
           <textarea
-            value={input() === "__FILE_TOO_LARGE__" ? "" : input()}
-            onInput={(e) => setInput(e.currentTarget.value)}
+            value={input()}
+            onInput={(e) => {
+              setFileError(null);
+              setFileNotice(null);
+              setInput(e.currentTarget.value);
+            }}
             placeholder={
               mode() === "encode"
                 ? "Type or paste text to encode, or drop a file…"
@@ -245,14 +289,30 @@ export default function Base64Tool() {
               }}
             />
           </label>
-          <span style={{ "font-size": "0.8125rem", color: "var(--text-muted)" }}>· max 2 MB</span>
+          <span style={{ "font-size": "0.8125rem", color: "var(--text-muted)" }}>
+            · max {formatBytes(DEFAULT_IMPORT_MAX_BYTES)}
+          </span>
         </div>
       </div>
 
       {/* ------------------------------------------------------------------ */}
       {/* Error banner                                                        */}
       {/* ------------------------------------------------------------------ */}
-      <Show when={input() === "__FILE_TOO_LARGE__"}>
+      <Show when={fileNotice()}>
+        <div
+          style={{
+            padding: "0.75rem 1rem",
+            "border-radius": "0.5rem",
+            border: "1px solid color-mix(in srgb, var(--accent-warning) 60%, transparent)",
+            background: "color-mix(in srgb, var(--accent-warning) 12%, transparent)",
+            color: "var(--accent-warning)",
+            "font-size": "0.875rem",
+          }}
+        >
+          {fileNotice()}
+        </div>
+      </Show>
+      <Show when={fileError()?.code === "file-too-large"}>
         <div
           role="alert"
           style={{
@@ -264,7 +324,22 @@ export default function Base64Tool() {
             "font-size": "0.875rem",
           }}
         >
-          File is too large — maximum supported size is 2 MB.
+          File is too large — maximum supported size is {formatBytes(DEFAULT_IMPORT_MAX_BYTES)}.
+        </div>
+      </Show>
+      <Show when={fileError()?.code === "read-failed"}>
+        <div
+          role="alert"
+          style={{
+            padding: "0.75rem 1rem",
+            "border-radius": "0.5rem",
+            border: "1px solid var(--accent-error)",
+            background: "color-mix(in srgb, var(--accent-error) 12%, transparent)",
+            color: "var(--accent-error)",
+            "font-size": "0.875rem",
+          }}
+        >
+          {fileReadErrorMessage()}
         </div>
       </Show>
       <Show when={result().error}>
