@@ -2,14 +2,21 @@ import { type Language } from "./language";
 
 const EXTENSION_LANGUAGE_MAP: Record<string, Language> = {
   ".env": "env",
+  ".bash": "shell",
+  ".conf": "ini",
+  ".config": "ini",
+  ".cfg": "ini",
   ".htm": "html",
   ".html": "html",
+  ".ini": "ini",
   ".js": "javascript",
   ".json": "json",
   ".jsx": "javascript",
   ".md": "markdown",
   ".markdown": "markdown",
   ".py": "python",
+  ".sh": "shell",
+  ".toml": "toml",
   ".ts": "typescript",
   ".tsx": "typescript",
   ".xml": "xml",
@@ -26,6 +33,10 @@ function detectFromFilename(filename: string): Language | null {
 
   if (lowerFilename === ".env" || lowerFilename.startsWith(".env.")) {
     return "env";
+  }
+
+  if (lowerFilename === "dockerfile") {
+    return "dockerfile";
   }
 
   const extension = Object.keys(EXTENSION_LANGUAGE_MAP).find((candidate) =>

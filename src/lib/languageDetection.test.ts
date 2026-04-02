@@ -5,9 +5,17 @@ import { detectLanguage } from "./languageDetection";
 describe("language detection", () => {
   it("detects structured formats from filename extensions", () => {
     expect(detectLanguage({ filename: "config.json" })).toBe("json");
+    expect(detectLanguage({ filename: "pyproject.toml" })).toBe("toml");
     expect(detectLanguage({ filename: "docker-compose.yml" })).toBe("yaml");
     expect(detectLanguage({ filename: "workflow.yaml" })).toBe("yaml");
     expect(detectLanguage({ filename: "notes.md" })).toBe("markdown");
+  });
+
+  it("recognizes additional common developer text formats from filenames", () => {
+    expect(detectLanguage({ filename: "Dockerfile" })).toBe("dockerfile");
+    expect(detectLanguage({ filename: "nginx.conf" })).toBe("ini");
+    expect(detectLanguage({ filename: "setup.cfg" })).toBe("ini");
+    expect(detectLanguage({ filename: "deploy.sh" })).toBe("shell");
   });
 
   it("treats env-style files as text to preserve raw diffing", () => {
@@ -21,6 +29,10 @@ describe("language detection", () => {
 
   it("detects YAML-like content when no filename is present", () => {
     expect(detectLanguage({ content: "services:\n  api:\n    image: app:latest\n" })).toBe("yaml");
+  });
+
+  it("keeps TOML content detection conservative without a filename", () => {
+    expect(detectLanguage({ content: '[tool.poetry]\nname = "unwrapped"\n' })).toBe("text");
   });
 
   it("detects env content heuristically when it is just key-value pairs", () => {

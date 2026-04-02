@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   normalizeEnvForDiff,
   normalizeJsonForDiff,
+  normalizeTomlForDiff,
   normalizeYamlForDiff,
   prepareStructuredCompare,
 } from "./structuredCompare";
@@ -105,6 +106,57 @@ describe("structured compare utilities", () => {
       strategy: "yaml",
       errors: [],
     });
+  });
+
+  it("normalizes TOML with stable key ordering", () => {
+    const result = normalizeTomlForDiff("b = 2\na = 1\n[tool]\nz = 3\na = 1\n");
+
+    expect(result).toEqual({
+      ok: true,
+      output: "a = 1\nb = 2\n\n[tool]\na = 1\nz = 3",
+    });
+  });
+
+  it("normalizes inline TOML tables into canonical TOML output", () => {
+    const result = normalizeTomlForDiff("tool = { z = 3, a = 1 }\n");
+
+    expect(result).toEqual({
+      ok: true,
+      output: "[tool]\na = 1\nz = 3",
+    });
+  });
+
+  it("uses normalized TOML when both sides are TOML", () => {
+    const result = prepareStructuredCompare({
+      original: "b = 2\na = 1\n[tool]\nz = 3\na = 1\n",
+      modified: "a = 1\nb = 2\n[tool]\na = 1\nz = 3\n",
+      leftLanguage: "toml",
+      rightLanguage: "toml",
+    });
+
+    expect(result).toEqual({
+      original: "a = 1\nb = 2\n\n[tool]\na = 1\nz = 3",
+      modified: "a = 1\nb = 2\n\n[tool]\na = 1\nz = 3",
+      strategy: "toml",
+      errors: [],
+    });
+  });
+
+  it("falls back to text diff and reports invalid TOML errors", () => {
+    const result = prepareStructuredCompare({
+      original: '[tool\nname = "broken"\n',
+      modified: 'name = "ok"\n',
+      leftLanguage: "toml",
+      rightLanguage: "toml",
+    });
+
+    expect(result.strategy).toBe("text");
+    expect(result.errors).toEqual([
+      {
+        side: "left",
+        message: expect.any(String),
+      },
+    ]);
   });
 
   it("normalizes env files by sorting keys and ignoring comments", () => {

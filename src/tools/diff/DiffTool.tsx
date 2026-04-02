@@ -38,18 +38,23 @@ const DIFF_CONTEXT = 3;
 const LANGUAGE_LABELS: Record<Language, string> = {
   text: "Text",
   json: "JSON",
+  toml: "TOML",
   yaml: "YAML",
   env: ".env",
+  ini: "INI",
   javascript: "JavaScript",
   typescript: "TypeScript",
   python: "Python",
   markdown: "Markdown",
   xml: "XML",
   html: "HTML",
+  shell: "Shell",
+  dockerfile: "Dockerfile",
 };
 
 const STRATEGY_LABELS: Record<string, string> = {
   json: "Normalized JSON",
+  toml: "Normalized TOML",
   yaml: "Normalized YAML",
   env: "Normalized .env",
   text: "Text",
