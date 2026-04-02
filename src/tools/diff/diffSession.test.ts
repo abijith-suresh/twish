@@ -8,7 +8,7 @@ describe("diff session schema", () => {
       isDiffSessionState({
         leftContent: "a",
         rightContent: "b",
-        leftLang: "json",
+        leftLang: "toml",
         rightLang: "yaml",
         changesOnly: true,
         leftFile: { name: "left.json", size: 10, type: "application/json" },
@@ -24,7 +24,7 @@ describe("diff session schema", () => {
         rightContent: "b",
         leftLang: "toml",
         rightLang: "yaml",
-        changesOnly: true,
+        changesOnly: "yes",
         leftFile: null,
         rightFile: null,
       })

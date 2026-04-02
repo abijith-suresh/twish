@@ -1,3 +1,5 @@
+import { parse as parseToml, stringify as stringifyToml } from "@iarna/toml";
+import type { JsonMap as TomlTable } from "@iarna/toml";
 import { parseAllDocuments, stringify } from "yaml";
 
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
@@ -10,7 +12,7 @@ export interface StructuredCompareError {
 export interface StructuredCompareResult {
   original: string;
   modified: string;
-  strategy: "text" | "json" | "yaml" | "env";
+  strategy: "text" | "json" | "toml" | "yaml" | "env";
   errors: StructuredCompareError[];
 }
 
@@ -27,6 +29,7 @@ interface NormalizeJsonFailure {
 type NormalizeJsonResult = NormalizeJsonSuccess | NormalizeJsonFailure;
 type NormalizeYamlResult = NormalizeJsonResult;
 type NormalizeEnvResult = NormalizeJsonResult;
+type NormalizeTomlResult = NormalizeJsonResult;
 
 function parseEnvKeyAndValue(line: string): { key: string; value: string } {
   const trimmedLine = line.trim();
@@ -165,6 +168,23 @@ function sortJsonValue(value: JsonValue): JsonValue {
   return value;
 }
 
+function sortTomlUnknown(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(sortTomlUnknown);
+  }
+
+  if (typeof value === "object" && value !== null && !(value instanceof Date)) {
+    return Object.keys(value)
+      .sort((leftKey, rightKey) => leftKey.localeCompare(rightKey))
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = sortTomlUnknown((value as Record<string, unknown>)[key]);
+        return acc;
+      }, {});
+  }
+
+  return value;
+}
+
 export function normalizeJsonForDiff(input: string): NormalizeJsonResult {
   if (input.trim().length === 0) {
     return { ok: true, output: "" };
@@ -213,6 +233,29 @@ export function normalizeYamlForDiff(input: string): NormalizeYamlResult {
     return {
       ok: false,
       message: error instanceof Error ? error.message : "Invalid YAML input",
+    };
+  }
+}
+
+export function normalizeTomlForDiff(input: string): NormalizeTomlResult {
+  if (input.trim().length === 0) {
+    return { ok: true, output: "" };
+  }
+
+  try {
+    const parsed = parseToml(input) as TomlTable;
+    const sorted = sortTomlUnknown(parsed) as TomlTable;
+
+    return {
+      ok: true,
+      output: stringifyToml(sorted as TomlTable)
+        .replace(/\r\n?/g, "\n")
+        .trimEnd(),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "Invalid TOML input",
     };
   }
 }
@@ -288,6 +331,37 @@ export function prepareStructuredCompare(input: {
           original: left.output,
           modified: right.output,
           strategy: "yaml",
+          errors: [],
+        };
+      }
+
+      const errors: StructuredCompareError[] = [];
+
+      if (!left.ok) {
+        errors.push({ side: "left", message: left.message });
+      }
+
+      if (!right.ok) {
+        errors.push({ side: "right", message: right.message });
+      }
+
+      return {
+        original,
+        modified,
+        strategy: "text",
+        errors,
+      };
+    }
+
+    if (leftLanguage === "toml" && rightLanguage === "toml") {
+      const left = normalizeTomlForDiff(original);
+      const right = normalizeTomlForDiff(modified);
+
+      if (left.ok && right.ok) {
+        return {
+          original: left.output,
+          modified: right.output,
+          strategy: "toml",
           errors: [],
         };
       }

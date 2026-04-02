@@ -1,6 +1,7 @@
 export const SUPPORTED_LANGUAGES = [
   "text",
   "json",
+  "toml",
   "yaml",
   "env",
   "javascript",
@@ -9,6 +10,9 @@ export const SUPPORTED_LANGUAGES = [
   "markdown",
   "xml",
   "html",
+  "ini",
+  "shell",
+  "dockerfile",
 ] as const;
 
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
