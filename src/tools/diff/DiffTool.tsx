@@ -1,4 +1,13 @@
-import { batch, createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import {
+  batch,
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js";
 
 import {
   createDiffRows,
@@ -9,7 +18,15 @@ import {
 import { DEFAULT_IMPORT_MAX_BYTES, formatBytes, readImportedFile } from "@/lib/fileImport";
 import { type Language, SUPPORTED_LANGUAGES } from "@/lib/language";
 import { detectLanguage } from "@/lib/languageDetection";
+import { clearSessionState, loadSessionState, saveSessionState } from "@/lib/session";
 import { prepareStructuredCompare } from "@/lib/structuredCompare";
+import {
+  DIFF_SESSION_STORAGE_KEY,
+  DIFF_SESSION_VERSION,
+  type DiffFileMeta,
+  isDiffSessionState,
+  shouldPersistDiffSession,
+} from "@/tools/diff/diffSession";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -46,6 +63,7 @@ interface InputPanelProps {
   label: string;
   content: string;
   lang: Language;
+  fileMeta: DiffFileMeta | null;
   onContentChange: (v: string) => void;
   onLangChange: (v: Language) => void;
   fileInputRef: (el: HTMLInputElement) => void;
@@ -206,6 +224,26 @@ function InputPanel(props: InputPanelProps) {
           />
         </div>
 
+        <Show when={props.fileMeta}>
+          {(fileMeta) => (
+            <div
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                padding: "0.35rem 0.75rem",
+                "border-bottom": "1px solid var(--border)",
+                background: "color-mix(in srgb, var(--bg-tertiary) 70%, transparent)",
+                color: "var(--text-muted)",
+                "font-size": "0.75rem",
+                "font-family": "var(--font-mono)",
+              }}
+            >
+              <span>{fileMeta().name}</span>
+              <span>{formatBytes(fileMeta().size)}</span>
+            </div>
+          )}
+        </Show>
+
         {/* Textarea */}
         <textarea
           value={props.content}
@@ -250,6 +288,8 @@ export default function DiffTool() {
   const [currentChangeIdx, setCurrentChangeIdx] = createSignal(0);
   const [fileError, setFileError] = createSignal<string | null>(null);
   const [fileNotice, setFileNotice] = createSignal<string | null>(null);
+  const [leftFile, setLeftFile] = createSignal<DiffFileMeta | null>(null);
+  const [rightFile, setRightFile] = createSignal<DiffFileMeta | null>(null);
 
   // diffData holds the committed snapshot used for computing the diff
   const [diffData, setDiffData] = createSignal<{
@@ -261,6 +301,28 @@ export default function DiffTool() {
 
   // --- Debounced diff trigger -----------------------------------------------
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  onMount(() => {
+    const savedSession = loadSessionState({
+      key: DIFF_SESSION_STORAGE_KEY,
+      version: DIFF_SESSION_VERSION,
+      isData: isDiffSessionState,
+    });
+
+    if (!savedSession) {
+      return;
+    }
+
+    batch(() => {
+      setLeftContent(savedSession.leftContent);
+      setRightContent(savedSession.rightContent);
+      setLeftLang(savedSession.leftLang);
+      setRightLang(savedSession.rightLang);
+      setChangesOnly(savedSession.changesOnly);
+      setLeftFile(savedSession.leftFile);
+      setRightFile(savedSession.rightFile);
+    });
+  });
 
   createEffect(() => {
     // Access reactive dependencies
@@ -285,6 +347,39 @@ export default function DiffTool() {
         setCurrentChangeIdx(0);
       });
     }, DEBOUNCE_MS);
+  });
+
+  createEffect(() => {
+    const sessionState = {
+      leftContent: leftContent(),
+      rightContent: rightContent(),
+      leftLang: leftLang(),
+      rightLang: rightLang(),
+      changesOnly: changesOnly(),
+      leftFile: leftFile(),
+      rightFile: rightFile(),
+    };
+
+    if (
+      sessionState.leftContent === "" &&
+      sessionState.rightContent === "" &&
+      sessionState.leftFile === null &&
+      sessionState.rightFile === null
+    ) {
+      clearSessionState(DIFF_SESSION_STORAGE_KEY);
+      return;
+    }
+
+    if (!shouldPersistDiffSession(sessionState)) {
+      clearSessionState(DIFF_SESSION_STORAGE_KEY);
+      return;
+    }
+
+    saveSessionState({
+      key: DIFF_SESSION_STORAGE_KEY,
+      version: DIFF_SESSION_VERSION,
+      data: sessionState,
+    });
   });
 
   onCleanup(() => {
@@ -354,11 +449,13 @@ export default function DiffTool() {
       batch(() => {
         setLeftContent(result.value);
         setLeftLang(lang);
+        setLeftFile(result.file);
       });
     } else {
       batch(() => {
         setRightContent(result.value);
         setRightLang(lang);
+        setRightFile(result.file);
       });
     }
   }
@@ -387,10 +484,14 @@ export default function DiffTool() {
       const rc = rightContent();
       const ll = leftLang();
       const rl = rightLang();
+      const lf = leftFile();
+      const rf = rightFile();
       setLeftContent(rc);
       setRightContent(lc);
       setLeftLang(rl);
       setRightLang(ll);
+      setLeftFile(rf);
+      setRightFile(lf);
     });
   }
 
@@ -463,6 +564,7 @@ export default function DiffTool() {
           label="Original"
           content={leftContent()}
           lang={leftLang()}
+          fileMeta={leftFile()}
           onContentChange={setLeftContent}
           onLangChange={setLeftLang}
           fileInputRef={(_el) => {}}
@@ -472,6 +574,7 @@ export default function DiffTool() {
           label="Modified"
           content={rightContent()}
           lang={rightLang()}
+          fileMeta={rightFile()}
           onContentChange={setRightContent}
           onLangChange={setRightLang}
           fileInputRef={(_el) => {}}
