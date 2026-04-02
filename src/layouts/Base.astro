@@ -1,5 +1,6 @@
 ---
 import "@/styles/global.css";
+import { getThemeBootstrapScript } from "@/lib/theme";
 
 interface Props {
   title: string;
@@ -52,15 +53,7 @@ const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.
     <link rel="manifest" href="/manifest.webmanifest" />
     <slot name="head" />
     <!-- Theme init: runs before paint to prevent flash -->
-    <script is:inline>
-      (function () {
-        const stored = localStorage.getItem("unwrapped-theme");
-        const theme = ["dracula", "catppuccin", "nord", "gruvbox"].includes(stored)
-          ? stored
-          : "dracula";
-        document.documentElement.setAttribute("data-theme", theme);
-      })();
-    </script>
+    <script is:inline set:html={getThemeBootstrapScript()} />
   </head>
   <body>
     <slot />

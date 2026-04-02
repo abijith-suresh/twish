@@ -3,6 +3,7 @@ import { ViewTransitions } from "astro:transitions";
 
 import CommandPalette from "@/components/CommandPalette";
 import SettingsModal from "@/components/SettingsModal";
+import { getThemeBootstrapScript } from "@/lib/theme";
 import "@/styles/global.css";
 import { getToolRoute, tools } from "@/tools/registry";
 import type { ToolCategory } from "@/tools/registry";
@@ -83,15 +84,7 @@ const grouped: GroupedTool[] = categoryOrder
     <!-- PWA -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <!-- Theme init: runs before paint to prevent flash -->
-    <script is:inline>
-      (function () {
-        const stored = localStorage.getItem("unwrapped-theme");
-        const theme = ["dracula", "catppuccin", "nord", "gruvbox"].includes(stored)
-          ? stored
-          : "catppuccin";
-        document.documentElement.setAttribute("data-theme", theme);
-      })();
-    </script>
+    <script is:inline set:html={getThemeBootstrapScript()} />
     <ViewTransitions />
   </head>
   <body>
