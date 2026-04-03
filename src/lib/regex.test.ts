@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildRegexResult, escapeHtml } from "./regex";
+import { buildRegexReplaceResult, buildRegexResult, escapeHtml } from "./regex";
 
 describe("regex utilities", () => {
   it("escapes HTML before highlighting", () => {
@@ -13,6 +13,7 @@ describe("regex utilities", () => {
     expect(result.error).toBeNull();
     expect(result.matches).toHaveLength(2);
     expect(result.highlighted).toContain("<mark");
+    expect(result.summary.firstMatchIndex).toBe(0);
   });
 
   it("captures named and unnamed groups", () => {
@@ -29,5 +30,21 @@ describe("regex utilities", () => {
 
     expect(result.error).toBeTruthy();
     expect(result.matches).toEqual([]);
+  });
+
+  it("builds replacement results", () => {
+    const result = buildRegexReplaceResult("foo", new Set(["g"]), "foo bar foo", "baz");
+
+    expect("error" in result).toBe(false);
+    if (!("error" in result)) {
+      expect(result.output).toBe("baz bar baz");
+      expect(result.replacements).toBe(2);
+    }
+  });
+
+  it("tracks empty matches in the summary", () => {
+    const result = buildRegexResult("^", new Set(["g", "m"]), "foo\nbar");
+
+    expect(result.summary.emptyMatchCount).toBeGreaterThan(0);
   });
 });

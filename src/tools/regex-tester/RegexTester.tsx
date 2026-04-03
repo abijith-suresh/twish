@@ -1,7 +1,14 @@
 import { createMemo, createSignal, For, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import { buildRegexResult, type FlagKey, type MatchResult } from "@/lib/regex";
+import ToolActionButton from "@/components/ToolActionButton";
+import ToolStatusMessage from "@/components/ToolStatusMessage";
+import {
+  buildRegexReplaceResult,
+  buildRegexResult,
+  type FlagKey,
+  type MatchResult,
+} from "@/lib/regex";
 
 interface Flag {
   key: FlagKey;
@@ -16,10 +23,14 @@ const ALL_FLAGS: Flag[] = [
   { key: "s", label: "s", title: "Dot-all — . matches newlines" },
 ];
 
+type RegexMode = "match" | "replace";
+
 export default function RegexTester() {
+  const [mode, setMode] = createSignal<RegexMode>("match");
   const [pattern, setPattern] = createSignal("");
   const [flags, setFlags] = createSignal<Set<FlagKey>>(new Set(["g"]));
   const [input, setInput] = createSignal("");
+  const [replacement, setReplacement] = createSignal("");
 
   function toggleFlag(key: FlagKey) {
     setFlags((prev) => {
@@ -35,6 +46,17 @@ export default function RegexTester() {
 
   const result = createMemo(() => buildRegexResult(pattern(), flags(), input()));
   const matchCount = createMemo(() => result().matches.length);
+  const replaceResult = createMemo(() =>
+    buildRegexReplaceResult(pattern(), flags(), input(), replacement())
+  );
+  const replaceOutput = createMemo(() => {
+    const current = replaceResult();
+    return "error" in current ? "" : current.output;
+  });
+  const replaceCount = createMemo(() => {
+    const current = replaceResult();
+    return "error" in current ? 0 : current.replacements;
+  });
 
   const namedGroupNames = createMemo((): string[] => {
     const names = new Set<string>();
@@ -69,6 +91,23 @@ export default function RegexTester() {
       }}
     >
       <div style={{ display: "flex", "flex-direction": "column", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", "flex-wrap": "wrap" }}>
+          <ToolActionButton
+            active={mode() === "match"}
+            variant={mode() === "match" ? "primary" : "ghost"}
+            onClick={() => setMode("match")}
+          >
+            Match
+          </ToolActionButton>
+          <ToolActionButton
+            active={mode() === "replace"}
+            variant={mode() === "replace" ? "primary" : "ghost"}
+            onClick={() => setMode("replace")}
+          >
+            Replace
+          </ToolActionButton>
+        </div>
+
         <label style={labelStyle}>Pattern</label>
         <div
           style={{
@@ -159,20 +198,14 @@ export default function RegexTester() {
 
       <Show when={result().error}>
         {(msg) => (
-          <div
-            role="alert"
+          <ToolStatusMessage
+            tone="error"
             style={{
-              padding: "0.75rem 1rem",
-              "border-radius": "0.5rem",
-              border: "1px solid var(--accent-error)",
-              background: "color-mix(in srgb, var(--accent-error) 12%, transparent)",
-              color: "var(--accent-error)",
-              "font-size": "0.875rem",
               "font-family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
             }}
           >
             {msg()}
-          </div>
+          </ToolStatusMessage>
         )}
       </Show>
 
@@ -201,6 +234,59 @@ export default function RegexTester() {
         />
       </div>
 
+      <Show when={mode() === "replace"}>
+        <div style={{ display: "flex", "flex-direction": "column", gap: "0.375rem" }}>
+          <label style={labelStyle}>Replacement</label>
+          <input
+            type="text"
+            value={replacement()}
+            onInput={(e) => setReplacement(e.currentTarget.value)}
+            placeholder="Replacement text"
+            spellcheck={false}
+            style={{
+              width: "100%",
+              padding: "0.875rem 1rem",
+              "border-radius": "0.5rem",
+              border: "1px solid var(--border)",
+              background: "var(--bg-secondary)",
+              color: "var(--text-primary)",
+              "font-family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              "font-size": "0.875rem",
+              outline: "none",
+              "box-sizing": "border-box",
+            }}
+          />
+        </div>
+      </Show>
+
+      <Show when={pattern() && !result().error}>
+        <div style={{ display: "flex", gap: "0.75rem", "flex-wrap": "wrap" }}>
+          <ToolStatusMessage
+            tone={matchCount() > 0 ? "success" : "muted"}
+            style={{ padding: "0.625rem 0.875rem" }}
+          >
+            {matchCount() === 0
+              ? "No matches"
+              : `${matchCount()} ${matchCount() === 1 ? "match" : "matches"}`}
+          </ToolStatusMessage>
+          <ToolStatusMessage tone="muted" style={{ padding: "0.625rem 0.875rem" }}>
+            {result().summary.captureGroupCount} capture{" "}
+            {result().summary.captureGroupCount === 1 ? "group" : "groups"}
+          </ToolStatusMessage>
+          <Show when={result().summary.emptyMatchCount > 0}>
+            <ToolStatusMessage tone="warning" style={{ padding: "0.625rem 0.875rem" }}>
+              {result().summary.emptyMatchCount} empty
+              {result().summary.emptyMatchCount === 1 ? " match" : " matches"}
+            </ToolStatusMessage>
+          </Show>
+          <Show when={result().summary.firstMatchIndex !== null}>
+            <ToolStatusMessage tone="muted" style={{ padding: "0.625rem 0.875rem" }}>
+              First match at index {result().summary.firstMatchIndex}
+            </ToolStatusMessage>
+          </Show>
+        </div>
+      </Show>
+
       <Show when={input().trim()}>
         <div
           style={{
@@ -219,7 +305,7 @@ export default function RegexTester() {
               "border-bottom": "1px solid var(--border)",
             }}
           >
-            <span style={labelStyle}>Matches</span>
+            <span style={labelStyle}>{mode() === "replace" ? "Match preview" : "Matches"}</span>
             <Show
               when={pattern() && !result().error}
               fallback={
@@ -233,11 +319,13 @@ export default function RegexTester() {
                   color: matchCount() > 0 ? "var(--accent-success)" : "var(--text-muted)",
                 }}
               >
-                {matchCount() === 0
-                  ? "No matches"
-                  : matchCount() === 1
-                    ? "1 match"
-                    : `${matchCount()} matches`}
+                {mode() === "replace"
+                  ? `${replaceCount()} ${replaceCount() === 1 ? "replacement" : "replacements"}`
+                  : matchCount() === 0
+                    ? "No matches"
+                    : matchCount() === 1
+                      ? "1 match"
+                      : `${matchCount()} matches`}
               </span>
             </Show>
           </div>
@@ -256,6 +344,50 @@ export default function RegexTester() {
             }}
             innerHTML={result().highlighted}
           />
+        </div>
+      </Show>
+
+      <Show
+        when={
+          mode() === "replace" && input().trim() && !result().error && !("error" in replaceResult())
+        }
+      >
+        <div
+          style={{
+            background: "var(--bg-secondary)",
+            border: "1px solid var(--border)",
+            "border-radius": "0.5rem",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              "align-items": "center",
+              "justify-content": "space-between",
+              padding: "0.5rem 1rem",
+              "border-bottom": "1px solid var(--border)",
+            }}
+          >
+            <span style={labelStyle}>Replaced output</span>
+            <CopyButton text={replaceOutput()} />
+          </div>
+
+          <pre
+            style={{
+              margin: "0",
+              padding: "1rem",
+              "overflow-x": "auto",
+              "font-size": "0.875rem",
+              "line-height": "1.8",
+              color: "var(--text-primary)",
+              "font-family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              "white-space": "pre-wrap",
+              "word-break": "break-all",
+            }}
+          >
+            {replaceOutput()}
+          </pre>
         </div>
       </Show>
 
@@ -419,9 +551,9 @@ export default function RegexTester() {
       </Show>
 
       <Show when={!pattern() && !input().trim()}>
-        <p style={{ "font-size": "0.8125rem", color: "var(--text-muted)", margin: "0" }}>
-          Enter a regex pattern and test string — matches are highlighted in real time
-        </p>
+        <ToolStatusMessage tone="muted">
+          Enter a regex pattern and test string to inspect matches or preview replacements locally.
+        </ToolStatusMessage>
       </Show>
     </div>
   );

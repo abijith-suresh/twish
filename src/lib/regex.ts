@@ -11,10 +11,22 @@ export interface MatchResult {
   groups: CaptureGroup[];
 }
 
+export interface RegexSummary {
+  captureGroupCount: number;
+  emptyMatchCount: number;
+  firstMatchIndex: number | null;
+}
+
+export interface RegexReplaceResult {
+  output: string;
+  replacements: number;
+}
+
 export interface RegexResult {
   matches: MatchResult[];
   highlighted: string;
   error: string | null;
+  summary: RegexSummary;
 }
 
 export function escapeHtml(str: string): string {
@@ -23,7 +35,12 @@ export function escapeHtml(str: string): string {
 
 export function buildRegexResult(pattern: string, flags: Set<FlagKey>, input: string): RegexResult {
   if (!pattern) {
-    return { matches: [], highlighted: escapeHtml(input), error: null };
+    return {
+      matches: [],
+      highlighted: escapeHtml(input),
+      error: null,
+      summary: createSummary([]),
+    };
   }
 
   let regex: RegExp;
@@ -36,6 +53,7 @@ export function buildRegexResult(pattern: string, flags: Set<FlagKey>, input: st
       matches: [],
       highlighted: escapeHtml(input),
       error: error instanceof Error ? error.message : "Invalid regular expression",
+      summary: createSummary([]),
     };
   }
 
@@ -88,5 +106,70 @@ export function buildRegexResult(pattern: string, flags: Set<FlagKey>, input: st
   }
   highlighted += escapeHtml(input.slice(position));
 
-  return { matches, highlighted, error: null };
+  return { matches, highlighted, error: null, summary: createSummary(matches) };
+}
+
+export function buildRegexReplaceResult(
+  pattern: string,
+  flags: Set<FlagKey>,
+  input: string,
+  replacement: string
+): RegexReplaceResult | { error: string } {
+  if (!pattern) {
+    return {
+      output: input,
+      replacements: 0,
+    };
+  }
+
+  let regex: RegExp;
+  const flagString = [...flags].join("");
+
+  try {
+    regex = new RegExp(pattern, flagString);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Invalid regular expression",
+    };
+  }
+
+  const output = input.replace(regex, replacement);
+  const replacements = countReplacements(pattern, flagString, input);
+
+  return {
+    output,
+    replacements,
+  };
+}
+
+function createSummary(matches: MatchResult[]): RegexSummary {
+  return {
+    captureGroupCount: matches.reduce((total, match) => total + match.groups.length, 0),
+    emptyMatchCount: matches.filter((match) => match.fullMatch.length === 0).length,
+    firstMatchIndex: matches[0]?.index ?? null,
+  };
+}
+
+function countReplacements(pattern: string, flagString: string, input: string): number {
+  const regex = new RegExp(pattern, flagString);
+
+  if (!flagString.includes("g")) {
+    return regex.test(input) ? 1 : 0;
+  }
+
+  let count = 0;
+  let match: RegExpExecArray | null;
+  let lastIndex = -1;
+
+  while ((match = regex.exec(input)) !== null) {
+    if (match.index === lastIndex) {
+      regex.lastIndex += 1;
+      continue;
+    }
+
+    lastIndex = match.index;
+    count += 1;
+  }
+
+  return count;
 }
