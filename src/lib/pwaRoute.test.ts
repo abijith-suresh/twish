@@ -5,6 +5,7 @@ import {
   getRestorableToolRoute,
   getStandaloneRouteRecovery,
   LAST_TOOL_ROUTE_STORAGE_KEY,
+  shouldPersistToolRoute,
 } from "./pwaRoute";
 
 describe("pwaRoute", () => {
@@ -23,11 +24,18 @@ describe("pwaRoute", () => {
     expect(getStandaloneRouteRecovery("/", "/tools/regex-tester", false)).toBeNull();
   });
 
+  it("persists only registered tool routes", () => {
+    expect(shouldPersistToolRoute("/tools/json-formatter")).toBe(true);
+    expect(shouldPersistToolRoute("/")).toBe(false);
+    expect(shouldPersistToolRoute("/tools/not-real")).toBe(false);
+  });
+
   it("embeds the route recovery bootstrap inputs", () => {
     const script = getPwaRouteBootstrapScript();
 
     expect(script).toContain(LAST_TOOL_ROUTE_STORAGE_KEY);
     expect(script).toContain("/tools/diff");
     expect(script).toContain("window.location.replace(storedPathname)");
+    expect(script).toContain('document.addEventListener("astro:page-load", persistRoute)');
   });
 });

@@ -23,29 +23,46 @@ export function getStandaloneRouteRecovery(
   return getRestorableToolRoute(storedPathname);
 }
 
+export function shouldPersistToolRoute(pathname: string): boolean {
+  return getRestorableToolRoute(pathname) !== null;
+}
+
 export function getPwaRouteBootstrapScript(): string {
   return `(function () {
   try {
     const storageKey = ${JSON.stringify(LAST_TOOL_ROUTE_STORAGE_KEY)};
     const validRoutes = ${JSON.stringify(TOOL_ROUTES)};
-    const pathname = window.location.pathname;
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      window.navigator.standalone === true;
+    const persistRoute = () => {
+      const pathname = window.location.pathname;
+      if (validRoutes.includes(pathname)) {
+        localStorage.setItem(storageKey, pathname);
+        return true;
+      }
 
-    if (validRoutes.includes(pathname)) {
-      localStorage.setItem(storageKey, pathname);
-      return;
+      return false;
+    };
+
+    const restoreRoute = () => {
+      const pathname = window.location.pathname;
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+
+      if (pathname !== "/" || !isStandalone) {
+        return;
+      }
+
+      const storedPathname = localStorage.getItem(storageKey);
+      if (validRoutes.includes(storedPathname)) {
+        window.location.replace(storedPathname);
+      }
+    };
+
+    if (!persistRoute()) {
+      restoreRoute();
     }
 
-    if (pathname !== "/" || !isStandalone) {
-      return;
-    }
-
-    const storedPathname = localStorage.getItem(storageKey);
-    if (validRoutes.includes(storedPathname)) {
-      window.location.replace(storedPathname);
-    }
+    document.addEventListener("astro:page-load", persistRoute);
   } catch {
     // Ignore storage and browser capability failures during bootstrap.
   }
