@@ -1,12 +1,7 @@
 import { createMemo, createSignal, For, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type FlagKey = "g" | "i" | "m" | "s";
+import { buildRegexResult, type FlagKey, type MatchResult } from "@/lib/regex";
 
 interface Flag {
   key: FlagKey;
@@ -20,105 +15,6 @@ const ALL_FLAGS: Flag[] = [
   { key: "m", label: "m", title: "Multiline — ^ and $ match line boundaries" },
   { key: "s", label: "s", title: "Dot-all — . matches newlines" },
 ];
-
-interface CaptureGroup {
-  name: string | null;
-  value: string;
-}
-
-interface MatchResult {
-  index: number;
-  fullMatch: string;
-  groups: CaptureGroup[];
-}
-
-interface RegexResult {
-  matches: MatchResult[];
-  highlighted: string; // HTML with <mark> tags
-  error: string | null;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function escapeHtml(str: string): string {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function buildResult(pattern: string, flags: Set<FlagKey>, input: string): RegexResult {
-  if (!pattern) {
-    return { matches: [], highlighted: escapeHtml(input), error: null };
-  }
-
-  let regex: RegExp;
-  const flagStr = [...flags].join("");
-  try {
-    // Always add 'd' (indices) if supported, fallback gracefully
-    regex = new RegExp(pattern, flagStr.includes("g") ? flagStr : flagStr + "g");
-  } catch (err) {
-    return {
-      matches: [],
-      highlighted: escapeHtml(input),
-      error: err instanceof Error ? err.message : "Invalid regular expression",
-    };
-  }
-
-  const matches: MatchResult[] = [];
-  const allMatchRanges: [number, number][] = [];
-
-  let m: RegExpExecArray | null;
-  // Guard against infinite loops from zero-width matches
-  let lastIndex = -1;
-  while ((m = regex.exec(input)) !== null) {
-    if (m.index === lastIndex) {
-      regex.lastIndex++;
-      continue;
-    }
-    lastIndex = m.index;
-
-    const groups: CaptureGroup[] = [];
-    if (m.groups) {
-      for (const [name, value] of Object.entries(m.groups)) {
-        groups.push({ name, value: value ?? "" });
-      }
-    }
-    // Also push unnamed capture groups (indices 1+) that aren't named
-    for (let i = 1; i < m.length; i++) {
-      // Only add if not already covered by named groups
-      const alreadyNamed = m.groups && Object.values(m.groups).includes(m[i]);
-      if (!alreadyNamed && m[i] !== undefined) {
-        groups.push({ name: null, value: m[i] ?? "" });
-      }
-    }
-
-    matches.push({
-      index: m.index,
-      fullMatch: m[0],
-      groups,
-    });
-
-    allMatchRanges.push([m.index, m.index + m[0].length]);
-
-    if (!flagStr.includes("g")) break;
-  }
-
-  // Build highlighted HTML
-  let highlighted = "";
-  let pos = 0;
-  for (const [start, end] of allMatchRanges) {
-    highlighted += escapeHtml(input.slice(pos, start));
-    highlighted += `<mark style="background:color-mix(in srgb,var(--accent-primary) 30%,transparent);border-radius:2px;color:inherit;">${escapeHtml(input.slice(start, end))}</mark>`;
-    pos = end;
-  }
-  highlighted += escapeHtml(input.slice(pos));
-
-  return { matches, highlighted, error: null };
-}
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 
 export default function RegexTester() {
   const [pattern, setPattern] = createSignal("");
@@ -137,21 +33,20 @@ export default function RegexTester() {
     });
   }
 
-  const result = createMemo((): RegexResult => buildResult(pattern(), flags(), input()));
-
+  const result = createMemo(() => buildRegexResult(pattern(), flags(), input()));
   const matchCount = createMemo(() => result().matches.length);
 
   const namedGroupNames = createMemo((): string[] => {
     const names = new Set<string>();
-    for (const m of result().matches) {
-      for (const g of m.groups) {
-        if (g.name) names.add(g.name);
+    for (const match of result().matches) {
+      for (const group of match.groups) {
+        if (group.name) names.add(group.name);
       }
     }
     return [...names];
   });
 
-  const hasCaptures = createMemo(() => result().matches.some((m) => m.groups.length > 0));
+  const hasCaptures = createMemo(() => result().matches.some((match) => match.groups.length > 0));
 
   const labelStyle = {
     "font-size": "0.75rem",
@@ -173,13 +68,8 @@ export default function RegexTester() {
         width: "100%",
       }}
     >
-      {/* ------------------------------------------------------------------ */}
-      {/* Pattern input + flags                                               */}
-      {/* ------------------------------------------------------------------ */}
       <div style={{ display: "flex", "flex-direction": "column", gap: "0.5rem" }}>
         <label style={labelStyle}>Pattern</label>
-
-        {/* Pattern row */}
         <div
           style={{
             display: "flex",
@@ -191,7 +81,6 @@ export default function RegexTester() {
             transition: "border-color 0.15s",
           }}
         >
-          {/* Opening slash */}
           <span
             style={{
               padding: "0 0.5rem 0 0.875rem",
@@ -222,7 +111,6 @@ export default function RegexTester() {
             }}
           />
 
-          {/* Closing slash */}
           <span
             style={{
               color: "var(--text-muted)",
@@ -234,7 +122,6 @@ export default function RegexTester() {
             /
           </span>
 
-          {/* Flag toggles inline */}
           <div
             style={{
               display: "flex",
@@ -270,9 +157,6 @@ export default function RegexTester() {
         </div>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Error banner                                                        */}
-      {/* ------------------------------------------------------------------ */}
       <Show when={result().error}>
         {(msg) => (
           <div
@@ -292,9 +176,6 @@ export default function RegexTester() {
         )}
       </Show>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Test string input                                                   */}
-      {/* ------------------------------------------------------------------ */}
       <div style={{ display: "flex", "flex-direction": "column", gap: "0.375rem" }}>
         <label style={labelStyle}>Test string</label>
         <textarea
@@ -320,9 +201,6 @@ export default function RegexTester() {
         />
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Highlighted output                                                  */}
-      {/* ------------------------------------------------------------------ */}
       <Show when={input().trim()}>
         <div
           style={{
@@ -332,7 +210,6 @@ export default function RegexTester() {
             overflow: "hidden",
           }}
         >
-          {/* Header with match count */}
           <div
             style={{
               display: "flex",
@@ -346,14 +223,7 @@ export default function RegexTester() {
             <Show
               when={pattern() && !result().error}
               fallback={
-                <span
-                  style={{
-                    "font-size": "0.8125rem",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  —
-                </span>
+                <span style={{ "font-size": "0.8125rem", color: "var(--text-muted)" }}>—</span>
               }
             >
               <span
@@ -372,7 +242,6 @@ export default function RegexTester() {
             </Show>
           </div>
 
-          {/* Highlighted text */}
           <pre
             style={{
               margin: "0",
@@ -390,9 +259,6 @@ export default function RegexTester() {
         </div>
       </Show>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Capture groups table                                                */}
-      {/* ------------------------------------------------------------------ */}
       <Show when={hasCaptures() && matchCount() > 0}>
         <div
           style={{
@@ -402,12 +268,7 @@ export default function RegexTester() {
             overflow: "hidden",
           }}
         >
-          <div
-            style={{
-              padding: "0.5rem 1rem",
-              "border-bottom": "1px solid var(--border)",
-            }}
-          >
+          <div style={{ padding: "0.5rem 1rem", "border-bottom": "1px solid var(--border)" }}>
             <span style={labelStyle}>Capture groups</span>
           </div>
 
@@ -463,7 +324,11 @@ export default function RegexTester() {
                       )}
                     </For>
                   </Show>
-                  <Show when={result().matches.some((m) => m.groups.some((g) => g.name === null))}>
+                  <Show
+                    when={result().matches.some((match) =>
+                      match.groups.some((group) => group.name === null)
+                    )}
+                  >
                     <th
                       style={{
                         padding: "0.5rem 1rem",
@@ -480,7 +345,7 @@ export default function RegexTester() {
               </thead>
               <tbody>
                 <For each={result().matches}>
-                  {(match, i) => (
+                  {(match: MatchResult, index) => (
                     <tr>
                       <td
                         style={{
@@ -490,7 +355,7 @@ export default function RegexTester() {
                           "white-space": "nowrap",
                         }}
                       >
-                        {i() + 1}
+                        {index() + 1}
                       </td>
                       <td
                         style={{
@@ -515,22 +380,22 @@ export default function RegexTester() {
                       <Show when={namedGroupNames().length > 0}>
                         <For each={namedGroupNames()}>
                           {(name) => {
-                            const g = match.groups.find((gr) => gr.name === name);
+                            const group = match.groups.find((candidate) => candidate.name === name);
                             return (
                               <td
                                 style={{
                                   padding: "0.375rem 1rem",
-                                  color: g ? "var(--accent-success)" : "var(--text-muted)",
+                                  color: group ? "var(--accent-success)" : "var(--text-muted)",
                                   "border-bottom": "1px solid var(--border)",
                                 }}
                               >
-                                {g ? g.value : "—"}
+                                {group ? group.value : "—"}
                               </td>
                             );
                           }}
                         </For>
                       </Show>
-                      <Show when={match.groups.some((g) => g.name === null)}>
+                      <Show when={match.groups.some((group) => group.name === null)}>
                         <td
                           style={{
                             padding: "0.375rem 1rem",
@@ -539,8 +404,8 @@ export default function RegexTester() {
                           }}
                         >
                           {match.groups
-                            .filter((g) => g.name === null)
-                            .map((g) => g.value)
+                            .filter((group) => group.name === null)
+                            .map((group) => group.value)
                             .join(", ")}
                         </td>
                       </Show>
@@ -553,15 +418,8 @@ export default function RegexTester() {
         </div>
       </Show>
 
-      {/* Empty state */}
       <Show when={!pattern() && !input().trim()}>
-        <p
-          style={{
-            "font-size": "0.8125rem",
-            color: "var(--text-muted)",
-            margin: "0",
-          }}
-        >
+        <p style={{ "font-size": "0.8125rem", color: "var(--text-muted)", margin: "0" }}>
           Enter a regex pattern and test string — matches are highlighted in real time
         </p>
       </Show>

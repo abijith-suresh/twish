@@ -1,72 +1,7 @@
 import { createMemo, createSignal, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Convert a base64url string to standard base64 and decode it. */
-function decodeBase64Url(str: string): unknown {
-  // Replace base64url chars with standard base64 chars
-  const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
-  // Pad to a multiple of 4
-  const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
-
-  let decoded: string;
-  try {
-    decoded = atob(padded);
-  } catch {
-    throw new Error("Invalid base64url encoding");
-  }
-
-  // atob gives a binary string — decode as UTF-8 via percent-encoding trick
-  const utf8 = decodeURIComponent(
-    decoded
-      .split("")
-      .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
-      .join("")
-  );
-
-  try {
-    return JSON.parse(utf8) as unknown;
-  } catch {
-    // Non-JSON payload: return the raw string
-    return utf8;
-  }
-}
-
-interface ParsedJwt {
-  header: unknown;
-  payload: unknown;
-  signature: string;
-}
-
-/** Parse a JWT string into its three parts, or return null on failure. */
-function parseJwt(token: string): ParsedJwt | null {
-  const parts = token.trim().split(".");
-  if (parts.length !== 3) return null;
-
-  const [rawHeader, rawPayload, signature] = parts;
-
-  try {
-    const header = decodeBase64Url(rawHeader);
-    const payload = decodeBase64Url(rawPayload);
-    return { header, payload, signature };
-  } catch {
-    return null;
-  }
-}
-
-/** Pretty-print any value as JSON (2-space indent). */
-function prettyJson(value: unknown): string {
-  return JSON.stringify(value, null, 2);
-}
-
-/** Format a Unix timestamp (seconds) into a locale date+time string. */
-function formatExp(exp: number): string {
-  return new Date(exp * 1000).toLocaleString();
-}
+import { getJwtExpiryStatus, parseJwt, prettyJson } from "@/lib/jwt";
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -138,7 +73,7 @@ function Panel(props: PanelProps) {
 export default function JwtDecoder() {
   const [input, setInput] = createSignal("");
 
-  const parsed = createMemo((): ParsedJwt | null => {
+  const parsed = createMemo(() => {
     const raw = input().trim();
     if (!raw) return null;
     return parseJwt(raw);
@@ -152,22 +87,11 @@ export default function JwtDecoder() {
   });
 
   /** Expiry status derived from the payload's `exp` claim. */
-  const expiryStatus = createMemo((): { expired: boolean; label: string } | null => {
+  const expiryStatus = createMemo(() => {
     const result = parsed();
     if (!result) return null;
 
-    const payload = result.payload;
-    if (typeof payload !== "object" || payload === null) return null;
-
-    const exp = (payload as Record<string, unknown>)["exp"];
-    if (typeof exp !== "number") return null;
-
-    const now = Math.floor(Date.now() / 1000);
-    const expired = now > exp;
-    return {
-      expired,
-      label: expired ? `Token expired — ${formatExp(exp)}` : `Valid until ${formatExp(exp)}`,
-    };
+    return getJwtExpiryStatus(result.payload);
   });
 
   return (

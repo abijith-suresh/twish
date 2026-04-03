@@ -42,7 +42,7 @@ if (!tool) {
 
     <!-- Tool component -->
     <div class="tool-body">
-      <ToolHost componentPath={tool.componentPath} client:load />
+      <ToolHost componentPath={tool.componentPath} toolName={tool.name} client:load />
     </div>
   </div>
 </EditorShell>

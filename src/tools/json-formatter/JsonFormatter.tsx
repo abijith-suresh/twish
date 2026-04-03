@@ -1,85 +1,13 @@
 import { createMemo, createSignal, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-type IndentSize = 2 | 4;
-
-interface FormatResult {
-  html: string;
-  raw: string;
-  error: string | null;
-  errorLine: number | null;
-}
-
-/** Very small tokenizer-based syntax highlighter (no shiki needed at runtime). */
-function syntaxHighlight(json: string): string {
-  return json
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
-      (match) => {
-        let cls = "color: var(--accent-primary)"; // number
-        if (/^"/.test(match)) {
-          if (/:$/.test(match)) {
-            cls = "color: var(--text-primary); font-weight: 600"; // key
-          } else {
-            cls = "color: var(--accent-success)"; // string value
-          }
-        } else if (/true|false/.test(match)) {
-          cls = "color: var(--accent-warning)"; // boolean
-        } else if (/null/.test(match)) {
-          cls = "color: var(--text-muted)"; // null
-        }
-        return `<span style="${cls}">${match}</span>`;
-      }
-    );
-}
-
-/** Extract line/column from a JSON parse error message. */
-function parseErrorPosition(msg: string): number | null {
-  const match = /line (\d+)/.exec(msg) ?? /position (\d+)/.exec(msg);
-  if (!match) return null;
-  return parseInt(match[1], 10);
-}
-
-function formatJson(input: string, indent: IndentSize, minify: boolean): FormatResult {
-  const trimmed = input.trim();
-  if (!trimmed) return { html: "", raw: "", error: null, errorLine: null };
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(trimmed) as unknown;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return {
-      html: "",
-      raw: "",
-      error: `JSON parse error: ${msg}`,
-      errorLine: parseErrorPosition(msg),
-    };
-  }
-
-  const raw = minify ? JSON.stringify(parsed) : JSON.stringify(parsed, null, indent);
-
-  const html = syntaxHighlight(raw);
-  return { html, raw, error: null, errorLine: null };
-}
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
+import { formatJson, type IndentSize, type JsonFormatResult } from "@/lib/jsonFormatter";
 
 export default function JsonFormatter() {
   const [input, setInput] = createSignal("");
   const [indent, setIndent] = createSignal<IndentSize>(2);
   const [minify, setMinify] = createSignal(false);
-  const result = createMemo((): FormatResult => formatJson(input(), indent(), minify()));
+  const result = createMemo((): JsonFormatResult => formatJson(input(), indent(), minify()));
 
   const tabStyle = (active: boolean) => ({
     padding: "0.25rem 0.625rem",
@@ -105,9 +33,6 @@ export default function JsonFormatter() {
         width: "100%",
       }}
     >
-      {/* ------------------------------------------------------------------ */}
-      {/* Toolbar                                                             */}
-      {/* ------------------------------------------------------------------ */}
       <div
         style={{
           display: "flex",
@@ -116,7 +41,6 @@ export default function JsonFormatter() {
           gap: "0.75rem",
         }}
       >
-        {/* Indent toggle */}
         <div
           style={{
             display: "flex",
@@ -148,7 +72,6 @@ export default function JsonFormatter() {
           </button>
         </div>
 
-        {/* Minify toggle */}
         <button
           style={{
             padding: "0.25rem 0.75rem",
@@ -162,12 +85,11 @@ export default function JsonFormatter() {
             "font-weight": "600",
             cursor: "pointer",
           }}
-          onClick={() => setMinify((v) => !v)}
+          onClick={() => setMinify((value) => !value)}
         >
           Minify
         </button>
 
-        {/* Clear */}
         <Show when={input().trim()}>
           <button
             style={{
@@ -187,9 +109,6 @@ export default function JsonFormatter() {
         </Show>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Input                                                               */}
-      {/* ------------------------------------------------------------------ */}
       <div style={{ display: "flex", "flex-direction": "column", gap: "0.375rem" }}>
         <label
           style={{
@@ -227,9 +146,6 @@ export default function JsonFormatter() {
         />
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Error banner                                                        */}
-      {/* ------------------------------------------------------------------ */}
       <Show when={result().error}>
         {(msg) => (
           <div
@@ -249,9 +165,6 @@ export default function JsonFormatter() {
         )}
       </Show>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Output                                                              */}
-      {/* ------------------------------------------------------------------ */}
       <Show when={result().html}>
         {(html) => (
           <div
@@ -262,7 +175,6 @@ export default function JsonFormatter() {
               overflow: "hidden",
             }}
           >
-            {/* Output header */}
             <div
               style={{
                 display: "flex",
@@ -286,7 +198,6 @@ export default function JsonFormatter() {
               <CopyButton text={result().raw} />
             </div>
 
-            {/* Syntax-highlighted output */}
             <pre
               style={{
                 margin: "0",
