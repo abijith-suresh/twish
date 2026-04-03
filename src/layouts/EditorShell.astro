@@ -2,6 +2,7 @@
 import { ViewTransitions } from "astro:transitions";
 
 import CommandPalette from "@/components/CommandPalette";
+import { getPwaRouteBootstrapScript } from "@/lib/pwaRoute";
 import SettingsModal from "@/components/SettingsModal";
 import { getThemeBootstrapScript } from "@/lib/theme";
 import "@/styles/global.css";
@@ -85,6 +86,8 @@ const grouped: GroupedTool[] = categoryOrder
     <link rel="manifest" href="/manifest.webmanifest" />
     <!-- Theme init: runs before paint to prevent flash -->
     <script is:inline set:html={getThemeBootstrapScript()} />
+    <!-- Restore the last tool route when an installed session reopens at home. -->
+    <script is:inline set:html={getPwaRouteBootstrapScript()} />
     <ViewTransitions />
   </head>
   <body>

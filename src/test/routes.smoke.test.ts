@@ -17,6 +17,12 @@ function readBuiltHtml(filePath: string): string {
   return readFileSync(absolutePath, "utf8");
 }
 
+function readBuiltAsset(filePath: string): string {
+  const absolutePath = resolve(distDir, filePath);
+  expect(existsSync(absolutePath)).toBe(true);
+  return readFileSync(absolutePath, "utf8");
+}
+
 beforeAll(() => {
   rmSync(distDir, { force: true, recursive: true });
 
@@ -31,6 +37,7 @@ describe("route smoke", () => {
     const html = readBuiltHtml("index.html");
 
     expect(html).toContain("unwrapped.tools");
+    expect(html).toContain("/manifest.webmanifest");
 
     for (const tool of tools) {
       expect(html).toContain(getToolRoute(tool.slug));
@@ -43,6 +50,17 @@ describe("route smoke", () => {
 
       expect(html).toContain(tool.name);
       expect(html).toContain(tool.description);
+      expect(html).toContain("/manifest.webmanifest");
     });
   }
+
+  it("precaches the home route and every registered tool route in the service worker", () => {
+    const serviceWorker = readBuiltAsset("sw.js");
+
+    expect(serviceWorker).toMatch(/"url":\s*"\/"/);
+
+    for (const tool of tools) {
+      expect(serviceWorker).toMatch(new RegExp(`"url":\\s*"${getToolRoute(tool.slug).slice(1)}"`));
+    }
+  });
 });
