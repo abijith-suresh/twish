@@ -1,7 +1,8 @@
 import { Check, Settings, X } from "lucide-solid";
 import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 
-import { getTheme, setTheme, type ThemeName, THEMES } from "@/lib/theme";
+import { clearLocalPersistence } from "@/lib/localPersistence";
+import { applyTheme, DEFAULT_THEME, getTheme, setTheme, type ThemeName, THEMES } from "@/lib/theme";
 
 // Hardcoded accent hex values for theme dot previews (explicitly allowed)
 const THEME_ACCENTS: Record<ThemeName, string> = {
@@ -23,6 +24,12 @@ export default function SettingsModal() {
 
   function closeModal() {
     setOpen(false);
+  }
+
+  function handleClear() {
+    clearLocalPersistence();
+    applyTheme(DEFAULT_THEME);
+    closeModal();
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -172,6 +179,31 @@ export default function SettingsModal() {
                   }}
                 </For>
               </ul>
+            </div>
+
+            {/* Footer — clear data */}
+            <div class="px-3 py-2.5" style={{ "border-top": "1px solid var(--border)" }}>
+              <button
+                onClick={handleClear}
+                class="w-full rounded px-3 py-1.5 text-left text-xs font-medium transition-colors focus:outline-none"
+                style={{
+                  "font-family": "var(--font-mono)",
+                  background: "none",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-error)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--accent-error)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+                }}
+              >
+                Clear local data
+              </button>
             </div>
           </div>
         </div>
