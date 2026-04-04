@@ -1,0 +1,122 @@
+---
+import EditorShell from "@/layouts/EditorShell.astro";
+import { tools } from "@/tools/registry";
+---
+
+<EditorShell
+  title="Features"
+  description="What unwrapped.tools offers — tools, themes, shortcuts, and PWA support."
+  activeSlug="features"
+>
+  <div class="readme-pane">
+    <pre
+      class="code-block"><code><span class="tok-comment">/**
+ * features.ts — What unwrapped.tools offers
+ */</span>
+
+<span class="tok-kw">const</span> <span class="tok-id">tools</span> <span class="tok-punct">=</span> <span class="tok-punct">[</span>
+{tools.map((tool) => (
+  <a href={`/tools/${tool.slug}`} class="code-line-link">  <span class="tok-punct">{"{"}</span> <span class="tok-id">name</span><span class="tok-punct">:</span> <span class="tok-str">"{tool.name}"</span><span class="tok-punct">,</span> <span class="tok-id">category</span><span class="tok-punct">:</span> <span class="tok-str">"{tool.category}"</span> <span class="tok-punct">{"}"}</span><span class="tok-punct">,</span>
+</a>
+))}<span class="tok-punct">]</span><span class="tok-punct">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-id">themes</span> <span class="tok-punct">=</span> <span class="tok-punct">[</span>
+  <span class="tok-str">"catppuccin"</span><span class="tok-punct">,</span>  <span class="tok-comment">// default</span>
+  <span class="tok-str">"dracula"</span><span class="tok-punct">,</span>
+  <span class="tok-str">"nord"</span><span class="tok-punct">,</span>
+  <span class="tok-str">"gruvbox"</span><span class="tok-punct">,</span>
+<span class="tok-punct">]</span><span class="tok-punct">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-id">shortcuts</span> <span class="tok-punct">=</span> <span class="tok-punct">{"{"}</span>
+  <span class="tok-str">"Cmd+K"</span><span class="tok-punct">:</span> <span class="tok-str">"open command palette"</span><span class="tok-punct">,</span>
+  <span class="tok-str">"Escape"</span><span class="tok-punct">:</span> <span class="tok-str">"close modal or palette"</span><span class="tok-punct">,</span>
+<span class="tok-punct">{"}"}</span><span class="tok-punct">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-id">pwa</span> <span class="tok-punct">=</span> <span class="tok-punct">{"{"}</span>
+  <span class="tok-id">installable</span><span class="tok-punct">:</span> <span class="tok-bool">true</span><span class="tok-punct">,</span>
+  <span class="tok-id">offlineReady</span><span class="tok-punct">:</span> <span class="tok-bool">true</span><span class="tok-punct">,</span>
+  <span class="tok-id">routeRecovery</span><span class="tok-punct">:</span> <span class="tok-str">"reopens last visited tool on launch"</span><span class="tok-punct">,</span>
+<span class="tok-punct">{"}"}</span><span class="tok-punct">;</span>
+
+<span class="tok-cursor">▌</span></code></pre>
+  </div>
+</EditorShell>
+
+<style>
+  .readme-pane {
+    padding: 1.5rem 2rem;
+    min-height: 100%;
+    font-family: var(--font-mono);
+  }
+
+  .code-block {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.75;
+    color: var(--text-primary);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .code-block code {
+    display: block;
+  }
+
+  .tok-kw {
+    color: var(--accent-primary);
+  }
+  .tok-id {
+    color: var(--text-primary);
+  }
+  .tok-str {
+    color: var(--accent-success);
+  }
+  .tok-bool {
+    color: var(--accent-secondary);
+  }
+  .tok-comment {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .tok-punct {
+    color: var(--text-secondary);
+  }
+
+  .tok-cursor {
+    color: var(--accent-primary);
+    animation: blink 1.1s step-start infinite;
+  }
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .code-line-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 2px;
+    transition: background-color 0.1s;
+  }
+  .code-line-link:hover {
+    background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  }
+
+  @media (max-width: 600px) {
+    .readme-pane {
+      padding: 1rem;
+    }
+    .code-block {
+      font-size: 0.78rem;
+    }
+  }
+</style>
