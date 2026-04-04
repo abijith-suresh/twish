@@ -30,6 +30,13 @@ const canonicalURL = new URL(
 );
 const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.tools`;
 
+const SIDEBAR_PAGES = [
+  { slug: "about", label: "about.ts" },
+  { slug: "features", label: "features.ts" },
+  { slug: "privacy", label: "privacy.ts" },
+  { slug: "changelog", label: "changelog.ts" },
+];
+
 // Group tools by category, preserving registry order
 const categoryOrder: ToolCategory[] = [
   "security",
@@ -144,6 +151,32 @@ const grouped: GroupedTool[] = categoryOrder
           transition:animate="none"
         >
           <div class="sidebar-section-label">EXPLORER</div>
+
+          {/* Pages section */}
+          <div class="sidebar-group">
+            <div class="sidebar-category">pages</div>
+            <ul class="sidebar-list">
+              {
+                SIDEBAR_PAGES.map((page) => (
+                  <li>
+                    <a
+                      href={`/${page.slug}`}
+                      class:list={[
+                        "sidebar-item",
+                        { "sidebar-item--active": page.slug === activeSlug },
+                      ]}
+                      aria-current={page.slug === activeSlug ? "page" : undefined}
+                    >
+                      <span class="sidebar-item-icon" aria-hidden="true">
+                        {page.slug === activeSlug ? "▸" : " "}
+                      </span>
+                      <span class="sidebar-item-name">{page.label}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
 
           {
             grouped.map((group) => (
