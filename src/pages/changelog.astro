@@ -1,5 +1,59 @@
 ---
+import changelogSource from "../../CHANGELOG.md?raw";
 import EditorShell from "@/layouts/EditorShell.astro";
+
+type ReleaseSection = { title: string; items: string[] };
+type Release = { version: string; date: string; sections: ReleaseSection[] };
+
+function parseChangelog(source: string): Release[] {
+  const releases: Release[] = [];
+  const releaseMatches = [
+    ...source.matchAll(/^## \[(?!Unreleased)([^\]]+)\] - (\d{4}-\d{2}-\d{2})$/gm),
+  ];
+
+  for (const [index, match] of releaseMatches.entries()) {
+    const [, version, date] = match;
+    const start = (match.index ?? 0) + match[0].length + 1;
+    const end =
+      index + 1 < releaseMatches.length
+        ? (releaseMatches[index + 1].index ?? source.length)
+        : source.length;
+    const body = source.slice(start, end).trim();
+    const sections: ReleaseSection[] = [];
+    const sectionMatches = [...body.matchAll(/^### ([^\n]+)$/gm)];
+
+    for (const [sectionIndex, sectionMatch] of sectionMatches.entries()) {
+      const [, title] = sectionMatch;
+      const sectionStart = (sectionMatch.index ?? 0) + sectionMatch[0].length + 1;
+      const sectionEnd =
+        sectionIndex + 1 < sectionMatches.length
+          ? (sectionMatches[sectionIndex + 1].index ?? body.length)
+          : body.length;
+      const sectionBody = body.slice(sectionStart, sectionEnd).trim();
+      const items = sectionBody
+        .split("\n")
+        .filter((line) => line.startsWith("- "))
+        .map((line) => line.slice(2));
+
+      if (items.length > 0) sections.push({ title, items });
+    }
+
+    releases.push({ version, date, sections });
+  }
+
+  return releases;
+}
+
+const releases = parseChangelog(changelogSource);
+
+function formatDate(date: string) {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
 ---
 
 <EditorShell
@@ -7,103 +61,112 @@ import EditorShell from "@/layouts/EditorShell.astro";
   description="Release history for unwrapped.tools."
   activeSlug="changelog"
 >
-  <div class="readme-pane">
-    <pre
-      class="code-block"><code><span class="tok-comment">/**
- * changelog.ts — Release history
- */</span>
+  <section class="changelog-pane">
+    {
+      releases.map((release, i) => (
+        <article class="release-card">
+          <div class="release-header">
+            <div>
+              <p class="release-date">{formatDate(release.date)}</p>
+              <h2>{release.version}</h2>
+            </div>
+            {i === 0 && <span class="release-badge">Latest</span>}
+          </div>
 
-<span class="tok-kw">const</span> <span class="tok-id">releases</span> <span class="tok-punct">=</span> <span class="tok-punct">[</span>
-  <span class="tok-punct">{"{"}</span>
-    <span class="tok-id">version</span><span class="tok-punct">:</span> <span class="tok-str">"1.0.0"</span><span class="tok-punct">,</span>
-    <span class="tok-id">date</span><span class="tok-punct">:</span>    <span class="tok-str">"2025"</span><span class="tok-punct">,</span>
-    <span class="tok-id">tag</span><span class="tok-punct">:</span>     <span class="tok-str">"initial release"</span><span class="tok-punct">,</span>
-    <span class="tok-id">added</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
-      <span class="tok-str">"JWT Decoder"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Text Diff"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Base64 Encoder / Decoder"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"JSON Formatter"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Hash Generator"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"UUID Generator"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Timestamp Converter"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Regex Tester"</span><span class="tok-punct">,</span>
-    <span class="tok-punct">]</span><span class="tok-punct">,</span>
-    <span class="tok-id">platform</span><span class="tok-punct">:</span> <span class="tok-punct">[</span>
-      <span class="tok-str">"IDE-style shell with sidebar, tab bar, and status bar"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Four themes: catppuccin, dracula, nord, gruvbox"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Command palette (Cmd+K)"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"PWA — installable, offline-ready, route recovery"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Diff web worker for large-file comparisons"</span><span class="tok-punct">,</span>
-      <span class="tok-str">"Local-only — no server, no uploads, no tracking"</span><span class="tok-punct">,</span>
-    <span class="tok-punct">]</span><span class="tok-punct">,</span>
-  <span class="tok-punct">{"}"}</span><span class="tok-punct">,</span>
-<span class="tok-punct">]</span><span class="tok-punct">;</span>
-
-<span class="tok-cursor">▌</span></code></pre>
-  </div>
+          <div class="release-sections">
+            {release.sections.map((section) => (
+              <section>
+                <h3>{section.title}</h3>
+                <ul>
+                  {section.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </article>
+      ))
+    }
+  </section>
 </EditorShell>
 
 <style>
-  .readme-pane {
+  .changelog-pane {
     padding: 1.5rem 2rem;
-    min-height: 100%;
-    font-family: var(--font-mono);
+    display: grid;
+    gap: 1.5rem;
   }
 
-  .code-block {
+  .release-card {
+    border: 1px solid var(--border-primary);
+    background: var(--surface-elevated);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+  }
+
+  .release-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .release-header h2 {
+    margin: 0.25rem 0 0;
+    font-size: 1.125rem;
+  }
+
+  .release-date {
     margin: 0;
-    padding: 0;
-    background: none;
-    border: none;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1.75;
-    color: var(--text-primary);
-    white-space: pre;
-    overflow-x: auto;
-  }
-
-  .code-block code {
-    display: block;
-  }
-
-  .tok-kw {
-    color: var(--accent-primary);
-  }
-  .tok-id {
-    color: var(--text-primary);
-  }
-  .tok-str {
-    color: var(--accent-success);
-  }
-  .tok-comment {
     color: var(--text-muted);
-    font-style: italic;
-  }
-  .tok-punct {
-    color: var(--text-secondary);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
 
-  .tok-cursor {
+  .release-badge {
+    font-size: 0.75rem;
     color: var(--accent-primary);
-    animation: blink 1.1s step-start infinite;
+    background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
   }
-  @keyframes blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
+
+  .release-sections {
+    margin-top: 1rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .release-sections h3 {
+    margin: 0 0 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .release-sections ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .release-sections li {
+    color: var(--text-primary);
+    line-height: 1.6;
   }
 
   @media (max-width: 600px) {
-    .readme-pane {
+    .changelog-pane {
       padding: 1rem;
     }
-    .code-block {
-      font-size: 0.78rem;
+
+    .release-header {
+      flex-direction: column;
     }
   }
 </style>
