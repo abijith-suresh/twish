@@ -3,6 +3,12 @@ import solid from "@astrojs/solid-js";
 import { defineConfig } from "astro/config";
 import AstroPWA from "@vite-pwa/astro";
 
+type AstroVitePlugins = NonNullable<
+  NonNullable<Parameters<typeof defineConfig>[0]>["vite"]
+>["plugins"];
+
+const tailwindPlugins = tailwindcss() as unknown as AstroVitePlugins;
+
 export default defineConfig({
   site: "https://unwrapped-tools.vercel.app",
   integrations: [
@@ -41,8 +47,7 @@ export default defineConfig({
     }),
   ],
   vite: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    plugins: [tailwindcss() as any],
+    plugins: tailwindPlugins,
     resolve: {
       alias: {
         "@": "/src",

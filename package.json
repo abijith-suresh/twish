@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "tsc --noEmit",
+    "type-check:scripts": "tsc --noEmit -p tsconfig.scripts.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
