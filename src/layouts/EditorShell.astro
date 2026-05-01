@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
 import CommandPalette from "@/components/CommandPalette";
 import { getPwaRouteBootstrapScript } from "@/lib/pwaRoute";
@@ -95,7 +95,7 @@ const grouped: GroupedTool[] = categoryOrder
     <script is:inline set:html={getThemeBootstrapScript()} />
     <!-- Restore the last tool route when an installed session reopens at home. -->
     <script is:inline set:html={getPwaRouteBootstrapScript()} />
-    <ViewTransitions />
+    <ClientRouter />
   </head>
   <body>
     <!-- ═══════════════════════════════════════════════════

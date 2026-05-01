@@ -1,13 +1,6 @@
-import tailwindcss from "@tailwindcss/vite";
 import solid from "@astrojs/solid-js";
 import { defineConfig } from "astro/config";
 import AstroPWA from "@vite-pwa/astro";
-
-type AstroVitePlugins = NonNullable<
-  NonNullable<Parameters<typeof defineConfig>[0]>["vite"]
->["plugins"];
-
-const tailwindPlugins = tailwindcss() as unknown as AstroVitePlugins;
 
 export default defineConfig({
   site: "https://unwrapped-tools.vercel.app",
@@ -47,10 +40,10 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: tailwindPlugins,
     resolve: {
       alias: {
         "@": "/src",
+        "lucide-solid": "/node_modules/lucide-solid/dist/source/lucide-solid.jsx",
       },
     },
   },
