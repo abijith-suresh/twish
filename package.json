@@ -27,7 +27,7 @@
     "@fontsource/jetbrains-mono": "^5.2.8",
     "astro": "^5.17.3",
     "diff": "^8.0.3",
-    "lucide-solid": "^0.525.0",
+    "lucide-solid": "^1.14.0",
     "shiki": "^4.0.2",
     "smol-toml": "^1.6.1",
     "solid-js": "^1.9.12",

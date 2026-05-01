@@ -10,7 +10,7 @@
         "@fontsource/jetbrains-mono": "^5.2.8",
         "astro": "^5.17.3",
         "diff": "^8.0.3",
-        "lucide-solid": "^0.525.0",
+        "lucide-solid": "^1.14.0",
         "shiki": "^4.0.2",
         "smol-toml": "^1.6.1",
         "solid-js": "^1.9.12",
@@ -1321,7 +1321,7 @@
 
     "lru-cache": ["lru-cache@11.2.6", "", {}, "sha512-ESL2CrkS/2wTPfuend7Zhkzo2u0daGJ/A2VucJOgQ/C48S/zB8MMeMHSGKYpXhIjbPxfuezITkaBH1wqv00DDQ=="],
 
-    "lucide-solid": ["lucide-solid@0.525.0", "", { "peerDependencies": { "solid-js": "^1.4.7" } }, "sha512-wh8zzvmWVzYh/q3Fh4nTbH4ZW8ROPvCd7kAXvHqAVDOP6QR4UHSDJ6Q8YCdFkmI/mWipiHJdY1z20R68JDovFQ=="],
+    "lucide-solid": ["lucide-solid@1.14.0", "", { "peerDependencies": { "solid-js": "^1.4.7" } }, "sha512-OeuC91agcJS3CyneSo96VpdkUAQdQO8c8r0QO5/FIkGnlfJ7Gd0fw3Z6CcdKnG94P0Ydwt+He2ar3oeTzbuNnw=="],
 
     "magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
 
