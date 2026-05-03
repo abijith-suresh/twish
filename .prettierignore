@@ -4,3 +4,7 @@ node_modules/
 bun.lock
 bun.lockb
 CHANGELOG.md
+# impeccable skill context files (auto-generated, not project source)
+DESIGN.md
+DESIGN.json
+PRODUCT.md

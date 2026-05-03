@@ -156,8 +156,16 @@ const grouped: GroupedTool[] = categoryOrder
 
           {/* Pages section */}
           <div class="sidebar-group">
-            <div class="sidebar-category">pages</div>
-            <ul class="sidebar-list">
+            <div
+              class="sidebar-category"
+              tabindex="0"
+              role="button"
+              aria-expanded="true"
+              aria-controls="sidebar-cat-pages"
+            >
+              pages
+            </div>
+            <ul class="sidebar-list" id="sidebar-cat-pages">
               {
                 SIDEBAR_PAGES.map((page) => (
                   <li>
@@ -183,8 +191,16 @@ const grouped: GroupedTool[] = categoryOrder
           {
             grouped.map((group) => (
               <div class="sidebar-group">
-                <div class="sidebar-category">{group.category}</div>
-                <ul class="sidebar-list">
+                <div
+                  class="sidebar-category"
+                  tabindex="0"
+                  role="button"
+                  aria-expanded="true"
+                  aria-controls={`sidebar-cat-${group.category}`}
+                >
+                  {group.category}
+                </div>
+                <ul class="sidebar-list" id={`sidebar-cat-${group.category}`}>
                   {group.items.map((tool) => (
                     <li>
                       <a
@@ -294,7 +310,50 @@ const grouped: GroupedTool[] = categoryOrder
         };
       }
 
+      function initSidebarCategories() {
+        const STORAGE_KEY = "sidebar-collapsed";
+        const stored = sessionStorage.getItem(STORAGE_KEY);
+        const collapsed: string[] = stored ? (JSON.parse(stored) as string[]) : [];
+
+        const categories = document.querySelectorAll<HTMLElement>(".sidebar-category");
+        categories.forEach((cat) => {
+          const id = cat.getAttribute("aria-controls");
+          if (!id) return;
+          const list = document.getElementById(id);
+          if (!list) return;
+
+          // Restore persisted collapsed state
+          if (collapsed.includes(id)) {
+            cat.setAttribute("aria-expanded", "false");
+            list.classList.add("sidebar-list--collapsed");
+          }
+
+          function toggle() {
+            const isExpanded = cat.getAttribute("aria-expanded") !== "false";
+            cat.setAttribute("aria-expanded", isExpanded ? "false" : "true");
+            list!.classList.toggle("sidebar-list--collapsed", isExpanded);
+
+            // Persist
+            const nowCollapsed = Array.from(
+              document.querySelectorAll<HTMLElement>(".sidebar-category[aria-expanded='false']")
+            )
+              .map((el) => el.getAttribute("aria-controls"))
+              .filter(Boolean) as string[];
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nowCollapsed));
+          }
+
+          cat.addEventListener("click", toggle);
+          cat.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggle();
+            }
+          });
+        });
+      }
+
       document.addEventListener("astro:page-load", initSidebarToggle);
+      document.addEventListener("astro:page-load", initSidebarCategories);
 
       // Persist data-theme across View Transitions navigations.
       // astro:before-swap fires before the incoming DOM replaces the current DOM,
@@ -375,7 +434,6 @@ const grouped: GroupedTool[] = categoryOrder
         height: 7px;
         border-radius: 50%;
         background-color: var(--accent-primary);
-        opacity: 0.7;
         flex-shrink: 0;
       }
 
@@ -450,11 +508,24 @@ const grouped: GroupedTool[] = categoryOrder
         display: flex;
         align-items: center;
         gap: 0.25rem;
+        cursor: pointer;
+        user-select: none;
+      }
+      .sidebar-category:hover {
+        color: var(--text-primary);
       }
       .sidebar-category::before {
         content: "▾";
         font-size: 0.65rem;
         color: var(--text-secondary);
+        display: inline-block;
+        transition: transform 0.15s ease;
+      }
+      .sidebar-category[aria-expanded="false"]::before {
+        transform: rotate(-90deg);
+      }
+      .sidebar-list--collapsed {
+        display: none;
       }
 
       .sidebar-list {

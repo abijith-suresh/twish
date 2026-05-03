@@ -44,9 +44,15 @@ function parseChangelog(source: string): Release[] {
   return releases;
 }
 
-const releases = parseChangelog(changelogSource);
+function toId(version: string): string {
+  return "v" + version.replace(/\./g, "_");
+}
 
-function formatDate(date: string) {
+function escHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function formatDateShort(date: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -54,6 +60,47 @@ function formatDate(date: string) {
     timeZone: "UTC",
   });
 }
+
+const releases = parseChangelog(changelogSource);
+
+// Build the fake-code HTML that renders like a .ts file
+const headerHtml =
+  `<span class="tok-comment">/**\n * changelog.ts — Release history\n */</span>\n` +
+  `\n` +
+  `<span class="tok-kw">import</span> <span class="tok-punct">{</span> <span class="tok-id">releases</span> <span class="tok-punct">}</span> <span class="tok-kw">from</span> <span class="tok-str">"unwrapped.tools/changelog"</span><span class="tok-punct">;</span>\n` +
+  `\n`;
+
+const releasesHtml = releases
+  .map((release, i) => {
+    const id = toId(release.version);
+    const date = formatDateShort(release.date);
+    const tag = i === 0 ? " · latest" : "";
+
+    const lines: string[] = [];
+    lines.push(
+      `<span class="tok-kw">const</span> <span class="tok-id">${id}</span> <span class="tok-punct">=</span> <span class="tok-punct">{</span>  <span class="tok-comment">// ${escHtml(date)}${tag}</span>`
+    );
+
+    for (const section of release.sections) {
+      lines.push(
+        `  <span class="tok-id">${escHtml(section.title.toLowerCase())}</span><span class="tok-punct">: [</span>`
+      );
+      for (const item of section.items) {
+        lines.push(
+          `    <span class="tok-str">"${escHtml(item)}"</span><span class="tok-punct">,</span>`
+        );
+      }
+      lines.push(`  <span class="tok-punct">],</span>`);
+    }
+
+    lines.push(`<span class="tok-punct">};</span>`);
+    return lines.join("\n");
+  })
+  .join("\n\n");
+
+const cursorHtml = `\n\n<span class="tok-cursor">▌</span>`;
+
+const codeHtml = headerHtml + releasesHtml + cursorHtml;
 ---
 
 <EditorShell
@@ -61,112 +108,65 @@ function formatDate(date: string) {
   description="Release history for unwrapped.tools."
   activeSlug="changelog"
 >
-  <section class="changelog-pane">
-    {
-      releases.map((release, i) => (
-        <article class="release-card">
-          <div class="release-header">
-            <div>
-              <p class="release-date">{formatDate(release.date)}</p>
-              <h2>{release.version}</h2>
-            </div>
-            {i === 0 && <span class="release-badge">Latest</span>}
-          </div>
-
-          <div class="release-sections">
-            {release.sections.map((section) => (
-              <section>
-                <h3>{section.title}</h3>
-                <ul>
-                  {section.items.map((item) => (
-                    <li>{item}</li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          </div>
-        </article>
-      ))
-    }
-  </section>
+  <div class="readme-pane">
+    <pre class="code-block"><code set:html={codeHtml} /></pre>
+  </div>
 </EditorShell>
 
 <style>
-  .changelog-pane {
+  .readme-pane {
     padding: 1.5rem 2rem;
-    display: grid;
-    gap: 1.5rem;
+    min-height: 100%;
+    font-family: var(--font-mono);
   }
 
-  .release-card {
-    border: 1px solid var(--border-primary);
-    background: var(--surface-elevated);
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-  }
-
-  .release-header {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-
-  .release-header h2 {
-    margin: 0.25rem 0 0;
-    font-size: 1.125rem;
-  }
-
-  .release-date {
+  .code-block {
     margin: 0;
-    color: var(--text-muted);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .release-badge {
-    font-size: 0.75rem;
-    color: var(--accent-primary);
-    background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
-    border-radius: 999px;
-    padding: 0.18rem 0.55rem;
-  }
-
-  .release-sections {
-    margin-top: 1rem;
-    display: grid;
-    gap: 1rem;
-  }
-
-  .release-sections h3 {
-    margin: 0 0 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .release-sections ul {
-    margin: 0;
-    padding-left: 1.2rem;
-    display: grid;
-    gap: 0.45rem;
-  }
-
-  .release-sections li {
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.75;
     color: var(--text-primary);
-    line-height: 1.6;
+    /* pre-wrap so long changelog entries break gracefully */
+    white-space: pre-wrap;
+    overflow-x: auto;
+    word-break: break-word;
+  }
+
+  .code-block code {
+    display: block;
+  }
+
+  .tok-kw {
+    color: var(--accent-primary);
+  }
+
+  .tok-id {
+    color: var(--text-primary);
+  }
+
+  .tok-str {
+    color: var(--accent-success);
+  }
+
+  .tok-comment {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .tok-punct {
+    color: var(--text-secondary);
   }
 
   @media (max-width: 600px) {
-    .changelog-pane {
+    .readme-pane {
       padding: 1rem;
     }
 
-    .release-header {
-      flex-direction: column;
+    .code-block {
+      font-size: 0.78rem;
     }
   }
 </style>

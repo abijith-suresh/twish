@@ -135,7 +135,7 @@ export default function JsonFormatter() {
             border: `1px solid ${result().error ? "var(--accent-error)" : "var(--border)"}`,
             background: "var(--bg-secondary)",
             color: "var(--text-primary)",
-            "font-family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+            "font-family": "var(--font-mono)",
             "font-size": "0.875rem",
             "line-height": "1.6",
             resize: "vertical",
@@ -157,7 +157,7 @@ export default function JsonFormatter() {
               background: "color-mix(in srgb, var(--accent-error) 12%, transparent)",
               color: "var(--accent-error)",
               "font-size": "0.875rem",
-              "font-family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              "font-family": "var(--font-mono)",
             }}
           >
             {msg()}
@@ -206,7 +206,7 @@ export default function JsonFormatter() {
                 "font-size": "0.8125rem",
                 "line-height": "1.6",
                 color: "var(--text-primary)",
-                "font-family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                "font-family": "var(--font-mono)",
                 "white-space": "pre-wrap",
                 "word-break": "break-all",
               }}
