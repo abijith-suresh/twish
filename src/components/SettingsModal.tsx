@@ -1,5 +1,5 @@
 import { Check, Settings, X } from "lucide-solid";
-import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 
 import { clearLocalPersistence } from "@/lib/localPersistence";
 import { applyTheme, DEFAULT_THEME, getTheme, setTheme, type ThemeName, THEMES } from "@/lib/theme";
@@ -17,13 +17,18 @@ export default function SettingsModal() {
   const [activeTheme, setActiveTheme] = createSignal<ThemeName>(getTheme());
   const [hoveredTheme, setHoveredTheme] = createSignal<ThemeName | null>(null);
 
+  let dialogRef: HTMLDivElement | undefined;
+  let prevFocus: HTMLElement | null = null;
+
   function openModal() {
+    prevFocus = document.activeElement as HTMLElement;
     setActiveTheme(getTheme());
     setOpen(true);
   }
 
   function closeModal() {
     setOpen(false);
+    setTimeout(() => prevFocus?.focus(), 0);
   }
 
   function handleClear() {
@@ -32,11 +37,44 @@ export default function SettingsModal() {
     closeModal();
   }
 
+  // Auto-focus first focusable element when modal opens
+  createEffect(() => {
+    if (!open()) return;
+    setTimeout(() => {
+      const focusable = dialogRef?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      focusable?.[0]?.focus();
+    }, 0);
+  });
+
   function handleKeyDown(e: KeyboardEvent) {
     if (!open()) return;
     if (e.key === "Escape") {
       e.preventDefault();
       closeModal();
+      return;
+    }
+    if (e.key === "Tab" && dialogRef) {
+      const focusable = Array.from(
+        dialogRef.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
   }
 
@@ -82,6 +120,7 @@ export default function SettingsModal() {
             role="dialog"
             aria-modal="true"
             aria-label="Settings"
+            ref={(el) => (dialogRef = el)}
             class="w-full max-w-[400px] overflow-hidden rounded-md shadow-2xl"
             style={{
               "background-color": "var(--bg-secondary)",
@@ -94,7 +133,7 @@ export default function SettingsModal() {
               class="flex items-center justify-between px-4 py-3"
               style={{ "border-bottom": "1px solid var(--border)" }}
             >
-              <span class="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+              <span class="text-base font-semibold" style={{ color: "var(--text-primary)" }}>
                 Settings
               </span>
               <button
