@@ -80,21 +80,6 @@ import EditorShell from "@/layouts/EditorShell.astro";
     color: var(--text-secondary);
   }
 
-  /* Blinking cursor */
-  .tok-cursor {
-    color: var(--accent-primary);
-    animation: blink 1.1s step-start infinite;
-  }
-  @keyframes blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
-  }
-
   @media (max-width: 600px) {
     .readme-pane {
       padding: 1rem;

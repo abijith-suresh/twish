@@ -75,3 +75,25 @@ body {
 .font-code {
   font-family: var(--font-mono);
 }
+
+/* Shared fake-code cursor used across all info pages */
+.tok-cursor {
+  color: var(--accent-primary);
+  animation: blink 1.1s step-start infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tok-cursor {
+    animation: none;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
