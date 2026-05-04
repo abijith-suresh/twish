@@ -1,7 +1,7 @@
 import { createMemo, createSignal, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import { getJwtExpiryStatus, parseJwt, prettyJson } from "@/lib/jwt";
+import { getJwtClaimsSummary, getJwtExpiryStatus, parseJwt, prettyJson } from "@/lib/jwt";
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -84,6 +84,11 @@ export default function JwtDecoder() {
     if (!raw) return null;
     if (parsed() === null) return "Invalid JWT — expected three base64url parts separated by dots.";
     return null;
+  });
+
+  const claimsSummary = createMemo(() => {
+    const result = parsed();
+    return result ? getJwtClaimsSummary(result) : [];
   });
 
   /** Expiry status derived from the payload's `exp` claim. */
@@ -210,6 +215,95 @@ export default function JwtDecoder() {
                   {status().label}
                 </div>
               )}
+            </Show>
+
+            <Show when={claimsSummary().length > 0}>
+              <div
+                style={{
+                  background: "var(--bg-secondary)",
+                  border: "1px solid var(--border)",
+                  "border-radius": "0.5rem",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    "align-items": "center",
+                    "justify-content": "space-between",
+                    padding: "0.625rem 1rem",
+                    "border-bottom": "1px solid var(--border)",
+                  }}
+                >
+                  <span
+                    style={{
+                      "font-size": "0.75rem",
+                      "font-weight": "600",
+                      "letter-spacing": "0.05em",
+                      "text-transform": "uppercase",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    Claims summary
+                  </span>
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    "grid-template-columns": "repeat(auto-fit, minmax(220px, 1fr))",
+                    gap: "0.75rem",
+                    padding: "1rem",
+                  }}
+                >
+                  {claimsSummary().map((item) => (
+                    <div
+                      style={{
+                        display: "flex",
+                        "flex-direction": "column",
+                        gap: "0.25rem",
+                        padding: "0.75rem",
+                        background: "var(--bg-primary)",
+                        border: "1px solid var(--border)",
+                        "border-radius": "0.375rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          "font-size": "0.6875rem",
+                          "font-weight": "700",
+                          "letter-spacing": "0.06em",
+                          "text-transform": "uppercase",
+                          color: "var(--text-muted)",
+                        }}
+                      >
+                        {item.section} · {item.label}
+                      </span>
+                      <code
+                        style={{
+                          color: "var(--text-primary)",
+                          "font-size": "0.8125rem",
+                          "font-family": "var(--font-mono)",
+                          "word-break": "break-word",
+                        }}
+                      >
+                        {item.displayValue}
+                      </code>
+                      <Show when={item.displayValue !== item.rawValue}>
+                        <span
+                          style={{
+                            color: "var(--text-secondary)",
+                            "font-size": "0.75rem",
+                            "font-family": "var(--font-mono)",
+                            "word-break": "break-word",
+                          }}
+                        >
+                          raw: {item.rawValue}
+                        </span>
+                      </Show>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </Show>
 
             {/* Header panel */}
