@@ -1,28 +1,22 @@
-import { Check, Settings, X } from "lucide-solid";
-import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { Settings, X } from "lucide-solid";
+import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 
 import { clearLocalPersistence } from "@/lib/localPersistence";
-import { applyTheme, DEFAULT_THEME, getTheme, setTheme, type ThemeName, THEMES } from "@/lib/theme";
 
-// Hardcoded accent hex values for theme dot previews (explicitly allowed)
-const THEME_ACCENTS: Record<ThemeName, string> = {
-  dracula: "#bd93f9",
-  catppuccin: "#cba6f7",
-  nord: "#88c0d0",
-  gruvbox: "#d3869b",
-};
+interface Props {
+  /** When true, the gear button trigger is not rendered.
+   *  The modal can still be opened via the `open-settings` DOM event. */
+  hideButton?: boolean;
+}
 
-export default function SettingsModal() {
+export default function SettingsModal(props: Props) {
   const [open, setOpen] = createSignal(false);
-  const [activeTheme, setActiveTheme] = createSignal<ThemeName>(getTheme());
-  const [hoveredTheme, setHoveredTheme] = createSignal<ThemeName | null>(null);
 
   let dialogRef: HTMLDivElement | undefined;
   let prevFocus: HTMLElement | null = null;
 
   function openModal() {
     prevFocus = document.activeElement as HTMLElement;
-    setActiveTheme(getTheme());
     setOpen(true);
   }
 
@@ -33,7 +27,6 @@ export default function SettingsModal() {
 
   function handleClear() {
     clearLocalPersistence();
-    applyTheme(DEFAULT_THEME);
     closeModal();
   }
 
@@ -90,21 +83,23 @@ export default function SettingsModal() {
 
   return (
     <>
-      {/* Gear button trigger */}
-      <button
-        onClick={openModal}
-        aria-label="Open settings"
-        class="flex items-center justify-center transition-opacity focus:outline-none"
-        style={{ color: "var(--bg-primary)", opacity: "0.7" }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.opacity = "0.7";
-        }}
-      >
-        <Settings size={13} />
-      </button>
+      {/* Gear button trigger — hidden when `hideButton` is true (e.g. landing page) */}
+      <Show when={!props.hideButton}>
+        <button
+          onClick={openModal}
+          aria-label="Open settings"
+          class="flex items-center justify-center transition-opacity focus:outline-none"
+          style={{ color: "var(--text-primary)", opacity: "0.5" }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.opacity = "0.85";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.opacity = "0.5";
+          }}
+        >
+          <Settings size={13} />
+        </button>
+      </Show>
 
       <Show when={open()}>
         {/* Backdrop */}
@@ -155,73 +150,8 @@ export default function SettingsModal() {
               </button>
             </div>
 
-            {/* COLOR THEME section */}
-            <div>
-              {/* Section label */}
-              <div class="px-3 py-1.5" style={{ "background-color": "var(--bg-tertiary)" }}>
-                <span
-                  class="text-[10px] font-semibold uppercase tracking-widest"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  COLOR THEME
-                </span>
-              </div>
-
-              {/* Theme rows */}
-              <ul role="listbox" aria-label="Color theme">
-                <For each={THEMES}>
-                  {(theme) => {
-                    const isActive = () => activeTheme() === theme.name;
-                    const isHovered = () => hoveredTheme() === theme.name;
-                    return (
-                      <li
-                        role="option"
-                        aria-selected={isActive()}
-                        onClick={() => {
-                          setTheme(theme.name);
-                          setActiveTheme(theme.name);
-                        }}
-                        onMouseEnter={() => setHoveredTheme(theme.name)}
-                        onMouseLeave={() => setHoveredTheme(null)}
-                        class="flex cursor-pointer items-center gap-3 px-3 py-2 transition-colors"
-                        style={{
-                          "background-color":
-                            isActive() || isHovered()
-                              ? "color-mix(in srgb, var(--accent-primary) 15%, transparent)"
-                              : "transparent",
-                        }}
-                      >
-                        {/* Color dot */}
-                        <span
-                          style={{
-                            display: "inline-block",
-                            width: "12px",
-                            height: "12px",
-                            "border-radius": "50%",
-                            "background-color": THEME_ACCENTS[theme.name],
-                            "flex-shrink": "0",
-                          }}
-                        />
-                        {/* Theme name */}
-                        <span
-                          class="flex-1 text-sm font-semibold"
-                          style={{ color: "var(--text-primary)" }}
-                        >
-                          {theme.label}
-                        </span>
-                        {/* Active checkmark */}
-                        <Show when={isActive()}>
-                          <Check size={13} style={{ color: "var(--accent-primary)" }} />
-                        </Show>
-                      </li>
-                    );
-                  }}
-                </For>
-              </ul>
-            </div>
-
             {/* Footer — clear data */}
-            <div class="px-3 py-2.5" style={{ "border-top": "1px solid var(--border)" }}>
+            <div class="px-3 py-3">
               <button
                 onClick={handleClear}
                 class="w-full rounded px-3 py-1.5 text-left text-xs font-medium transition-colors focus:outline-none"

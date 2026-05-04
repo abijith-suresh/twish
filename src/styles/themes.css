@@ -1,61 +1,18 @@
-/* Four theme palettes as CSS custom properties */
-
-:root[data-theme="dracula"] {
-  --bg-primary: #282a36;
-  --bg-secondary: #44475a;
-  --bg-tertiary: #6272a4;
-  --text-primary: #f8f8f2;
-  --text-secondary: #8899cc;
-  --text-muted: #6272a4;
-  --accent-primary: #bd93f9;
-  --accent-secondary: #ff79c6;
-  --accent-success: #50fa7b;
-  --accent-warning: #ffb86c;
-  --accent-error: #ff5555;
-  --border: #44475a;
-}
-
-:root[data-theme="catppuccin"] {
-  --bg-primary: #1e1e2e;
-  --bg-secondary: #313244;
-  --bg-tertiary: #45475a;
-  --text-primary: #cdd6f4;
-  --text-secondary: #bac2de;
-  --text-muted: #6c7086;
-  --accent-primary: #cba6f7;
-  --accent-secondary: #f5c2e7;
-  --accent-success: #a6e3a1;
-  --accent-warning: #fab387;
-  --accent-error: #f38ba8;
-  --border: #313244;
-}
-
-:root[data-theme="nord"] {
-  --bg-primary: #2e3440;
-  --bg-secondary: #3b4252;
-  --bg-tertiary: #434c5e;
-  --text-primary: #eceff4;
-  --text-secondary: #d8dee9;
-  --text-muted: #4c566a;
-  --accent-primary: #88c0d0;
-  --accent-secondary: #81a1c1;
-  --accent-success: #a3be8c;
-  --accent-warning: #ebcb8b;
-  --accent-error: #bf616a;
-  --border: #3b4252;
-}
-
+:root,
+:root[data-theme="catppuccin"],
+:root[data-theme="dracula"],
+:root[data-theme="nord"],
 :root[data-theme="gruvbox"] {
-  --bg-primary: #282828;
-  --bg-secondary: #3c3836;
-  --bg-tertiary: #504945;
-  --text-primary: #ebdbb2;
-  --text-secondary: #d5c4a1;
-  --text-muted: #665c54;
-  --accent-primary: #d3869b;
-  --accent-secondary: #83a598;
-  --accent-success: #b8bb26;
-  --accent-warning: #fabd2f;
-  --accent-error: #fb4934;
-  --border: #3c3836;
+  --bg-primary: #09090b;
+  --bg-secondary: #13141a;
+  --bg-tertiary: #1c1d26;
+  --text-primary: #e4e4e9;
+  --text-secondary: #9498a5;
+  --text-muted: #5a5e6b;
+  --accent-primary: #34d399;
+  --accent-secondary: #6ee7b7;
+  --accent-success: #22c55e;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --border: #27272a;
 }

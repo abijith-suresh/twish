@@ -1,195 +1,293 @@
 ---
-import EditorShell from "@/layouts/EditorShell.astro";
-import { getToolRoute, tools } from "@/tools/registry";
-import type { ToolCategory } from "@/tools/registry";
+import LandingShell from "@/layouts/LandingShell.astro";
+import ToolSearch from "@/components/ToolSearch";
+import { tools } from "@/tools/registry";
 
-const catColor: Record<ToolCategory, string> = {
-  security: "var(--accent-error)",
-  text: "var(--accent-primary)",
-  encoding: "var(--accent-secondary)",
-  data: "var(--accent-secondary)",
-  generators: "var(--accent-success)",
-  time: "var(--accent-warning)",
-  network: "var(--accent-primary)",
-};
-
-const sitePages = [
-  { slug: "about", label: "about", description: "local-only philosophy, stack, and links" },
-  { slug: "features", label: "features", description: "tools, themes, shortcuts, and PWA" },
-  { slug: "privacy", label: "privacy", description: "local persistence contract" },
-  { slug: "changelog", label: "changelog", description: "release history" },
-];
-
-// Build camelCase JS identifier from slug
-function toCamelCase(slug: string): string {
-  return slug
-    .split("-")
-    .map((part, i) => (i === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)))
-    .join("");
-}
+const toolCount = tools.length;
 ---
 
-<EditorShell title="unwrapped.tools">
-  <div class="readme-pane">
-    <!-- Syntax-highlighted code block -->
-    <pre
-      class="code-block"><code><!-- line 1 --><span class="tok-kw">import</span> <span class="tok-punct">{"{"}</span> <span class="tok-id">unwrapped</span> <span class="tok-punct">{"}"}</span> <span class="tok-kw">from</span> <span class="tok-str">"unwrapped.tools"</span><span class="tok-punct">;</span>
-<!-- line 2 -->&nbsp;
-<!-- line 3 --><span class="tok-comment">// Fast, local-first developer tools.</span>
-<!-- line 4 --><span class="tok-comment">// No server. No uploads. No tracking.</span>
-<!-- line 5 -->&nbsp;
-<!-- line 6 --><span class="tok-kw">const</span> <span class="tok-id">pages</span> <span class="tok-punct">=</span> <span class="tok-punct">{"{"}</span>
-{sitePages.map((page) => (
-<a href={`/${page.slug}`} class="code-line-link">  <span class="tok-id">{toCamelCase(page.slug)}</span><span class="tok-punct">:</span> <span class="tok-punct">{"{"}</span> <span class="tok-str">"{page.description}"</span> <span class="tok-punct">{"}"}</span><span class="tok-punct">,</span>
-</a>
-))}<span class="tok-punct">{"}"}</span><span class="tok-punct">;</span>
-&nbsp;
-<span class="tok-cursor">▌</span></code></pre>
-
-    <!-- Tool reference list -->
-    <div class="tool-ref">
-      <div class="tool-ref-header">
-        <span class="tok-comment">// Tool Reference</span>
-      </div>
-      {
-        tools.map((tool) => (
-          <a href={getToolRoute(tool.slug)} class="tool-ref-row">
-            <span class="tool-ref-cat" style={`color: ${catColor[tool.category]}`}>
-              [{tool.category}]
-            </span>
-            <span class="tool-ref-name">{tool.slug}.ts</span>
-            <span class="tool-ref-sep">—</span>
-            <span class="tool-ref-desc">{tool.description}</span>
-          </a>
-        ))
-      }
+<LandingShell title="unwrapped.tools">
+  <header class="lp-hero">
+    <div class="lp-hero-left">
+      <h1 class="lp-brand-name">
+        unwrapped<span class="lp-brand-tld">.tools</span>
+      </h1>
+      <p class="lp-brand-tag">{toolCount} tools &middot; local-only &middot; no tracking</p>
     </div>
-  </div>
-</EditorShell>
+    <p class="lp-hero-pitch">
+      Browser-native tools for developers. Everything runs locally &mdash; no accounts, no server,
+      nothing leaves your machine.
+    </p>
+  </header>
 
-<style>
-  .readme-pane {
-    padding: 1.5rem 2rem;
-    min-height: 100%;
-    font-family: var(--font-mono);
+  <ToolSearch client:load />
+</LandingShell>
+
+<!--
+  Landing page styles — lp- prefix throughout.
+  is:global required: ToolSearch is a SolidJS client:load island;
+  Astro scoped styles cannot reach inside it at build time.
+-->
+<style is:global>
+  /* ── Hero ───────────────────────────────────────────────────────────────── */
+
+  .lp-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: end;
+    padding-bottom: clamp(2rem, 4vh, 3.5rem);
+    margin-bottom: clamp(1.5rem, 3vh, 2.5rem);
+    border-bottom: 1px solid var(--border);
   }
 
-  /* ── CODE BLOCK ── */
-  .code-block {
-    margin: 0 0 2rem;
-    padding: 0;
-    background: none;
-    border: none;
+  .lp-brand-name {
     font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1.75;
+    font-size: clamp(2.5rem, 3vw + 1rem, 4rem);
+    font-weight: 700;
     color: var(--text-primary);
-    white-space: pre;
-    overflow-x: auto;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin: 0;
   }
 
-  .code-block code {
-    display: block;
-  }
-
-  /* Token colours */
-  .tok-kw {
+  .lp-brand-tld {
     color: var(--accent-primary);
   }
-  .tok-id {
-    color: var(--text-primary);
-  }
-  .tok-str {
-    color: var(--accent-success);
-  }
-  .tok-comment {
+
+  .lp-brand-tag {
+    margin: 0.625rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
     color: var(--text-muted);
-    font-style: italic;
-  }
-  .tok-punct {
-    color: var(--text-secondary);
+    letter-spacing: 0.01em;
+    line-height: 1.5;
   }
 
-  /* Clickable import lines */
-  .code-line-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    border-radius: 2px;
-    transition: background-color 0.1s;
-  }
-  .code-line-link:hover {
-    background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
-  }
-
-  /* ── TOOL REFERENCE ── */
-  .tool-ref {
-    border-top: 1px solid var(--border);
-    padding-top: 1.25rem;
-  }
-
-  .tool-ref-header {
-    margin-bottom: 0.75rem;
-    font-size: 0.8rem;
-  }
-
-  .tool-ref-row {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    text-decoration: none;
-    color: inherit;
-    font-size: 0.8rem;
+  .lp-hero-pitch {
+    font-family: var(--font-sans);
+    font-size: clamp(1rem, 1vw + 0.5rem, 1.25rem);
     line-height: 1.6;
-    transition: background-color 0.1s;
-  }
-  .tool-ref-row:hover {
-    background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
-  }
-
-  .tool-ref-cat {
-    font-size: 0.7rem;
-    flex-shrink: 0;
-    white-space: nowrap;
+    color: var(--text-secondary);
+    margin: 0;
+    align-self: center;
   }
 
-  .tool-ref-name {
-    color: var(--text-primary);
-    font-weight: 600;
-    flex-shrink: 0;
-    white-space: nowrap;
+  /* ── Search ─────────────────────────────────────────────────────────────── */
+
+  .lp-search {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--border);
+    padding: 0.875rem 1.25rem;
+    transition: border-color 0.15s;
   }
 
-  .tool-ref-sep {
+  .lp-search--focused {
+    border-color: var(--accent-primary);
+  }
+
+  .lp-search-icon {
+    width: 16px;
+    height: 16px;
     color: var(--text-muted);
     flex-shrink: 0;
   }
 
-  .tool-ref-desc {
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .lp-search-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--text-primary);
   }
 
-  @media (max-width: 600px) {
-    .readme-pane {
-      padding: 1rem;
+  .lp-search-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .lp-search-clear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0;
+    font-size: 1.125rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.1s;
+  }
+
+  .lp-search-clear:hover {
+    color: var(--text-primary);
+  }
+
+  .lp-search-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .lp-search-hint kbd {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── Results table ───────────────────────────────────────────────────────── */
+
+  .lp-results {
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Tool row ────────────────────────────────────────────────────────────── */
+  /*
+   * Grid: icon (20px) | name + description stacked (1fr) | category (auto)
+   * The right-anchored category column fills the horizontal edge —
+   * no blank space on either side at any viewport width.
+   */
+
+  .lp-row {
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: 0.875rem;
+    row-gap: 0.25rem;
+    align-items: start;
+    padding: 0.875rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.1s;
+  }
+
+  .lp-row:hover,
+  .lp-row--active {
+    background-color: color-mix(in srgb, var(--accent-primary) 7%, transparent);
+  }
+
+  /* Icon — spans both rows, vertically centered */
+  .lp-row-icon {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    color: var(--text-muted);
+    transition: color 0.1s;
+  }
+
+  .lp-row:hover .lp-row-icon,
+  .lp-row--active .lp-row-icon {
+    color: var(--accent-primary);
+  }
+
+  /* Name — row 1, col 2 */
+  .lp-row-name {
+    grid-column: 2;
+    grid-row: 1;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.1s;
+  }
+
+  .lp-row:hover .lp-row-name,
+  .lp-row--active .lp-row-name {
+    color: var(--accent-primary);
+  }
+
+  /* Category — row 1, col 3 (right edge anchor) */
+  .lp-row-cat {
+    grid-column: 3;
+    grid-row: 1;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+    text-align: right;
+    align-self: center;
+  }
+
+  /* Description — row 2, col 2 (wraps freely) */
+  .lp-row-desc {
+    grid-column: 2;
+    grid-row: 2;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  /* ── New badge ───────────────────────────────────────────────────────────── */
+
+  .lp-badge {
+    font-family: var(--font-sans);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-primary);
+    border: 1px solid var(--accent-primary);
+    border-radius: 3px;
+    padding: 0 3px;
+    line-height: 1.5;
+  }
+
+  /* ── Empty state ─────────────────────────────────────────────────────────── */
+
+  .lp-empty {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    padding: 3rem 0.5rem;
+    margin: 0;
+  }
+
+  /* ── Mobile (≤ 640px) ────────────────────────────────────────────────────── */
+
+  @media (max-width: 640px) {
+    /* Hero stacks vertically */
+    .lp-hero {
+      grid-template-columns: 1fr;
+      row-gap: 1.5rem;
+      align-items: start;
     }
 
-    .code-block {
-      font-size: 0.78rem;
+    /* Drop category column — icon + name + description only */
+    .lp-row {
+      grid-template-columns: 18px 1fr;
     }
 
-    .tool-ref-desc {
+    .lp-row-cat {
       display: none;
     }
+  }
 
-    .tool-ref-row {
-      gap: 0.5rem;
+  /* ── Reduced motion ──────────────────────────────────────────────────────── */
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-search,
+    .lp-row,
+    .lp-row-icon,
+    .lp-row-name,
+    .lp-search-clear {
+      transition: none;
     }
   }
 </style>

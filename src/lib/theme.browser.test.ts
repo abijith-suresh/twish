@@ -17,21 +17,22 @@ describe("theme browser runtime", () => {
     document.documentElement.removeAttribute("data-theme");
   });
 
-  it("reads the default theme when storage is empty", () => {
+  it("always returns the single dark theme", () => {
+    expect(getTheme()).toBe(DEFAULT_THEME);
+    expect(DEFAULT_THEME).toBe("dark");
+  });
+
+  it("ignores stale stored theme values and returns dark", () => {
+    localStorage.setItem(THEME_STORAGE_KEY, "catppuccin");
+
     expect(getTheme()).toBe(DEFAULT_THEME);
   });
 
-  it("ignores invalid stored themes", () => {
-    localStorage.setItem(THEME_STORAGE_KEY, "broken-theme");
+  it("persists and applies the dark theme", () => {
+    setTheme("dark");
 
-    expect(getTheme()).toBe(DEFAULT_THEME);
-  });
-
-  it("persists and applies the selected theme", () => {
-    setTheme("nord");
-
-    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("nord");
-    expect(document.documentElement.getAttribute("data-theme")).toBe("nord");
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
   });
 
   it("falls back to the default theme when storage access throws", () => {
@@ -44,22 +45,20 @@ describe("theme browser runtime", () => {
     getItemSpy.mockRestore();
   });
 
-  it("applies the selected theme even when persistence fails", () => {
+  it("applies the dark theme even when persistence fails", () => {
     const setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new DOMException("Blocked", "SecurityError");
     });
 
-    expect(() => setTheme("nord")).not.toThrow();
-    expect(document.documentElement.getAttribute("data-theme")).toBe("nord");
+    expect(() => setTheme("dark")).not.toThrow();
+    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
 
     setItemSpy.mockRestore();
   });
 
-  it("initializes the document theme from storage", () => {
-    localStorage.setItem(THEME_STORAGE_KEY, "gruvbox");
-
+  it("initializes the document with the dark theme", () => {
     initTheme();
 
-    expect(document.documentElement.getAttribute("data-theme")).toBe("gruvbox");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
   });
 });

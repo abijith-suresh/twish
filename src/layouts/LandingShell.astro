@@ -1,0 +1,181 @@
+---
+import { ClientRouter } from "astro:transitions";
+
+import SettingsModal from "@/components/SettingsModal";
+import { getPwaRouteBootstrapScript } from "@/lib/pwaRoute";
+import { getThemeBootstrapScript } from "@/lib/theme";
+import "@/styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = "Fast, local-first developer tools. No server, no uploads, no tracking.",
+  ogImage = "/og-image.png",
+} = Astro.props;
+
+const canonicalURL = new URL(
+  Astro.url.pathname,
+  Astro.site ?? "https://unwrapped-tools.vercel.app"
+);
+const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.tools`;
+
+const FOOTER_LINKS = [
+  { href: "/about", label: "About" },
+  { href: "/features", label: "Features" },
+  { href: "/privacy", label: "Privacy" },
+  { href: "/changelog", label: "Changelog" },
+  {
+    href: "https://github.com/abijith-suresh/unwrapped-tools",
+    label: "GitHub",
+    external: true,
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta
+      property="og:image"
+      content={new URL(ogImage, Astro.site ?? "https://unwrapped-tools.vercel.app")}
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta
+      name="twitter:image"
+      content={new URL(ogImage, Astro.site ?? "https://unwrapped-tools.vercel.app")}
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script is:inline set:html={getThemeBootstrapScript()} />
+    <script is:inline set:html={getPwaRouteBootstrapScript()} />
+    <ClientRouter />
+  </head>
+  <body>
+    <!--
+      Single wrapper owns all horizontal padding.
+      main and footer are direct siblings — left edges guaranteed to align.
+    -->
+    <div class="ls-page">
+      <main class="ls-main">
+        <slot />
+      </main>
+
+      <footer class="ls-footer">
+        <nav aria-label="Site navigation" class="ls-footer-nav">
+          {
+            FOOTER_LINKS.map((link) => (
+              <a
+                href={link.href}
+                class="ls-footer-link"
+                {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                {link.label}
+              </a>
+            ))
+          }
+          <span class="ls-footer-sep" aria-hidden="true">&middot;</span>
+          <button
+            class="ls-footer-link ls-footer-settings"
+            aria-label="Open settings"
+            onclick="document.dispatchEvent(new Event('open-settings'))"
+          >
+            Settings
+          </button>
+        </nav>
+      </footer>
+    </div>
+
+    <!-- Modal lives outside ls-page so it isn't clipped by any overflow -->
+    <SettingsModal client:load hideButton />
+
+    <script>
+      document.addEventListener("astro:before-swap", (ev) => {
+        const e = ev as Event & { newDocument: Document };
+        const theme = document.documentElement.getAttribute("data-theme");
+        if (theme) e.newDocument.documentElement.setAttribute("data-theme", theme);
+      });
+    </script>
+
+    <style>
+      /*
+       * ls-page: one flex column, one source of horizontal padding.
+       * Full-viewport-width — background fills edge to edge, no island effect.
+       * Both main and footer share the same left/right edges.
+       */
+      .ls-page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        padding-inline: clamp(2rem, 6vw, 7rem);
+      }
+
+      .ls-main {
+        flex: 1;
+        padding-top: clamp(2.5rem, 8vh, 5rem);
+      }
+
+      .ls-footer {
+        padding: 2rem 0 2.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .ls-footer-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+      }
+
+      /* Separator before Settings — visually separates action from nav links */
+      .ls-footer-sep {
+        color: var(--text-muted);
+        opacity: 0.45;
+        margin-inline: -0.5rem;
+      }
+
+      .ls-footer-link {
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.1s;
+      }
+
+      .ls-footer-link:hover {
+        color: var(--text-primary);
+      }
+
+      .ls-footer-settings {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .ls-footer-link {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>
