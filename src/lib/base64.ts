@@ -5,11 +5,21 @@ export type Base64Mode = "encode" | "decode";
 export type Base64Workflow = "text" | "file";
 export type Base64DecodeOutputKind = "text" | "bytes";
 
-export interface Base64TransformSuccess {
+export interface Base64TextTransformSuccess {
   ok: true;
   value: string;
-  outputKind: Base64DecodeOutputKind;
+  outputKind: "text";
 }
+
+export interface Base64BinaryTransformSuccess {
+  ok: true;
+  value: string;
+  outputKind: "bytes";
+  bytes: Uint8Array;
+  downloadName: string;
+}
+
+export type Base64TransformSuccess = Base64TextTransformSuccess | Base64BinaryTransformSuccess;
 
 export interface Base64TransformFailure {
   ok: false;
@@ -50,18 +60,41 @@ export function decodeBase64ToText(input: string, variant: Base64Variant): strin
   return new TextDecoder("utf-8", { fatal: true }).decode(decodeBase64ToBytes(input, variant));
 }
 
+export function deriveDecodedFileName(sourceName?: string | null): string {
+  const trimmed = sourceName?.trim();
+  if (!trimmed) {
+    return "decoded.bin";
+  }
+
+  const stripped = trimmed.replace(/(?:\.(?:base64|b64))(?:\.txt)?$/i, "");
+  if (stripped !== trimmed) {
+    return /\.[^.]+$/.test(stripped) ? stripped : `${stripped}.bin`;
+  }
+
+  return `${trimmed}.decoded.bin`;
+}
+
 export function processBase64Input(
   input: string,
   mode: Base64Mode,
   variant: Base64Variant,
-  workflow: Base64Workflow
+  workflow: Base64Workflow,
+  options: { sourceName?: string | null } = {}
 ): Base64TransformResult {
   if (!input.trim()) {
-    return {
-      ok: true,
-      value: "",
-      outputKind: mode === "encode" ? "text" : workflow === "file" ? "bytes" : "text",
-    };
+    return mode === "decode" && workflow === "file"
+      ? {
+          ok: true,
+          value: "",
+          outputKind: "bytes",
+          bytes: new Uint8Array(),
+          downloadName: deriveDecodedFileName(options.sourceName),
+        }
+      : {
+          ok: true,
+          value: "",
+          outputKind: "text",
+        };
   }
 
   try {
@@ -79,6 +112,8 @@ export function processBase64Input(
         ok: true,
         value: formatByteSummary(bytes),
         outputKind: "bytes",
+        bytes,
+        downloadName: deriveDecodedFileName(options.sourceName),
       };
     }
 

@@ -44,7 +44,9 @@ export default function Base64Tool() {
       };
     }
 
-    return processBase64Input(textInput(), mode(), variant(), workflow());
+    return processBase64Input(textInput(), mode(), variant(), workflow(), {
+      sourceName: loadedFile()?.name,
+    });
   });
   const outputValue = createMemo(() => {
     const current = result();
@@ -53,6 +55,10 @@ export default function Base64Tool() {
   const transformError = createMemo(() => {
     const current = result();
     return current.ok ? null : current.error;
+  });
+  const binaryOutput = createMemo(() => {
+    const current = result();
+    return current.ok && current.outputKind === "bytes" ? current : null;
   });
   const fileSummary = createMemo(() => {
     const file = loadedFile();
@@ -157,6 +163,23 @@ export default function Base64Tool() {
     e.preventDefault();
     const file = e.dataTransfer?.files?.[0];
     if (file) handleFile(file);
+  }
+
+  function downloadDecodedBytes() {
+    const current = result();
+    if (!current.ok || current.outputKind !== "bytes" || current.bytes.length === 0) {
+      return;
+    }
+
+    const blob = new Blob([current.bytes as unknown as BlobPart], {
+      type: "application/octet-stream",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = current.downloadName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   const fileReadErrorMessage = () => {
@@ -404,10 +427,12 @@ export default function Base64Tool() {
                     ? "Base64url"
                     : "Base64"
                   : workflow() === "file"
-                    ? "Decoded bytes"
+                    ? "Decoded bytes · binary output"
                     : "Decoded text"}
               </span>
-              <CopyButton text={value()} />
+              <Show when={binaryOutput()} fallback={<CopyButton text={value()} />}>
+                <ToolActionButton onClick={downloadDecodedBytes}>Download file</ToolActionButton>
+              </Show>
             </div>
 
             {/* Output body */}

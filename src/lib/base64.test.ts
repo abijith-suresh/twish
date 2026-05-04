@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   decodeBase64ToBytes,
   decodeBase64ToText,
+  deriveDecodedFileName,
   encodeBytesToBase64,
   encodeTextToBase64,
   processBase64Input,
@@ -40,14 +41,22 @@ describe("base64 utilities", () => {
     });
   });
 
-  it("returns a byte summary for binary decode workflows", () => {
+  it("returns decoded bytes and a preview for binary decode workflows", () => {
     const result = processBase64Input("AP8Q", "decode", "standard", "file");
 
     expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.outputKind).toBe("bytes");
+    if (result.ok && result.outputKind === "bytes") {
+      expect(Array.from(result.bytes)).toEqual([0, 255, 16]);
       expect(result.value).toContain("3 bytes");
       expect(result.value).toContain("00 ff 10");
+      expect(result.downloadName).toBe("decoded.bin");
     }
+  });
+
+  it("derives decoded file names from encoded source names", () => {
+    expect(deriveDecodedFileName()).toBe("decoded.bin");
+    expect(deriveDecodedFileName("archive.tar.b64")).toBe("archive.tar");
+    expect(deriveDecodedFileName("image.png.base64.txt")).toBe("image.png");
+    expect(deriveDecodedFileName("payload.txt")).toBe("payload.txt.decoded.bin");
   });
 });
