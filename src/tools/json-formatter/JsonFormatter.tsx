@@ -11,8 +11,8 @@ export default function JsonFormatter() {
   const [indent, setIndent] = createSignal<IndentSize>(2);
   const [minify, setMinify] = createSignal(false);
   const [sortKeys, setSortKeys] = createSignal(false);
-  const result = createMemo(
-    (): JsonFormatResult => formatJson(input(), indent(), minify(), sortKeys())
+  const result = createMemo((): JsonFormatResult =>
+    formatJson(input(), indent(), minify(), sortKeys())
   );
 
   return (
