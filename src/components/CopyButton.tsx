@@ -26,6 +26,7 @@ export default function CopyButton(props: CopyButtonProps) {
 
   return (
     <button
+      type="button"
       onClick={handleCopy}
       class="inline-flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-medium transition-colors"
       style={{

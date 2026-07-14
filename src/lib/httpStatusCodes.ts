@@ -1,5 +1,9 @@
 export type HttpStatusCategory =
-  "Informational" | "Success" | "Redirection" | "Client Error" | "Server Error";
+  | "Informational"
+  | "Success"
+  | "Redirection"
+  | "Client Error"
+  | "Server Error";
 
 export interface HttpStatusCodeEntry {
   code: number;

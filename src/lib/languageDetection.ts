@@ -1,4 +1,4 @@
-import { type Language } from "./language";
+import type { Language } from "./language";
 
 const EXTENSION_LANGUAGE_MAP: Record<string, Language> = {
   ".env": "env",

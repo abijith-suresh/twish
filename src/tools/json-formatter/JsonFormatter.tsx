@@ -1,9 +1,9 @@
 import { createMemo, createSignal, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import ToolActionButton from "@/components/ToolActionButton";
-import Textarea from "@/components/primitives/solid/Textarea";
 import Label from "@/components/primitives/solid/Label";
+import Textarea from "@/components/primitives/solid/Textarea";
+import ToolActionButton from "@/components/ToolActionButton";
 import { formatJson, type IndentSize, type JsonFormatResult } from "@/lib/jsonFormatter";
 
 export default function JsonFormatter() {
@@ -11,8 +11,8 @@ export default function JsonFormatter() {
   const [indent, setIndent] = createSignal<IndentSize>(2);
   const [minify, setMinify] = createSignal(false);
   const [sortKeys, setSortKeys] = createSignal(false);
-  const result = createMemo((): JsonFormatResult =>
-    formatJson(input(), indent(), minify(), sortKeys())
+  const result = createMemo(
+    (): JsonFormatResult => formatJson(input(), indent(), minify(), sortKeys())
   );
 
   return (

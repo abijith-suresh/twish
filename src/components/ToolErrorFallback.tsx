@@ -47,6 +47,7 @@ export default function ToolErrorFallback(props: ToolErrorFallbackProps) {
 
       {props.onRetry ? (
         <button
+          type="button"
           onClick={props.onRetry}
           style={{
             "align-self": "flex-start",

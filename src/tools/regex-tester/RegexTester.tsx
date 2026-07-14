@@ -1,12 +1,12 @@
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import ToolActionButton from "@/components/ToolActionButton";
-import ToolStatusMessage from "@/components/ToolStatusMessage";
 import Card from "@/components/primitives/solid/Card";
 import Input from "@/components/primitives/solid/Input";
 import Label from "@/components/primitives/solid/Label";
 import Textarea from "@/components/primitives/solid/Textarea";
+import ToolActionButton from "@/components/ToolActionButton";
+import ToolStatusMessage from "@/components/ToolStatusMessage";
 import {
   buildRegexReplaceResult,
   buildRegexResult,
@@ -122,6 +122,7 @@ export default function RegexTester() {
             <For each={ALL_FLAGS}>
               {(flag) => (
                 <button
+                  type="button"
                   title={flag.title}
                   onClick={() => toggleFlag(flag.key)}
                   class="px-1.5 py-0.5 rounded border-none font-mono text-sm font-bold cursor-pointer transition-[background,color] duration-100"

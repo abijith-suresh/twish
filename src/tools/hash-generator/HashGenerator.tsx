@@ -1,11 +1,11 @@
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import ToolActionButton from "@/components/ToolActionButton";
-import ToolStatusMessage from "@/components/ToolStatusMessage";
 import Card from "@/components/primitives/solid/Card";
 import Label from "@/components/primitives/solid/Label";
 import Textarea from "@/components/primitives/solid/Textarea";
+import ToolActionButton from "@/components/ToolActionButton";
+import ToolStatusMessage from "@/components/ToolStatusMessage";
 import {
   DEFAULT_IMPORT_MAX_BYTES,
   type FileImportError,
@@ -13,7 +13,7 @@ import {
   type ImportedFileMeta,
   readImportedFile,
 } from "@/lib/fileImport";
-import { hashBytesWithAlgorithms, type HashResult, hashTextWithAlgorithms } from "@/lib/hash";
+import { type HashResult, hashBytesWithAlgorithms, hashTextWithAlgorithms } from "@/lib/hash";
 
 type HashWorkflow = "text" | "file";
 
@@ -191,7 +191,7 @@ export default function HashGenerator() {
 
       <div class="flex flex-col gap-1.5">
         <Label>{workflow() === "text" ? "Input text" : "Input file"}</Label>
-        <div onDragOver={(event) => event.preventDefault()} onDrop={onDrop}>
+        <div role="none" onDragOver={(event) => event.preventDefault()} onDrop={onDrop}>
           <Textarea
             value={workflow() === "file" ? fileSummary() : input()}
             onInput={(event) => handleInput(event)}

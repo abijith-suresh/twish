@@ -10,5 +10,3 @@ self.onmessage = (event: MessageEvent<DiffExecutionRequest>) => {
 
   self.postMessage(response);
 };
-
-export {};

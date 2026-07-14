@@ -1,10 +1,10 @@
 import { createSignal, For, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
+import Label from "@/components/primitives/solid/Label";
 import ToolActionButton from "@/components/ToolActionButton";
 import ToolStatusMessage from "@/components/ToolStatusMessage";
 import { copyToClipboard } from "@/lib/clipboard";
-import Label from "@/components/primitives/solid/Label";
 
 // ---------------------------------------------------------------------------
 // Helpers

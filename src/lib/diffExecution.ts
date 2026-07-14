@@ -1,4 +1,3 @@
-import type { DiffAnalysisInput, DiffAnalysisResult } from "./diffAnalysis";
 import {
   createDiffRows,
   DIFF_CONTEXT,
@@ -6,6 +5,7 @@ import {
   getChangeSourceIndices,
   getDiffStats,
 } from "./diff";
+import type { DiffAnalysisInput, DiffAnalysisResult } from "./diffAnalysis";
 
 export const DIFF_WORKER_THRESHOLD_CHARS = 75_000;
 const WORKER_TIMEOUT_MS = 10_000;

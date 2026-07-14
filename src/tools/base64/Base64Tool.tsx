@@ -1,11 +1,11 @@
 import { createMemo, createSignal, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import ToolActionButton from "@/components/ToolActionButton";
-import ToolStatusMessage from "@/components/ToolStatusMessage";
 import Card from "@/components/primitives/solid/Card";
 import Label from "@/components/primitives/solid/Label";
 import Textarea from "@/components/primitives/solid/Textarea";
+import ToolActionButton from "@/components/ToolActionButton";
+import ToolStatusMessage from "@/components/ToolStatusMessage";
 import {
   type Base64Mode,
   type Base64Variant,
@@ -179,7 +179,7 @@ export default function Base64Tool() {
 
   const fileReadErrorMessage = () => {
     const error = fileError();
-    if (!error || error.code !== "read-failed") {
+    if (error?.code !== "read-failed") {
       return null;
     }
 
@@ -268,7 +268,7 @@ export default function Base64Tool() {
         </Label>
 
         {/* Drop zone wrapper */}
-        <div onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
+        <div role="none" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
           <Textarea
             value={mode() === "encode" && workflow() === "file" ? fileSummary() : input()}
             onInput={(e) => {

@@ -1,10 +1,10 @@
 import { createMemo, createSignal, For, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import ToolStatusMessage from "@/components/ToolStatusMessage";
-import Textarea from "@/components/primitives/solid/Textarea";
 import Card from "@/components/primitives/solid/Card";
 import Label from "@/components/primitives/solid/Label";
+import Textarea from "@/components/primitives/solid/Textarea";
+import ToolStatusMessage from "@/components/ToolStatusMessage";
 import { inspectUrl } from "@/lib/urlInspector";
 
 const SECTION_LABELS = [
