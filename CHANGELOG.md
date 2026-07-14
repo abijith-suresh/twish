@@ -7,6 +7,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4](https://github.com/abijith-suresh/unwrapped/compare/v0.6.3...v0.6.4) (2026-07-14)
+
+
+### Features
+
+* add component primitive library and playground page ([#160](https://github.com/abijith-suresh/unwrapped/issues/160)) ([1c97723](https://github.com/abijith-suresh/unwrapped/commit/1c9772337938830a69fd671c6e111dad485c39b9))
+
+
+### Bug Fixes
+
+* remove stale debounce from regex tester replacement input ([#179](https://github.com/abijith-suresh/unwrapped/issues/179)) ([243ca37](https://github.com/abijith-suresh/unwrapped/commit/243ca372f51feec54f362203ffa49a99c8caa661))
+
 ## [0.6.3](https://github.com/abijith-suresh/unwrapped/compare/v0.6.2...v0.6.3) (2026-05-31)
 
 
