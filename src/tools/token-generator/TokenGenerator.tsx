@@ -1,6 +1,8 @@
 import { createMemo, createSignal, Show } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
+import Card from "@/components/primitives/solid/Card";
+import Label from "@/components/primitives/solid/Label";
 import ToolActionButton from "@/components/ToolActionButton";
 import ToolStatusMessage from "@/components/ToolStatusMessage";
 import {
@@ -10,8 +12,6 @@ import {
   MIN_TOKEN_LENGTH,
   type TokenGeneratorOptions,
 } from "@/lib/tokenGenerator";
-import Label from "@/components/primitives/solid/Label";
-import Card from "@/components/primitives/solid/Card";
 
 function createInitialState() {
   const result = generateToken(DEFAULT_TOKEN_OPTIONS);
@@ -73,8 +73,11 @@ export default function TokenGenerator() {
 
         <Card class="flex flex-col gap-1.5">
           <Label>Options</Label>
-          <label class="text-sm text-[var(--text-secondary)]">Length</label>
+          <label class="text-sm text-[var(--text-secondary)]" for="token-length">
+            Length
+          </label>
           <input
+            id="token-length"
             type="number"
             min={MIN_TOKEN_LENGTH}
             max={MAX_TOKEN_LENGTH}

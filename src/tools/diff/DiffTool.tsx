@@ -8,8 +8,10 @@ import {
   onMount,
   Show,
 } from "solid-js";
-
-import { type DiffAnalysisResult } from "@/lib/diffAnalysis";
+import Card from "@/components/primitives/solid/Card";
+import Label from "@/components/primitives/solid/Label";
+import Select from "@/components/primitives/solid/Select";
+import type { DiffAnalysisResult } from "@/lib/diffAnalysis";
 import { createDiffAnalysisExecutor } from "@/lib/diffExecution";
 import {
   DEFAULT_IMPORT_MAX_BYTES,
@@ -27,9 +29,6 @@ import {
   isDiffSessionState,
   shouldPersistDiffSession,
 } from "@/tools/diff/diffSession";
-import Label from "@/components/primitives/solid/Label";
-import Card from "@/components/primitives/solid/Card";
-import Select from "@/components/primitives/solid/Select";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -114,6 +113,7 @@ function InputPanel(props: InputPanelProps) {
 
   return (
     <div
+      role="none"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -144,6 +144,7 @@ function InputPanel(props: InputPanelProps) {
           />
 
           <button
+            type="button"
             onClick={() => hiddenInput.click()}
             class="bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border)] rounded px-2 py-0.5 text-xs cursor-pointer shrink-0 whitespace-nowrap"
           >
@@ -550,6 +551,7 @@ export default function DiffTool() {
           {/* Next change button */}
           <Show when={changeIndices().length > 0}>
             <button
+              type="button"
               onClick={handleNextChange}
               class="bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border)] rounded px-2.5 py-1 text-xs cursor-pointer whitespace-nowrap"
               title="Jump to next change"
@@ -560,6 +562,7 @@ export default function DiffTool() {
 
           {/* Swap button */}
           <button
+            type="button"
             onClick={handleSwap}
             class="bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border)] rounded px-2.5 py-1 text-xs cursor-pointer whitespace-nowrap"
             title="Swap left and right"

@@ -1,9 +1,9 @@
 import { createMemo, createSignal, For } from "solid-js";
 
 import CopyButton from "@/components/CopyButton";
-import { buildChmodResult, type ChmodPermissions } from "@/lib/chmod";
-import Label from "@/components/primitives/solid/Label";
 import Card from "@/components/primitives/solid/Card";
+import Label from "@/components/primitives/solid/Label";
+import { buildChmodResult, type ChmodPermissions } from "@/lib/chmod";
 
 const SUBJECTS = [
   ["owner", "Owner"],

@@ -77,11 +77,13 @@ export interface CronParseError {
 }
 
 export type CronParseResult =
-  { ok: true; value: CronExpression } | { ok: false; error: CronParseError };
+  | { ok: true; value: CronExpression }
+  | { ok: false; error: CronParseError };
 
 type CronFieldParseResult = { ok: true; value: CronField } | { ok: false; error: CronParseError };
 type CronAtomicParseResult =
-  { ok: true; value: CronAtomicField } | { ok: false; error: CronParseError };
+  | { ok: true; value: CronAtomicField }
+  | { ok: false; error: CronParseError };
 
 function unsupportedSyntaxError(name: CronFieldName): { ok: false; error: CronParseError } {
   return {

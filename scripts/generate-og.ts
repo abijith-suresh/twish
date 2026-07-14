@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { readFileSync, writeFileSync } from "fs";
-import { join } from "path";
 
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 
@@ -249,5 +249,3 @@ const resvg = new Resvg(svg, { fitTo: { mode: "width", value: FRAME_WIDTH } });
 const pngBuffer = resvg.render().asPng();
 
 writeFileSync(outPath, pngBuffer);
-console.log("Generated public/og-image.png");
-console.log(`File size: ${(pngBuffer.byteLength / 1024).toFixed(1)} KB`);

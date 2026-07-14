@@ -1,8 +1,8 @@
 import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 
 import { ICON_MAP } from "@/lib/iconMap";
-import { getToolRoute, tools } from "@/tools/registry";
 import type { Tool } from "@/tools/registry";
+import { getToolRoute, tools } from "@/tools/registry";
 
 /*
  * Relevance ordering for a developer audience.
@@ -152,6 +152,7 @@ export default function ToolSearch() {
 
         <Show when={query().length > 0}>
           <button
+            type="button"
             class="lp-search-clear"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {

@@ -1,9 +1,6 @@
 {
   "recommendations": [
     "astro-build.astro-vscode",
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "bradlc.vscode-tailwindcss",
     "editorconfig.editorconfig",
     "unifiedjs.vscode-mdx",
     "christian-kohler.path-intellisense",
@@ -11,5 +8,9 @@
     "streetsidesoftware.code-spell-checker",
     "vitest.explorer"
   ],
-  "unwantedRecommendations": []
+  "unwantedRecommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss"
+  ]
 }

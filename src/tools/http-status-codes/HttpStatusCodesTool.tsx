@@ -1,7 +1,6 @@
 import { createMemo, createSignal, For } from "solid-js";
-
-import Card from "@/components/primitives/solid/Card";
 import CopyButton from "@/components/CopyButton";
+import Card from "@/components/primitives/solid/Card";
 import Input from "@/components/primitives/solid/Input";
 import Label from "@/components/primitives/solid/Label";
 import ToolStatusMessage from "@/components/ToolStatusMessage";

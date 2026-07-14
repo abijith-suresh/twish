@@ -47,7 +47,7 @@ export function buildRegexResult(pattern: string, flags: Set<FlagKey>, input: st
   const flagString = [...flags].join("");
 
   try {
-    regex = new RegExp(pattern, flagString.includes("g") ? flagString : flagString + "g");
+    regex = new RegExp(pattern, flagString.includes("g") ? flagString : `${flagString}g`);
   } catch (error) {
     return {
       matches: [],
@@ -60,16 +60,7 @@ export function buildRegexResult(pattern: string, flags: Set<FlagKey>, input: st
   const matches: MatchResult[] = [];
   const ranges: [number, number][] = [];
 
-  let match: RegExpExecArray | null;
-  let lastIndex = -1;
-
-  while ((match = regex.exec(input)) !== null) {
-    if (match.index === lastIndex) {
-      regex.lastIndex += 1;
-      continue;
-    }
-
-    lastIndex = match.index;
+  for (const match of input.matchAll(regex)) {
     const groups: CaptureGroup[] = [];
 
     if (match.groups) {
@@ -158,16 +149,8 @@ function countReplacements(pattern: string, flagString: string, input: string): 
   }
 
   let count = 0;
-  let match: RegExpExecArray | null;
-  let lastIndex = -1;
 
-  while ((match = regex.exec(input)) !== null) {
-    if (match.index === lastIndex) {
-      regex.lastIndex += 1;
-      continue;
-    }
-
-    lastIndex = match.index;
+  for (const _ of input.matchAll(regex)) {
     count += 1;
   }
 

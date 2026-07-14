@@ -1,5 +1,5 @@
-import { createResource, ErrorBoundary, Show } from "solid-js";
 import type { Component } from "solid-js";
+import { createResource, ErrorBoundary, Show } from "solid-js";
 import { Dynamic, isServer } from "solid-js/web";
 
 import ToolErrorFallback from "@/components/ToolErrorFallback";

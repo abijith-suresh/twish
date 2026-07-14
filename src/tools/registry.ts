@@ -1,5 +1,11 @@
 export type ToolCategory =
-  "encoding" | "security" | "text" | "generators" | "time" | "data" | "network";
+  | "encoding"
+  | "security"
+  | "text"
+  | "generators"
+  | "time"
+  | "data"
+  | "network";
 
 export interface Tool {
   id: string;

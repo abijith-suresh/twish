@@ -1,5 +1,5 @@
-import { cn } from "@/lib/cn";
 import Label from "@/components/primitives/solid/Label";
+import { cn } from "@/lib/cn";
 
 interface SelectOption {
   value: string;

@@ -10,7 +10,15 @@ export interface JwtExpiryStatus {
 }
 
 export type RegisteredJwtClaimKey =
-  "alg" | "typ" | "iss" | "sub" | "aud" | "exp" | "nbf" | "iat" | "jti";
+  | "alg"
+  | "typ"
+  | "iss"
+  | "sub"
+  | "aud"
+  | "exp"
+  | "nbf"
+  | "iat"
+  | "jti";
 
 export interface JwtClaimSummaryItem {
   key: RegisteredJwtClaimKey;
@@ -50,7 +58,7 @@ export function decodeBase64Url(str: string): unknown {
   const utf8 = decodeURIComponent(
     decoded
       .split("")
-      .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+      .map((c) => `%${c.charCodeAt(0).toString(16).padStart(2, "0")}`)
       .join("")
   );
 
@@ -142,7 +150,7 @@ export function getJwtExpiryStatus(
 ): JwtExpiryStatus | null {
   if (typeof payload !== "object" || payload === null) return null;
 
-  const exp = (payload as Record<string, unknown>)["exp"];
+  const exp = (payload as Record<string, unknown>).exp;
   if (typeof exp !== "number") return null;
 
   const expired = nowSeconds > exp;
