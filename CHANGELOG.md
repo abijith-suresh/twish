@@ -7,6 +7,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4](https://github.com/abijith-suresh/unwrapped/compare/v0.6.3...v0.6.4) (2026-07-14)
+
+
+### Features
+
+* add component primitive library (Card, Input, Label, Select, Textarea) ([#160](https://github.com/abijith-suresh/unwrapped/issues/160)) ([1c97723](https://github.com/abijith-suresh/unwrapped/commit/1c9772337938830a69fd671c6e111dad485c39b9))
+
+
+### Bug Fixes
+
+* remove stale debounce from regex tester replacement input ([#179](https://github.com/abijith-suresh/unwrapped/issues/179)) ([243ca37](https://github.com/abijith-suresh/unwrapped/commit/243ca372f51feec54f362203ffa49a99c8caa661))
+
+
+### Performance
+
+* debounce diff analysis, add worker timeout, fix reactivity issues ([#175](https://github.com/abijith-suresh/unwrapped/issues/175)) ([5a9939a](https://github.com/abijith-suresh/unwrapped/commit/5a9939a84d22f86047dba390b50e4b63c9a3f222))
+
+
+### Refactors
+
+* replace EditorShell with minimal-chrome ToolShell ([#162](https://github.com/abijith-suresh/unwrapped/issues/162)) ([f1830ef](https://github.com/abijith-suresh/unwrapped/commit/f1830ef0e0e7c23f4e30855b7e60d2e6b12f34fe))
+* migrate 3 simple tools to primitive components ([#163](https://github.com/abijith-suresh/unwrapped/issues/163)) ([b79e9db](https://github.com/abijith-suresh/unwrapped/commit/b79e9db1eafd0eeb2a6020946fdd4834a514d4dc))
+* migrate 6 more tools to primitive components ([#164](https://github.com/abijith-suresh/unwrapped/issues/164)) ([1866d50](https://github.com/abijith-suresh/unwrapped/commit/1866d50f1ea72bed4656335fbff8eba82976d5d6))
+* migrate 7 tools to primitive components ([#165](https://github.com/abijith-suresh/unwrapped/issues/165)) ([40841c7](https://github.com/abijith-suresh/unwrapped/commit/40841c7f0923bb20d2d6daa20742f4806f06e50a))
+* migrate 5 complex tools to primitive components ([#166](https://github.com/abijith-suresh/unwrapped/issues/166)) ([3df4e34](https://github.com/abijith-suresh/unwrapped/commit/3df4e3457b0684a7261214af6f4ae18a1318d998))
+* migrate diff tool to primitive components ([#167](https://github.com/abijith-suresh/unwrapped/issues/167)) ([d118c27](https://github.com/abijith-suresh/unwrapped/commit/d118c27069f304c448becb27b1bdf2af09b719dc))
+* add id prop to Input, Textarea, Select for label binding ([#177](https://github.com/abijith-suresh/unwrapped/issues/177)) ([3f51df4](https://github.com/abijith-suresh/unwrapped/commit/3f51df49d3d5fd79f70498a9aacb0db648d8e419))
+* add font preloading and tool link prefetch ([#176](https://github.com/abijith-suresh/unwrapped/issues/176)) ([456d371](https://github.com/abijith-suresh/unwrapped/commit/456d371b94c141e9d91a6a4c7bf03fbdd9246e77))
+* replace onMount waterfall with createResource and skeleton ([#178](https://github.com/abijith-suresh/unwrapped/issues/178)) ([49ec828](https://github.com/abijith-suresh/unwrapped/commit/49ec828e7a1a7dea3e3f1504886a02308e2e3a8d))
+* fix relative import and deduplicate DiffFileMeta ([#181](https://github.com/abijith-suresh/unwrapped/issues/181)) ([27da966](https://github.com/abijith-suresh/unwrapped/commit/27da9661d3cd05336b36dad89b0ad1b0185c13fa))
+* standardize error and button styling across tools ([#182](https://github.com/abijith-suresh/unwrapped/issues/182)) ([8d73a25](https://github.com/abijith-suresh/unwrapped/commit/8d73a250b08c21581802bdd2e5b2f64a64e43d23))
+* replace inline max-width styles with Tailwind classes ([#183](https://github.com/abijith-suresh/unwrapped/issues/183)) ([3513f65](https://github.com/abijith-suresh/unwrapped/commit/3513f6530b9885e2cbc8901dee8c2df7502c198e))
+
+
+### Chores
+
+* remove unused Button and Badge primitives ([#180](https://github.com/abijith-suresh/unwrapped/issues/180)) ([74e6e88](https://github.com/abijith-suresh/unwrapped/commit/74e6e88619c7ad8d3138d773796f8704ab0e95b4))
+* remove playground page ([8e88d13](https://github.com/abijith-suresh/unwrapped/commit/8e88d13dc30a9eada500f69a87e5754f6268723f))
+
 ## [0.6.3](https://github.com/abijith-suresh/unwrapped/compare/v0.6.2...v0.6.3) (2026-05-31)
 
 
