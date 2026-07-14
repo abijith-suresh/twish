@@ -10,15 +10,7 @@ export interface JwtExpiryStatus {
 }
 
 export type RegisteredJwtClaimKey =
-  | "alg"
-  | "typ"
-  | "iss"
-  | "sub"
-  | "aud"
-  | "exp"
-  | "nbf"
-  | "iat"
-  | "jti";
+  "alg" | "typ" | "iss" | "sub" | "aud" | "exp" | "nbf" | "iat" | "jti";
 
 export interface JwtClaimSummaryItem {
   key: RegisteredJwtClaimKey;
