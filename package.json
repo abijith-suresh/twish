@@ -21,7 +21,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@astrojs/solid-js": "^6.0.1",
+    "@astrojs/solid-js": "^7.0.0",
     "@fontsource-variable/manrope": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "astro": "^6.4.2",
