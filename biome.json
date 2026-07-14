@@ -72,13 +72,6 @@
     },
     {
       "includes": ["**/*.astro"],
-      "linter": {
-        "rules": {
-          "a11y": {
-            "useAnchorContent": "off"
-          }
-        }
-      },
       "assist": {
         "enabled": false
       }

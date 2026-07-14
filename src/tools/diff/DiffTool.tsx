@@ -112,8 +112,8 @@ function InputPanel(props: InputPanelProps) {
   }
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop file import wrapper with accessible file input inside
     <div
+      role="none"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
