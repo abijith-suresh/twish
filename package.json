@@ -25,25 +25,25 @@
     "@fontsource-variable/manrope": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.2.2",
+    "astro": "^7.2.4",
     "diff": "^9.0.0",
-    "lucide-solid": "^1.31.0",
+    "lucide-solid": "^1.33.0",
     "smol-toml": "^1.8.0",
-    "solid-js": "^1.9.14",
+    "solid-js": "^1.9.15",
     "tailwindcss": "^4.3.3",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.8",
+    "@biomejs/biome": "^2.5.9",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "@resvg/resvg-js": "^2.6.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
-    "satori": "^0.29.0",
+    "satori": "^0.33.0",
     "sharp": "^0.35.3",
     "typescript": "^7.0.2",
     "vite-plugin-solid": "^2.11.14",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }
