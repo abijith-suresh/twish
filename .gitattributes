@@ -11,5 +11,4 @@
 *.eot binary
 *.ttf binary
 *.lock -diff
-.changeset/** linguist-generated=true
 CHANGELOG.md linguist-generated=true
