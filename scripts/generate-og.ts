@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
