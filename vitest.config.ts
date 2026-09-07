@@ -3,15 +3,19 @@ import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [solid({ ssr: true })],
+  // biome-ignore lint/suspicious/noExplicitAny: solid() plugin type is complex
+  plugins: [solid() as any],
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
     },
+    conditions: ["browser", "development"],
   },
   test: {
-    environment: "node",
+    environment: "jsdom",
     globals: true,
-    include: ["src/**/*.{test,spec}.{js,ts}"],
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.{test,spec}.{js,ts,tsx}"],
   },
 });
