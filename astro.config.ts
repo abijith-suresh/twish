@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  site: "https://unwrapped.vercel.app",
+  site: "https://unwrapped-tools.vercel.app",
   integrations: [solid()],
   vite: {
     plugins: [...tailwindcss()],
