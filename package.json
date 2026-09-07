@@ -44,6 +44,6 @@
     "sharp": "^0.35.4",
     "typescript": "^7.0.2",
     "vite-plugin-solid": "^2.11.14",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.0"
   }
 }
