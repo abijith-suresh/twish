@@ -16,7 +16,7 @@ const {
   ogImage = "/og-image.png",
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? "https://unwrapped.vercel.app");
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.tools`;
 ---
 
@@ -34,18 +34,12 @@ const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta
-      property="og:image"
-      content={new URL(ogImage, Astro.site ?? "https://unwrapped.vercel.app")}
-    />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <meta
-      name="twitter:image"
-      content={new URL(ogImage, Astro.site ?? "https://unwrapped.vercel.app")}
-    />
+    <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- Font preloads -->
