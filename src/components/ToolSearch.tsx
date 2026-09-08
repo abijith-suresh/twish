@@ -29,7 +29,6 @@ export default function ToolSearch() {
   const [focused, setFocused] = createSignal(false);
   const [mac, setMac] = createSignal(true);
 
-  // eslint-disable-next-line no-unassigned-vars
   let inputRef: HTMLInputElement | undefined;
 
   const filtered = createMemo((): readonly Tool[] => {
