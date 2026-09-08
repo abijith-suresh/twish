@@ -31,6 +31,10 @@ The shipped set covers secrets and security (JWT inspection, hashes, HMAC, token
 - Bun
 - Vercel
 
+## Installable and offline
+
+The app is an installable PWA. After the first successful load, a service worker precaches the shell and every tool page, so all tools keep working offline. Regenerate the PWA icons with `bun run icons` after changing `public/favicon.svg`.
+
 ## Development
 
 ```sh

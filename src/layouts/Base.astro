@@ -28,6 +28,8 @@ const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#09090b" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="canonical" href={canonicalURL} />
     <!-- OG -->
     <meta property="og:type" content="website" />
@@ -42,6 +44,7 @@ const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.
     <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!-- Font preloads -->
     <link rel="preload" href={manropeFont} as="font" type="font/woff2" crossorigin="anonymous" />
     <link rel="preload" href={jetbrainsFont} as="font" type="font/woff2" crossorigin="anonymous" />
@@ -50,5 +53,8 @@ const fullTitle = title === "unwrapped.tools" ? title : `${title} — unwrapped.
   </head>
   <body>
     <slot />
+    <script>
+      import "../pwa";
+    </script>
   </body>
 </html>
