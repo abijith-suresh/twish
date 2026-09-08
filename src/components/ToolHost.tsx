@@ -7,18 +7,18 @@ import ToolErrorFallback from "@/components/ToolErrorFallback";
 interface ToolHostProps {
   componentPath: string;
   toolName: string;
+  loadModule?: (componentPath: string) => Promise<Component>;
 }
 
 const toolModules = import.meta.glob<{ default: Component }>("../tools/*/*.tsx");
 
-async function loadToolModule(componentPath: string): Promise<Component> {
+function loadToolModule(componentPath: string): Promise<Component> {
   const modulePath = `../${componentPath.slice(5)}`;
   const loadTool = toolModules[modulePath];
   if (!loadTool) {
-    throw new Error(`Missing tool component loader for ${componentPath}`);
+    return Promise.reject(new Error(`Missing tool component loader for ${componentPath}`));
   }
-  const module = await loadTool();
-  return module.default;
+  return loadTool().then((module) => module.default);
 }
 
 function ToolSkeleton() {
@@ -45,26 +45,38 @@ export default function ToolHost(props: ToolHostProps) {
     return <ToolSkeleton />;
   }
 
-  const [toolComponent, { refetch }] = createResource(() => props.componentPath, loadToolModule);
+  const [toolComponent, { refetch }] = createResource(
+    () => props.componentPath,
+    (path) => (props.loadModule ?? loadToolModule)(path)
+  );
 
   return (
-    <Show when={toolComponent()} fallback={<ToolSkeleton />}>
-      {(Component) => (
-        <ErrorBoundary
-          fallback={(error, reset) => (
-            <ToolErrorFallback
-              toolName={props.toolName}
-              error={error}
-              onRetry={() => {
-                reset();
-                refetch();
-              }}
-            />
-          )}
-        >
-          <Dynamic component={Component()} />
-        </ErrorBoundary>
+    <ErrorBoundary
+      fallback={(error, reset) => (
+        <ToolErrorFallback
+          toolName={props.toolName}
+          error={error}
+          onRetry={() => {
+            refetch();
+            reset();
+          }}
+        />
       )}
-    </Show>
+    >
+      <Show
+        when={!toolComponent.error}
+        fallback={
+          <ToolErrorFallback
+            toolName={props.toolName}
+            error={toolComponent.error}
+            onRetry={() => refetch()}
+          />
+        }
+      >
+        <Show when={toolComponent()} fallback={<ToolSkeleton />}>
+          {(Component) => <Dynamic component={Component()} />}
+        </Show>
+      </Show>
+    </ErrorBoundary>
   );
 }

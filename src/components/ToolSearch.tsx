@@ -19,8 +19,13 @@ const RELEVANCE_ORDER: readonly string[] = [
   "timestamp",
 ];
 
+function relevanceRank(id: string): number {
+  const index = RELEVANCE_ORDER.indexOf(id);
+  return index === -1 ? RELEVANCE_ORDER.length : index;
+}
+
 const orderedTools: readonly Tool[] = [...tools].sort(
-  (a, b) => RELEVANCE_ORDER.indexOf(a.id) - RELEVANCE_ORDER.indexOf(b.id)
+  (a, b) => relevanceRank(a.id) - relevanceRank(b.id)
 );
 
 export default function ToolSearch() {
