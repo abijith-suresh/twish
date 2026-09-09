@@ -9,67 +9,11 @@ const { direction } = Astro.props;
 
 function getTool(slug: string): Tool {
   const match = tools.find((candidate) => candidate.slug === slug);
-  if (!match) {
-    throw new Error(`Unknown design lab tool: ${slug}`);
-  }
+  if (!match) throw new Error(`Unknown design lab tool: ${slug}`);
   return match;
 }
 
-const terminalTools = [
-  getTool("json-formatter"),
-  getTool("diff"),
-  getTool("jwt-decoder"),
-  getTool("regex-tester"),
-  getTool("base64"),
-  getTool("timestamp"),
-];
-
-const editorialTools = [
-  getTool("json-formatter"),
-  getTool("url-inspector"),
-  getTool("hmac-generator"),
-  getTool("case-converter"),
-  getTool("cron"),
-  getTool("http-status-codes"),
-];
-
-const swissTools = [
-  getTool("json-formatter"),
-  getTool("yaml-formatter"),
-  getTool("xml-formatter"),
-  getTool("json-to-csv"),
-  getTool("diff"),
-  getTool("base64"),
-  getTool("jwt-decoder"),
-  getTool("hash-generator"),
-  getTool("regex-tester"),
-  getTool("timestamp"),
-  getTool("cron"),
-  getTool("chmod-calculator"),
-];
-
-const observatoryTools = [
-  getTool("jwt-decoder"),
-  getTool("hmac-generator"),
-  getTool("hash-generator"),
-  getTool("token-generator"),
-  getTool("url-inspector"),
-  getTool("regex-tester"),
-  getTool("diff"),
-  getTool("cron"),
-];
-
-const benchTools = [
-  getTool("base64"),
-  getTool("json-to-yaml"),
-  getTool("yaml-to-json"),
-  getTool("case-converter"),
-  getTool("uuid-generator"),
-  getTool("text-statistics"),
-  getTool("url-encoder"),
-  getTool("chmod-calculator"),
-];
-
+const directionNames = ["Plain list", "Sidebar", "Split view", "Card index", "Command line"];
 const categoryLabels: Record<string, string> = {
   encoding: "Encoding",
   security: "Security",
@@ -79,420 +23,290 @@ const categoryLabels: Record<string, string> = {
   data: "Data",
   network: "Network",
 };
-
-const toolCount = tools.length;
-const directionNames = ["Command deck", "Field notes", "The index", "Night shift", "Workbench"];
+const categories = Array.from(new Set(tools.map((tool) => tool.category)));
+const selectedTool = getTool("json-formatter");
+const featuredTools = [
+  getTool("json-formatter"),
+  getTool("diff"),
+  getTool("base64"),
+  getTool("jwt-decoder"),
+];
 ---
 
-<a class="lab-skip" href="#direction-content">Skip to content</a>
+<a class="quiet-skip" href="#direction-content">Skip to content</a>
 
-<div class:list={["design-lab", `direction-${direction}`]}>
-  <header class="lab-topbar">
-    <a class="lab-brand" href="/" translate="no">
-      <span class="lab-brand-mark">u/</span> unwrapped.tools
-    </a>
-    <span class="lab-study-label">design study {String(direction).padStart(2, "0")} / 05</span>
-    <nav class="lab-direction-nav" aria-label="Design directions">
-      {
-        directionNames.map((name, index) => {
-          const page = index + 1;
-          return (
-            <a
-              class="lab-direction-link"
-              class:list={{ "is-current": page === direction }}
-              href={`/${page}`}
-              aria-current={page === direction ? "page" : undefined}
-              title={name}
-            >
-              <span>{String(page).padStart(2, "0")}</span>
-            </a>
-          );
-        })
-      }
-    </nav>
+<div class:list={["quiet-lab", `quiet-direction-${direction}`]}>
+  <header class="quiet-header">
+    <a class="quiet-brand" href="/" translate="no">unwrapped.tools</a>
+    <span class="quiet-context">design study {String(direction).padStart(2, "0")} / 05</span>
+    <div class="quiet-header-end">
+      <span class="quiet-privacy">local only · no tracking</span>
+      <nav class="quiet-direction-nav" aria-label="Design directions">
+        {
+          directionNames.map((name, index) => {
+            const page = index + 1;
+            return (
+              <a
+                href={`/${page}`}
+                class:list={{ "is-current": page === direction }}
+                aria-current={page === direction ? "page" : undefined}
+                title={name}
+              >
+                {String(page).padStart(2, "0")}
+              </a>
+            );
+          })
+        }
+      </nav>
+    </div>
   </header>
 
-  <main id="direction-content" class="lab-main" tabindex="-1">
+  <main id="direction-content" class="quiet-main" tabindex="-1">
     {
       direction === 1 && (
-        <div class="terminal-layout">
-          <aside class="terminal-sidebar" aria-label="Workspace navigation">
-            <p class="terminal-sidebar-label">workspace</p>
-            <a class="terminal-nav-item is-selected" href="#terminal-tools">
-              <span>&gt; all tools</span>
-              <span>{toolCount}</span>
-            </a>
-            <a class="terminal-nav-item" href="/features">
-              <span>&gt; catalog</span>
-              <span>↗</span>
-            </a>
-            <a class="terminal-nav-item" href="/privacy">
-              <span>&gt; privacy</span>
-              <span>↗</span>
-            </a>
-            <div class="terminal-sidebar-rule" />
-            <p class="terminal-sidebar-label">runtime</p>
-            <p class="terminal-runtime">
-              <span class="terminal-pulse" aria-hidden="true" />
-              local / ready
-            </p>
-            <p class="terminal-sidebar-note">
-              No request leaves this tab. The tools keep their hands off your data.
-            </p>
-          </aside>
-
-          <section class="terminal-content" id="terminal-tools">
-            <div class="terminal-kicker">01 / command deck</div>
-            <h1>Keep the data here.</h1>
-            <p class="terminal-intro">
-              A quiet set of browser tools for the moments when copying a token into a random
-              website feels like a bad idea.
-            </p>
-
-            <div class="terminal-command-line" data-tool-surface>
-              <label class="sr-only" for="terminal-query">Find a tool</label>
-              <span class="terminal-prompt" aria-hidden="true">&gt;_</span>
-              <input
-                id="terminal-query"
-                data-tool-search
-                type="search"
-                placeholder="find a tool…"
-                autocomplete="off"
-              />
-              <span class="terminal-shortcut">⌘ K</span>
+        <section class="plain-list" data-quiet-surface>
+          <div class="plain-list-intro">
+            <div>
+              <p class="quiet-eyebrow">Browser utilities</p>
+              <h1>Find a tool.</h1>
             </div>
-            <p class="terminal-result-count" data-search-count>{terminalTools.length} commands loaded</p>
+            <p class="plain-list-summary">{tools.length} focused tools. Search, open, work.</p>
+          </div>
 
-            <div class="terminal-tool-list">
-              {
-                terminalTools.map((tool, index) => (
-                  <a class="terminal-tool" data-tool-item href={`/tools/${tool.slug}`}>
-                    <span class="terminal-tool-number">{String(index + 1).padStart(2, "0")}</span>
-                    <span class="terminal-tool-copy">
+          <div class="plain-list-search">
+            <label for="plain-list-query">Search tools</label>
+            <input
+              id="plain-list-query"
+              data-quiet-search
+              type="search"
+              placeholder="Search by name or use…"
+              autocomplete="off"
+            />
+            <span data-search-count>{tools.length} tools</span>
+          </div>
+
+          <ul class="plain-list-items">
+            {
+              tools.map((tool, index) => (
+                <li>
+                  <a class="plain-list-item" data-quiet-tool href={`/tools/${tool.slug}`}>
+                    <span class="plain-list-number">{String(index + 1).padStart(2, "0")}</span>
+                    <span class="plain-list-copy">
                       <strong>{tool.name}</strong>
                       <span>{tool.description}</span>
                     </span>
-                    <span class="terminal-tool-arrow" aria-hidden="true">↗</span>
+                    <span class="plain-list-category">{categoryLabels[tool.category]}</span>
+                    <span class="plain-list-arrow" aria-hidden="true">↗</span>
                   </a>
-                ))
-              }
-            </div>
-            <p class="terminal-empty" data-search-empty hidden>No command found. Try “json” or “token”.</p>
-          </section>
-
-          <aside class="terminal-signal" aria-label="Local runtime status">
-            <div class="terminal-signal-top">
-              <span>signal</span>
-              <span>01:00</span>
-            </div>
-            <div class="terminal-signal-display">
-              <span class="terminal-signal-value">00</span>
-              <span class="terminal-signal-unit">network requests</span>
-            </div>
-            <div class="terminal-wave" aria-hidden="true">
-              <i /> <i /> <i /> <i /> <i /> <i /> <i /> <i /> <i /> <i /> <i />
-            </div>
-            <p class="terminal-signal-note">Nothing to phone home about.</p>
-            <a class="terminal-text-link" href="/about">Read the contract <span>↗</span></a>
-          </aside>
-        </div>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
+        </section>
       )
     }
 
     {
       direction === 2 && (
-        <div class="editorial-layout">
-          <div class="editorial-masthead">
-            <span>unwrapped.tools / private utilities</span>
-            <span>Vol. 01 · Browser edition</span>
-          </div>
-          <section class="editorial-hero">
-            <div class="editorial-hero-copy">
-              <p class="editorial-overline">Field notes for developers</p>
-              <h1>Make room<br /><em>for the work.</em></h1>
-              <p class="editorial-dek">
-                Practical tools for tokens, text, configs, and time. They run beside you, not
-                somewhere else.
-              </p>
-              <a class="editorial-button" href="#editorial-catalog">Browse the desk <span>↓</span></a>
-            </div>
-            <div class="editorial-feature-card">
-              <div class="editorial-feature-top">
-                <span>Editor's pick</span>
-                <span>01 / 22</span>
+        <section class="sidebar-layout" data-quiet-surface>
+          <aside class="sidebar-rail">
+            <p class="quiet-eyebrow">Toolbox</p>
+            <h1>Tools</h1>
+            <p class="sidebar-note">Small utilities for text, data, secrets, and time.</p>
+            <nav class="sidebar-categories" aria-label="Tool categories">
+              <a class="is-active" href="#sidebar-all">All tools <span>{tools.length}</span></a>
+              {
+                categories.map((category) => (
+                  <a href={`#sidebar-${category}`}>
+                    {categoryLabels[category]} <span>{tools.filter((tool) => tool.category === category).length}</span>
+                  </a>
+                ))
+              }
+            </nav>
+            <a class="sidebar-privacy" href="/privacy">How local storage works ↗</a>
+          </aside>
+
+          <div class="sidebar-workspace" id="sidebar-all">
+            <div class="sidebar-workspace-head">
+              <div>
+                <p class="quiet-eyebrow">All tools</p>
+                <h2>Choose one thing.</h2>
               </div>
-              <div class="editorial-feature-symbol" aria-hidden="true">{ }</div>
-              <p class="editorial-feature-type">Data / formatting</p>
-              <h2>{getTool("json-formatter").name}</h2>
-              <p>{getTool("json-formatter").description}</p>
-              <a href="/tools/json-formatter">Open formatter <span>↗</span></a>
+              <label class="sidebar-search">
+                <span class="sr-only">Filter tools</span>
+                <input data-quiet-search type="search" placeholder="Filter…" autocomplete="off" />
+                <span data-search-count>{tools.length}</span>
+              </label>
             </div>
-          </section>
 
-          <section class="editorial-rule" id="editorial-catalog">
-            <div>
-              <p class="editorial-section-number">02</p>
-              <h2>The desk</h2>
+            <div class="sidebar-groups">
+              {
+                categories.map((category) => (
+                  <section class="sidebar-group" id={`sidebar-${category}`}>
+                    <h3>{categoryLabels[category]}</h3>
+                    <div class="sidebar-group-items">
+                      {
+                        tools
+                          .filter((tool) => tool.category === category)
+                          .map((tool) => (
+                            <a class="sidebar-tool" data-quiet-tool href={`/tools/${tool.slug}`}>
+                              <strong>{tool.name}</strong>
+                              <span>{tool.description}</span>
+                              <span class="sidebar-tool-arrow" aria-hidden="true">↗</span>
+                            </a>
+                          ))
+                      }
+                    </div>
+                  </section>
+                ))
+              }
             </div>
-            <p>
-              A small collection of dependable instruments. Pick one, finish the job, close the
-              tab.
-            </p>
-          </section>
-
-          <div class="editorial-catalog">
-            {
-              editorialTools.map((tool, index) => (
-                <a class="editorial-tool-card" href={`/tools/${tool.slug}`}>
-                  <span class="editorial-tool-index">0{index + 1}</span>
-                  <span class="editorial-tool-category">{categoryLabels[tool.category]}</span>
-                  <h3>{tool.name}</h3>
-                  <p>{tool.description}</p>
-                  <span class="editorial-tool-open">Open tool ↗</span>
-                </a>
-              ))
-            }
+            <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
           </div>
-
-          <footer class="editorial-footer">
-            <p>Built for people who read the fine print.</p>
-            <a href="/privacy">See what stays local <span>↗</span></a>
-          </footer>
-        </div>
+        </section>
       )
     }
 
     {
       direction === 3 && (
-        <div class="swiss-layout">
-          <div class="swiss-utility-bar">
-            <span>UNWRAPPED / LOCAL COMPUTING INDEX</span>
-            <span>09.09.26 / EDITION 01</span>
+        <section class="split-layout" data-quiet-surface>
+          <div class="split-picker">
+            <div class="split-picker-head">
+              <div>
+                <p class="quiet-eyebrow">Tool picker</p>
+                <h1>Pick a tool.</h1>
+              </div>
+              <span data-search-count>{tools.length} available</span>
+            </div>
+            <label class="split-search">
+              <span class="sr-only">Search tools</span>
+              <input data-quiet-search type="search" placeholder="Search tools…" autocomplete="off" />
+            </label>
+            <ul class="split-tool-list">
+              {
+                tools.map((tool, index) => (
+                  <li>
+                    <a
+                      class:list={{ "split-tool": true, "is-featured": featuredTools.some((item) => item.id === tool.id) }}
+                      data-quiet-tool
+                      href={`/tools/${tool.slug}`}
+                    >
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <strong>{tool.name}</strong>
+                      <small>{categoryLabels[tool.category]}</small>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
           </div>
-          <section class="swiss-hero">
-            <div class="swiss-hero-number">{toolCount}</div>
-            <div class="swiss-hero-copy">
-              <p class="swiss-overline">Developer tools without the detour</p>
-              <h1>Useful things<br /><span>stay here.</span></h1>
-              <p>
-                Format, inspect, compare, generate. A compact local index for the small jobs that
-                keep a build moving.
-              </p>
-            </div>
-            <div class="swiss-hero-stamp">
-              <span>RUNS</span>
-              <strong>100%</strong>
-              <span>IN BROWSER</span>
-            </div>
-          </section>
 
-          <section class="swiss-index" aria-labelledby="swiss-index-title">
-            <div class="swiss-index-heading">
-              <span class="swiss-index-marker">A / 01</span>
-              <h2 id="swiss-index-title">Tool index</h2>
-              <span class="swiss-index-count">{toolCount} entries</span>
-            </div>
-            <div class="swiss-table-wrap">
-              <table>
-                <caption class="sr-only">Featured unwrapped.tools utilities</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">No.</th>
-                    <th scope="col">Tool</th>
-                    <th scope="col">Use it for</th>
-                    <th scope="col">Open</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    swissTools.map((tool, index) => (
-                      <tr>
-                        <td class="swiss-table-number">{String(index + 1).padStart(2, "0")}</td>
-                        <th scope="row"><a href={`/tools/${tool.slug}`}>{tool.name}</a></th>
-                        <td>{tool.description}</td>
-                        <td><a class="swiss-open" href={`/tools/${tool.slug}`} aria-label={`Open ${tool.name}`}>↗</a></td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="swiss-bottom-grid">
-            <div class="swiss-principle">
-              <span class="swiss-index-marker">B / 07</span>
-              <p>“No server” is a product decision, not a marketing line.</p>
-            </div>
-            <div class="swiss-facts">
-              <div><span>01</span><strong>No accounts</strong></div>
-              <div><span>02</span><strong>No uploads</strong></div>
-              <div><span>03</span><strong>No tracking</strong></div>
-            </div>
-          </section>
-        </div>
+          <aside class="split-detail" aria-labelledby="selected-tool-title">
+            <p class="quiet-eyebrow">Selected tool</p>
+            <div class="split-detail-mark" aria-hidden="true">{ }</div>
+            <h2 id="selected-tool-title">{selectedTool.name}</h2>
+            <p class="split-detail-description">{selectedTool.description}</p>
+            <a class="split-open" href={`/tools/${selectedTool.slug}`}>Open tool <span aria-hidden="true">↗</span></a>
+            <dl class="split-facts">
+              <div><dt>Runs</dt><dd>In your browser</dd></div>
+              <div><dt>Input</dt><dd>Never uploaded</dd></div>
+              <div><dt>Account</dt><dd>Not required</dd></div>
+            </dl>
+          </aside>
+        </section>
       )
     }
 
     {
       direction === 4 && (
-        <div class="observatory-layout">
-          <div class="observatory-stars" aria-hidden="true" />
-          <div class="observatory-heading-row">
-            <span class="observatory-coordinates">51° 03′ 39″ N / 13° 44′ 22″ E</span>
-            <span class="observatory-live"><i /> local signal active</span>
+        <section class="card-index" data-quiet-surface>
+          <div class="card-index-head">
+            <div>
+              <p class="quiet-eyebrow">unwrapped.tools</p>
+              <h1>Useful things, kept close.</h1>
+            </div>
+            <p class="card-index-summary">No account. No server. No input history.</p>
           </div>
-          <section class="observatory-hero">
-            <div class="observatory-hero-copy">
-              <p class="observatory-overline">Night shift / tool observatory</p>
-              <h1>A quiet place<br />for <em>noisy data.</em></h1>
-              <p>
-                Point your browser at the problem. Inspect the payload, tune the pattern, leave no
-                trace.
-              </p>
-              <div class="observatory-actions">
-                <a class="observatory-primary" href="/tools/jwt-decoder">Start with JWTs <span>↗</span></a>
-                <a class="observatory-secondary" href="/about">Why local?</a>
-              </div>
-            </div>
-            <div class="observatory-radar" aria-hidden="true">
-              <div class="observatory-ring ring-one" />
-              <div class="observatory-ring ring-two" />
-              <div class="observatory-ring ring-three" />
-              <div class="observatory-crosshair" />
-              <div class="observatory-orbit-dot dot-one" />
-              <div class="observatory-orbit-dot dot-two" />
-              <span class="observatory-radar-label">LOCAL / 00:00</span>
-            </div>
-          </section>
 
-          <section class="observatory-signal-panel" data-tool-surface>
-            <div class="observatory-panel-heading">
-              <div>
-                <span class="observatory-panel-kicker">Incoming signals</span>
-                <h2>Choose a frequency</h2>
-              </div>
-              <label class="observatory-search-label">
-                <span class="sr-only">Search signals</span>
-                <input data-tool-search type="search" placeholder="filter signals…" autocomplete="off" />
-                <span aria-hidden="true">⌕</span>
-              </label>
-            </div>
-            <div class="observatory-tool-grid">
-              {
-                observatoryTools.map((tool, index) => (
-                  <a class="observatory-tool" data-tool-item href={`/tools/${tool.slug}`}>
-                    <span class="observatory-tool-pulse" aria-hidden="true" />
-                    <span class="observatory-tool-meta">0{index + 1} / {categoryLabels[tool.category]}</span>
-                    <strong>{tool.name}</strong>
-                    <span>{tool.description}</span>
-                    <span class="observatory-tool-arrow" aria-hidden="true">↗</span>
-                  </a>
-                ))
-              }
-            </div>
-            <p class="observatory-empty" data-search-empty hidden>No signal on that frequency.</p>
-          </section>
+          <div class="card-index-controls">
+            <label class="card-index-search">
+              <span class="sr-only">Search tools</span>
+              <input data-quiet-search type="search" placeholder="Search tools…" autocomplete="off" />
+            </label>
+            <span data-search-count>{tools.length} tools</span>
+          </div>
 
-          <footer class="observatory-footer">
-            <span>unwrapped.tools / observation without collection</span>
-            <a href="/privacy">Transmission log: empty ↗</a>
-          </footer>
-        </div>
+          <div class="card-index-grid">
+            {
+              tools.map((tool, index) => (
+                <a class="tool-card" data-quiet-tool href={`/tools/${tool.slug}`}>
+                  <span class="tool-card-top"><span>{String(index + 1).padStart(2, "0")}</span><span>{categoryLabels[tool.category]}</span></span>
+                  <strong>{tool.name}</strong>
+                  <span>{tool.description}</span>
+                  <span class="tool-card-arrow" aria-hidden="true">↗</span>
+                </a>
+              ))
+            }
+          </div>
+          <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
+        </section>
       )
     }
 
     {
       direction === 5 && (
-        <div class="bench-layout">
-          <div class="bench-topline">
-            <span class="bench-logo"><b>u</b> unwrapped.tools</span>
-            <span class="bench-label">bench no. 05 / daily kit</span>
-            <a href="/privacy">How the bench works ↗</a>
+        <section class="command-layout" data-quiet-surface>
+          <div class="command-bar">
+            <a href="/" class="command-bar-brand" translate="no">unwrapped.tools</a>
+            <span class="command-bar-status">local / ready</span>
+            <a href="/privacy" class="command-bar-link">privacy ↗</a>
           </div>
-          <section class="bench-hero">
+          <div class="command-heading">
             <div>
-              <p class="bench-kicker">The browser workbench</p>
-              <h1>Make the small<br /><span>jobs lighter.</span></h1>
-              <p class="bench-lede">
-                The useful little things you reach for between a terminal command and a code
-                review.
-              </p>
+              <p class="quiet-eyebrow">Tool command</p>
+              <h1>What do you need?</h1>
             </div>
-            <div class="bench-badge">
-              <span>LOCAL</span>
-              <strong>ONLY</strong>
-              <span>NO TRACKING</span>
-            </div>
-          </section>
-
-          <section class="bench-board" aria-labelledby="bench-board-title">
-            <div class="bench-board-head">
-              <div>
-                <span class="bench-index">01 / 04</span>
-                <h2 id="bench-board-title">Today's tools</h2>
-              </div>
-              <a href="/features">See all {toolCount} tools ↗</a>
-            </div>
-            <div class="bench-tool-list">
-              {
-                benchTools.map((tool, index) => (
-                  <a class="bench-tool-row" href={`/tools/${tool.slug}`}>
-                    <span class="bench-tool-handle" aria-hidden="true">⠿</span>
-                    <span class="bench-tool-number">0{index + 1}</span>
-                    <span class="bench-tool-name">{tool.name}</span>
-                    <span class="bench-tool-description">{tool.description}</span>
-                    <span class="bench-tool-open" aria-hidden="true">↗</span>
-                  </a>
-                ))
-              }
-            </div>
-          </section>
-
-          <div class="bench-lower-grid">
-            <section class="bench-shelf" aria-labelledby="bench-shelf-title">
-              <div class="bench-shelf-head">
-                <span class="bench-index">02 / 04</span>
-                <h2 id="bench-shelf-title">The shelves</h2>
-              </div>
-              <div class="bench-category-grid">
-                {
-                  Array.from(new Set(tools.map((tool) => tool.category))).map((category, index) => (
-                    <a href="/features" class="bench-category">
-                      <span>0{index + 1}</span>
-                      <strong>{categoryLabels[category]}</strong>
-                      <small>{tools.filter((tool) => tool.category === category).length} tools</small>
-                    </a>
-                  ))
-                }
-              </div>
-            </section>
-            <aside class="bench-note">
-              <span class="bench-note-pin" aria-hidden="true" />
-              <span class="bench-note-label">Pinned note</span>
-              <p>Paste the secret.<br />Do the work.<br />Close the tab.</p>
-              <a href="/about">Read the promise ↗</a>
-            </aside>
+            <p>Type to filter. Press enter on a tool.</p>
           </div>
-
-          <footer class="bench-footer">
-            <span>22 instruments / zero hand-offs</span>
-            <a href="/">Return to the current app ↗</a>
-          </footer>
-        </div>
+          <label class="command-input">
+            <span aria-hidden="true">⌕</span>
+            <span class="sr-only">Search tools</span>
+            <input data-quiet-search type="search" placeholder="Search tools…" autocomplete="off" />
+            <kbd>/</kbd>
+          </label>
+          <div class="command-list-head"><span>Tool</span><span data-search-count>{tools.length} results</span></div>
+          <ul class="command-list">
+            {
+              tools.map((tool, index) => (
+                <li>
+                  <a class="command-item" data-quiet-tool href={`/tools/${tool.slug}`}>
+                    <span class="command-item-index">{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{tool.name}</strong>
+                    <span>{categoryLabels[tool.category]}</span>
+                    <span class="command-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
+          <div class="command-footer"><span>All processing stays in this tab.</span><a href="/about">About the project ↗</a></div>
+        </section>
       )
     }
   </main>
 </div>
 
 <script>
-  document.querySelectorAll("[data-tool-surface]").forEach((surface) => {
-    const input = surface.querySelector<HTMLInputElement>("[data-tool-search]");
+  document.querySelectorAll("[data-quiet-surface]").forEach((surface) => {
+    const input = surface.querySelector<HTMLInputElement>("[data-quiet-search]");
     if (!input) return;
 
-    const root = surface.closest(".design-lab") ?? document;
-    const items = Array.from(root.querySelectorAll<HTMLElement>("[data-tool-item]"));
-    const count = root.querySelector<HTMLElement>("[data-search-count]");
+    const root = surface.closest(".quiet-lab") ?? document;
+    const items = Array.from(root.querySelectorAll<HTMLElement>("[data-quiet-tool]"));
+    const counts = root.querySelectorAll<HTMLElement>("[data-search-count]");
     const empty = root.querySelector<HTMLElement>("[data-search-empty]");
 
     input.addEventListener("input", () => {
@@ -500,148 +314,182 @@ const directionNames = ["Command deck", "Field notes", "The index", "Night shift
       let visible = 0;
 
       items.forEach((item) => {
-        const match = !query || item.textContent.toLowerCase().includes(query);
+        const match = !query || (item.textContent ?? "").toLowerCase().includes(query);
         item.hidden = !match;
         if (match) visible += 1;
       });
 
-      if (count) count.textContent = `${visible} ${visible === 1 ? "command" : "commands"} loaded`;
+      counts.forEach((count) => {
+        count.textContent = `${visible} ${visible === 1 ? "tool" : "tools"}`;
+      });
       if (empty) empty.hidden = visible !== 0;
     });
   });
 </script>
 
 <style>
-  .design-lab {
-    --lab-bg: #09090b;
-    --lab-surface: #13141a;
-    --lab-surface-strong: #1c1d26;
-    --lab-ink: #e4e4e9;
-    --lab-muted: #9498a5;
-    --lab-faint: #5a5e6b;
-    --lab-line: #27272a;
-    --lab-accent: #34d399;
+  .quiet-lab {
+    --quiet-bg: #f4f4f1;
+    --quiet-panel: #ffffff;
+    --quiet-ink: #171918;
+    --quiet-muted: #6b716d;
+    --quiet-faint: #9da39e;
+    --quiet-line: #d9ddd8;
+    --quiet-accent: #247452;
     min-height: 100dvh;
-    overflow: hidden;
-    background: var(--lab-bg);
-    color: var(--lab-ink);
+    background: var(--quiet-bg);
+    color: var(--quiet-ink);
     font-family: var(--font-sans);
   }
 
-  .lab-main,
-  .lab-topbar {
-    width: min(100% - 3rem, 1440px);
+  .quiet-header,
+  .quiet-main {
+    width: min(100% - 3rem, 1180px);
     margin-inline: auto;
   }
 
-  .lab-topbar {
-    position: relative;
-    z-index: 10;
+  .quiet-header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 1.5rem;
-    padding: 1.35rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--lab-line) 85%, transparent);
+    border-bottom: 1px solid var(--quiet-line);
+    padding: 1.25rem 0;
   }
 
-  .lab-brand,
-  .lab-direction-link,
-  .terminal-nav-item,
-  .terminal-tool,
-  .terminal-text-link,
-  .editorial-button,
-  .editorial-feature-card a,
-  .editorial-tool-card,
-  .editorial-footer a,
-  .swiss-table a,
-  .observatory-primary,
-  .observatory-secondary,
-  .observatory-tool,
-  .observatory-footer a,
-  .bench-topline a,
-  .bench-board-head a,
-  .bench-tool-row,
-  .bench-category,
-  .bench-note a,
-  .bench-footer a {
+  .quiet-brand,
+  .quiet-direction-nav a,
+  .plain-list-item,
+  .sidebar-categories a,
+  .sidebar-privacy,
+  .sidebar-tool,
+  .split-tool,
+  .split-open,
+  .tool-card,
+  .command-bar-brand,
+  .command-bar-link,
+  .command-item,
+  .command-footer a {
     color: inherit;
     text-decoration: none;
   }
 
-  .lab-brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
+  .quiet-brand {
     justify-self: start;
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.86rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.035em;
   }
 
-  .lab-brand-mark {
-    color: var(--lab-accent);
-  }
-
-  .lab-study-label {
-    color: var(--lab-muted);
+  .quiet-context,
+  .quiet-privacy,
+  .quiet-direction-nav,
+  .quiet-eyebrow,
+  .plain-list-category,
+  .plain-list-number,
+  .sidebar-categories,
+  .sidebar-group h3,
+  .sidebar-search,
+  .split-picker-head > span,
+  .split-tool small,
+  .card-index-controls,
+  .tool-card-top,
+  .command-bar,
+  .command-list-head,
+  .command-item-index,
+  .command-footer {
     font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.16em;
+  }
+
+  .quiet-context,
+  .quiet-privacy,
+  .quiet-eyebrow,
+  .quiet-direction-nav,
+  .command-bar,
+  .command-list-head,
+  .command-footer {
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  .lab-direction-nav {
+  .quiet-context,
+  .quiet-privacy {
+    color: var(--quiet-muted);
+  }
+
+  .quiet-header-end {
     display: flex;
     justify-self: end;
-    gap: 0.35rem;
+    align-items: center;
+    gap: 1.2rem;
   }
 
-  .lab-direction-link {
+  .quiet-direction-nav {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .quiet-direction-nav a {
     display: grid;
-    width: 2rem;
-    height: 2rem;
+    width: 1.8rem;
+    height: 1.8rem;
     place-items: center;
-    border: 1px solid color-mix(in srgb, var(--lab-line) 85%, transparent);
-    color: var(--lab-muted);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+    border: 1px solid transparent;
+    color: var(--quiet-faint);
+    font-size: 0.62rem;
+    transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease;
   }
 
-  .lab-direction-link:hover,
-  .lab-direction-link:focus-visible,
-  .lab-direction-link.is-current {
-    border-color: var(--lab-accent);
-    background: color-mix(in srgb, var(--lab-accent) 14%, transparent);
-    color: var(--lab-ink);
+  .quiet-direction-nav a:hover,
+  .quiet-direction-nav a:focus-visible,
+  .quiet-direction-nav a.is-current {
+    border-color: var(--quiet-ink);
+    background: var(--quiet-panel);
+    color: var(--quiet-ink);
   }
 
-  .lab-main {
-    padding: clamp(3rem, 7vw, 7rem) 0 5rem;
+  .quiet-main {
+    padding: clamp(3.5rem, 7vw, 7rem) 0 5rem;
   }
 
-  .lab-skip {
+  .quiet-skip {
     position: fixed;
-    z-index: 100;
+    z-index: 20;
     top: 0.75rem;
     left: 0.75rem;
     transform: translateY(-150%);
-    padding: 0.7rem 0.9rem;
-    background: var(--lab-accent, #34d399);
-    color: #09090b;
+    padding: 0.65rem 0.8rem;
+    background: var(--quiet-ink, #171918);
+    color: var(--quiet-bg, #f4f4f1);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-decoration: none;
+    font-size: 0.72rem;
   }
 
-  .lab-skip:focus {
+  .quiet-skip:focus {
     transform: translateY(0);
   }
 
-  .lab-main:focus {
+  .quiet-main:focus {
     outline: none;
+  }
+
+  .quiet-lab a:focus-visible,
+  .quiet-lab input:focus-visible {
+    outline: 2px solid var(--quiet-accent);
+    outline-offset: 3px;
+  }
+
+  .quiet-eyebrow {
+    margin: 0;
+    color: var(--quiet-accent);
+  }
+
+  .quiet-empty {
+    margin: 2rem 0;
+    color: var(--quiet-muted);
+    font-size: 0.86rem;
   }
 
   .sr-only {
@@ -656,1704 +504,928 @@ const directionNames = ["Command deck", "Field notes", "The index", "Night shift
     border: 0;
   }
 
-  .design-lab input:focus-visible,
-  .design-lab a:focus-visible {
-    outline: 2px solid var(--lab-accent);
-    outline-offset: 4px;
-  }
-
-  /* Direction 01: command deck */
-  .direction-1 {
-    --lab-bg: #090d0b;
-    --lab-surface: #111813;
-    --lab-surface-strong: #19231b;
-    --lab-ink: #ecf7e8;
-    --lab-muted: #9cab9d;
-    --lab-faint: #66766a;
-    --lab-line: #2a3a2e;
-    --lab-accent: #b8f12f;
-    --lab-warm: #ff9e55;
-    background-color: var(--lab-bg);
-    background-image: linear-gradient(rgba(184, 241, 47, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(184, 241, 47, 0.035) 1px, transparent 1px);
-    background-size: 48px 48px;
-    font-family: var(--font-mono);
-  }
-
-  .direction-1 .lab-topbar {
-    border-color: var(--lab-line);
-  }
-
-  .terminal-layout {
-    display: grid;
-    grid-template-columns: 13rem minmax(0, 1fr) 15rem;
-    gap: clamp(2rem, 5vw, 6rem);
-    align-items: start;
-  }
-
-  .terminal-sidebar,
-  .terminal-signal {
-    color: var(--lab-muted);
-    font-size: 0.7rem;
-  }
-
-  .terminal-sidebar-label,
-  .terminal-kicker,
-  .terminal-signal-top,
-  .terminal-shortcut,
-  .terminal-result-count,
-  .terminal-tool-number,
-  .terminal-tool-arrow {
-    color: var(--lab-faint);
-    font-size: 0.62rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-  }
-
-  .terminal-sidebar-label {
-    margin: 0 0 0.8rem;
-  }
-
-  .terminal-nav-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.65rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--lab-line) 60%, transparent);
-    color: var(--lab-muted);
-    transition: color 160ms ease;
-  }
-
-  .terminal-nav-item:hover,
-  .terminal-nav-item.is-selected {
-    color: var(--lab-accent);
-  }
-
-  .terminal-sidebar-rule {
-    height: 1px;
-    margin: 2rem 0;
-    background: var(--lab-line);
-  }
-
-  .terminal-runtime {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0;
-    color: var(--lab-ink);
-  }
-
-  .terminal-pulse,
-  .observatory-live i,
-  .observatory-tool-pulse {
-    display: inline-block;
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background: var(--lab-accent);
-    box-shadow: 0 0 0.8rem var(--lab-accent);
-  }
-
-  .terminal-sidebar-note {
-    max-width: 13rem;
-    margin: 1.4rem 0 0;
-    color: var(--lab-faint);
-    font-family: var(--font-sans);
-    font-size: 0.78rem;
-    line-height: 1.6;
-  }
-
-  .terminal-content {
-    max-width: 46rem;
-  }
-
-  .terminal-kicker {
-    margin-bottom: 1.25rem;
-    color: var(--lab-accent);
-  }
-
-  .terminal-content h1 {
-    max-width: 13ch;
-    margin: 0;
-    color: var(--lab-ink);
-    font-size: clamp(2.8rem, 7vw, 6.7rem);
-    font-weight: 400;
-    letter-spacing: -0.09em;
-    line-height: 0.91;
-  }
-
-  .terminal-intro {
-    max-width: 33rem;
-    margin: 2rem 0 2.6rem;
-    color: var(--lab-muted);
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.65;
-  }
-
-  .terminal-command-line {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    border-bottom: 1px solid var(--lab-accent);
-    padding: 0.85rem 0;
-  }
-
-  .terminal-prompt {
-    color: var(--lab-accent);
-    font-weight: 700;
-  }
-
-  .terminal-command-line input {
-    min-width: 0;
-    flex: 1;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: var(--lab-ink);
-    font: inherit;
-    font-size: 1rem;
-  }
-
-  .terminal-command-line input::placeholder {
-    color: var(--lab-faint);
-  }
-
-  .terminal-shortcut {
-    flex-shrink: 0;
-    color: var(--lab-faint);
-  }
-
-  .terminal-result-count {
-    margin: 0.85rem 0 0;
-  }
-
-  .terminal-tool-list {
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--lab-line);
-  }
-
-  .terminal-tool {
-    display: grid;
-    grid-template-columns: 2rem minmax(0, 1fr) auto;
-    gap: 1rem;
-    align-items: start;
-    padding: 1.05rem 0;
-    border-bottom: 1px solid var(--lab-line);
-    transition: padding 160ms ease, color 160ms ease;
-  }
-
-  .terminal-tool:hover {
-    padding-inline: 0.8rem;
-    color: var(--lab-accent);
-  }
-
-  .terminal-tool-copy {
-    display: grid;
-    gap: 0.35rem;
-  }
-
-  .terminal-tool-copy strong {
-    color: var(--lab-ink);
-    font-family: var(--font-sans);
-    font-size: 0.95rem;
-  }
-
-  .terminal-tool:hover .terminal-tool-copy strong {
-    color: var(--lab-accent);
-  }
-
-  .terminal-tool-copy span {
-    color: var(--lab-muted);
-    font-family: var(--font-sans);
-    font-size: 0.78rem;
-    line-height: 1.45;
-  }
-
-  .terminal-tool-arrow {
-    padding-top: 0.15rem;
-  }
-
-  .terminal-empty {
-    padding: 2rem 0;
-    color: var(--lab-warm);
-    font-size: 0.75rem;
-  }
-
-  .terminal-signal {
-    border-top: 1px solid var(--lab-line);
-    border-bottom: 1px solid var(--lab-line);
-    padding: 0.8rem 0 1.1rem;
-  }
-
-  .terminal-signal-top {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .terminal-signal-display {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    margin: 2.8rem 0 1.2rem;
-  }
-
-  .terminal-signal-value {
-    color: var(--lab-accent);
-    font-size: clamp(3.5rem, 6vw, 5rem);
-    letter-spacing: -0.1em;
-    line-height: 0.8;
-  }
-
-  .terminal-signal-unit {
-    color: var(--lab-muted);
-    font-family: var(--font-sans);
-    font-size: 0.72rem;
-  }
-
-  .terminal-wave {
-    display: flex;
-    align-items: center;
-    height: 3rem;
-    gap: 0.2rem;
-  }
-
-  .terminal-wave i {
-    display: block;
-    width: 0.23rem;
-    height: 30%;
-    background: var(--lab-accent);
-    animation: terminal-wave 1.8s ease-in-out infinite alternate;
-  }
-
-  .terminal-wave i:nth-child(2n) { height: 68%; animation-delay: -0.4s; }
-  .terminal-wave i:nth-child(3n) { height: 45%; animation-delay: -0.8s; }
-  .terminal-wave i:nth-child(5n) { height: 90%; animation-delay: -1.2s; }
-
-  @keyframes terminal-wave {
-    to { transform: scaleY(0.55); opacity: 0.45; }
-  }
-
-  .terminal-signal-note {
-    margin: 0.6rem 0 2rem;
-    color: var(--lab-faint);
-    font-family: var(--font-sans);
-    font-size: 0.78rem;
-    line-height: 1.5;
-  }
-
-  .terminal-text-link {
-    color: var(--lab-accent);
-    font-size: 0.7rem;
-  }
-
-  /* Direction 02: editorial field notes */
-  .direction-2 {
-    --lab-bg: #f1eadc;
-    --lab-surface: #1e3b59;
-    --lab-surface-strong: #d8c9ad;
-    --lab-ink: #17201f;
-    --lab-muted: #68706a;
-    --lab-faint: #9c988a;
-    --lab-line: #c9bda7;
-    --lab-accent: #d45a3b;
-    --lab-blue: #1e3b59;
+  /* 01. Plain list */
+  .quiet-direction-1 {
+    --quiet-bg: #f3f4f0;
+    --quiet-panel: #ffffff;
+    --quiet-ink: #171918;
+    --quiet-muted: #69716b;
+    --quiet-faint: #a1a8a1;
+    --quiet-line: #d7ddd7;
+    --quiet-accent: #23734f;
     color-scheme: light;
-    background: var(--lab-bg);
-    color: var(--lab-ink);
   }
 
-  .direction-2 .lab-topbar {
-    border-color: var(--lab-line);
-  }
-
-  .direction-2 .lab-brand-mark,
-  .direction-2 .lab-direction-link.is-current,
-  .direction-2 .lab-direction-link:hover,
-  .direction-2 .lab-direction-link:focus-visible {
-    color: var(--lab-accent);
-  }
-
-  .direction-2 .lab-direction-link.is-current,
-  .direction-2 .lab-direction-link:hover,
-  .direction-2 .lab-direction-link:focus-visible {
-    border-color: var(--lab-accent);
-    background: color-mix(in srgb, var(--lab-accent) 10%, transparent);
-  }
-
-  .editorial-layout {
-    max-width: 78rem;
+  .plain-list {
+    max-width: 940px;
     margin-inline: auto;
   }
 
-  .editorial-masthead,
-  .editorial-footer,
-  .editorial-rule,
-  .editorial-tool-card,
-  .editorial-feature-card {
-    border-color: var(--lab-line);
-  }
-
-  .editorial-masthead,
-  .editorial-footer {
+  .plain-list-intro {
     display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    border-bottom: 1px solid var(--lab-line);
-    padding: 0 0 0.8rem;
-    color: var(--lab-muted);
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .editorial-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
-    gap: clamp(2rem, 8vw, 10rem);
     align-items: end;
-    padding: clamp(4rem, 9vw, 9rem) 0 clamp(4rem, 8vw, 8rem);
-  }
-
-  .editorial-overline,
-  .editorial-section-number,
-  .editorial-feature-type,
-  .editorial-tool-category,
-  .editorial-tool-index {
-    color: var(--lab-accent);
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .editorial-overline {
-    margin: 0 0 2rem;
-  }
-
-  .editorial-hero h1 {
-    max-width: 8ch;
-    margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(4rem, 10vw, 10rem);
-    font-weight: 400;
-    letter-spacing: -0.1em;
-    line-height: 0.82;
-  }
-
-  .editorial-hero h1 em {
-    color: var(--lab-accent);
-    font-weight: 400;
-  }
-
-  .editorial-dek {
-    max-width: 28rem;
-    margin: 2.6rem 0 2rem;
-    color: var(--lab-muted);
-    font-size: 1.1rem;
-    line-height: 1.7;
-  }
-
-  .editorial-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    border-bottom: 1px solid var(--lab-ink);
-    padding: 0.5rem 0;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    transition: color 160ms ease, border-color 160ms ease;
-  }
-
-  .editorial-button:hover {
-    border-color: var(--lab-accent);
-    color: var(--lab-accent);
-  }
-
-  .editorial-feature-card {
-    position: relative;
-    overflow: hidden;
-    min-height: 25rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    background: var(--lab-blue);
-    color: #f4efe4;
-    padding: 1.3rem;
-    transform: rotate(2deg);
-  }
-
-  .editorial-feature-card::before {
-    position: absolute;
-    top: 2rem;
-    left: -2rem;
-    content: "";
-    width: 15rem;
-    height: 15rem;
-    border: 1px solid rgba(241, 234, 220, 0.26);
-    border-radius: 50%;
-    box-shadow: 0 0 0 2.5rem rgba(241, 234, 220, 0.04), 0 0 0 5rem rgba(241, 234, 220, 0.04);
-  }
-
-  .editorial-feature-top,
-  .editorial-feature-type {
-    position: relative;
-    z-index: 1;
-    color: #afc4d5;
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .editorial-feature-top {
-    position: absolute;
-    top: 1.3rem;
-    right: 1.3rem;
-    left: 1.3rem;
-    display: flex;
     justify-content: space-between;
-  }
-
-  .editorial-feature-symbol {
-    position: absolute;
-    top: 2.4rem;
-    left: 1.5rem;
-    color: #d9e8ee;
-    font-family: Georgia, serif;
-    font-size: 6rem;
-    letter-spacing: -0.2em;
-    opacity: 0.9;
-  }
-
-  .editorial-feature-card h2 {
-    position: relative;
-    z-index: 1;
-    margin: 0.65rem 0 0.5rem;
-    font-family: Georgia, serif;
-    font-size: 2.1rem;
-    font-weight: 400;
-  }
-
-  .editorial-feature-card > p:not(.editorial-feature-type) {
-    position: relative;
-    z-index: 1;
-    margin: 0 0 1.4rem;
-    color: #c1d0d5;
-    font-size: 0.88rem;
-    line-height: 1.55;
-  }
-
-  .editorial-feature-card a {
-    position: relative;
-    z-index: 1;
-    align-self: flex-start;
-    border-bottom: 1px solid #f4efe4;
-    padding-bottom: 0.3rem;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-  }
-
-  .editorial-rule {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    border-top: 1px solid var(--lab-line);
-    border-bottom: 1px solid var(--lab-line);
-    padding: 1.25rem 0;
-  }
-
-  .editorial-rule h2 {
-    margin: 0.45rem 0 0;
-    font-family: Georgia, serif;
-    font-size: 2.5rem;
-    font-weight: 400;
-  }
-
-  .editorial-section-number {
-    margin: 0;
-  }
-
-  .editorial-rule > p {
-    align-self: end;
-    max-width: 25rem;
-    margin: 0;
-    color: var(--lab-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-
-  .editorial-catalog {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    margin-top: 5rem;
-    background: var(--lab-line);
-    border: 1px solid var(--lab-line);
-  }
-
-  .editorial-tool-card {
-    display: flex;
-    min-height: 16rem;
-    flex-direction: column;
-    background: var(--lab-bg);
-    padding: 1.35rem;
-    transition: background-color 160ms ease, color 160ms ease;
-  }
-
-  .editorial-tool-card:hover {
-    background: #e4dac8;
-  }
-
-  .editorial-tool-index {
-    color: var(--lab-muted);
-  }
-
-  .editorial-tool-category {
-    margin-top: 2.6rem;
-  }
-
-  .editorial-tool-card h3 {
-    margin: 0.55rem 0 0.5rem;
-    font-family: Georgia, serif;
-    font-size: 1.8rem;
-    font-weight: 400;
-  }
-
-  .editorial-tool-card p {
-    max-width: 18rem;
-    margin: 0;
-    color: var(--lab-muted);
-    font-size: 0.83rem;
-    line-height: 1.55;
-  }
-
-  .editorial-tool-open {
-    margin-top: auto;
-    padding-top: 1.5rem;
-    color: var(--lab-accent);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-  }
-
-  .editorial-footer {
-    margin-top: 5rem;
-    border-top: 1px solid var(--lab-line);
-    border-bottom: 0;
-    padding: 1rem 0 0;
-  }
-
-  .editorial-footer a {
-    color: var(--lab-accent);
-  }
-
-  /* Direction 03: Swiss index */
-  .direction-3 {
-    --lab-bg: #e7e8e4;
-    --lab-surface: #f5f5f1;
-    --lab-surface-strong: #d7d9d2;
-    --lab-ink: #121312;
-    --lab-muted: #5d625c;
-    --lab-faint: #888d86;
-    --lab-line: #aeb2aa;
-    --lab-accent: #ef3c2e;
-    color-scheme: light;
-    background: var(--lab-bg);
-    color: var(--lab-ink);
-    font-family: var(--font-sans);
-  }
-
-  .direction-3 .lab-topbar {
-    width: min(100% - 3rem, 110rem);
-    border-color: var(--lab-ink);
-  }
-
-  .direction-3 .lab-brand-mark,
-  .direction-3 .lab-direction-link.is-current,
-  .direction-3 .lab-direction-link:hover,
-  .direction-3 .lab-direction-link:focus-visible {
-    color: var(--lab-accent);
-  }
-
-  .direction-3 .lab-direction-link {
-    border-color: var(--lab-ink);
-  }
-
-  .direction-3 .lab-direction-link.is-current,
-  .direction-3 .lab-direction-link:hover,
-  .direction-3 .lab-direction-link:focus-visible {
-    border-color: var(--lab-accent);
-    background: var(--lab-ink);
-  }
-
-  .swiss-layout {
-    max-width: 110rem;
-    margin-inline: auto;
-  }
-
-  .swiss-utility-bar,
-  .swiss-index-heading,
-  .swiss-table th,
-  .swiss-table td,
-  .swiss-index-marker,
-  .swiss-index-count,
-  .swiss-overline,
-  .swiss-facts span {
-    font-family: var(--font-mono);
-  }
-
-  .swiss-utility-bar {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    border-bottom: 1px solid var(--lab-ink);
-    padding-bottom: 0.75rem;
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-  }
-
-  .swiss-hero {
-    display: grid;
-    grid-template-columns: minmax(9rem, 0.4fr) minmax(0, 1fr) 15rem;
-    gap: clamp(2rem, 5vw, 8rem);
-    align-items: end;
-    min-height: 29rem;
-    border-bottom: 1px solid var(--lab-ink);
-    padding: 4rem 0;
-  }
-
-  .swiss-hero-number {
-    align-self: start;
-    color: var(--lab-accent);
-    font-family: var(--font-mono);
-    font-size: clamp(8rem, 19vw, 22rem);
-    font-weight: 700;
-    letter-spacing: -0.16em;
-    line-height: 0.65;
-  }
-
-  .swiss-hero-copy {
-    max-width: 45rem;
-  }
-
-  .swiss-overline,
-  .swiss-index-marker {
-    color: var(--lab-accent);
-    font-size: 0.67rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-  }
-
-  .swiss-hero h1 {
-    margin: 1rem 0 1.8rem;
-    font-size: clamp(3.7rem, 8vw, 8.8rem);
-    font-weight: 800;
-    letter-spacing: -0.1em;
-    line-height: 0.82;
-  }
-
-  .swiss-hero h1 span {
-    color: var(--lab-accent);
-  }
-
-  .swiss-hero-copy > p:last-child {
-    max-width: 27rem;
-    margin: 0;
-    color: var(--lab-muted);
-    font-size: 1rem;
-    line-height: 1.55;
-  }
-
-  .swiss-hero-stamp {
-    display: grid;
-    gap: 0.3rem;
-    border: 1px solid var(--lab-ink);
-    padding: 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-  }
-
-  .swiss-hero-stamp strong {
-    font-size: 3.3rem;
-    letter-spacing: -0.1em;
-    line-height: 0.9;
-  }
-
-  .swiss-index {
-    padding: 4rem 0 0;
-  }
-
-  .swiss-index-heading {
-    display: grid;
-    grid-template-columns: 7rem 1fr auto;
-    gap: 1rem;
-    align-items: baseline;
-    border-bottom: 2px solid var(--lab-ink);
-    padding-bottom: 0.8rem;
-  }
-
-  .swiss-index-heading h2 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-  }
-
-  .swiss-index-marker {
-    color: var(--lab-accent);
-  }
-
-  .swiss-index-count {
-    color: var(--lab-muted);
-    font-size: 0.65rem;
-  }
-
-  .swiss-table-wrap {
-    overflow-x: auto;
-  }
-
-  .swiss-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .swiss-table th,
-  .swiss-table td {
-    border-bottom: 1px solid var(--lab-line);
-    padding: 1rem 0.75rem;
-    text-align: left;
-    vertical-align: top;
-    font-size: 0.76rem;
-    line-height: 1.45;
-  }
-
-  .swiss-table thead th {
-    color: var(--lab-faint);
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .swiss-table thead th:first-child,
-  .swiss-table tbody td:first-child {
-    padding-left: 0;
-  }
-
-  .swiss-table tbody th {
-    width: 22%;
-    font-family: var(--font-sans);
-    font-size: 0.95rem;
-    font-weight: 700;
-  }
-
-  .swiss-table tbody td:nth-child(3) {
-    width: 55%;
-    color: var(--lab-muted);
-    font-family: var(--font-sans);
-  }
-
-  .swiss-table-number {
-    width: 5rem;
-    color: var(--lab-accent);
-  }
-
-  .swiss-table a {
-    transition: color 160ms ease;
-  }
-
-  .swiss-table a:hover {
-    color: var(--lab-accent);
-  }
-
-  .swiss-open {
-    color: var(--lab-accent);
-    font-size: 1.1rem;
-  }
-
-  .swiss-bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    margin-top: 5rem;
-    border-top: 1px solid var(--lab-ink);
-    padding-top: 1rem;
-  }
-
-  .swiss-principle p {
-    max-width: 28rem;
-    margin: 2.5rem 0 0;
-    font-size: clamp(1.8rem, 3vw, 3.2rem);
-    font-weight: 700;
-    letter-spacing: -0.07em;
-    line-height: 0.98;
-  }
-
-  .swiss-facts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    align-items: end;
-    gap: 1rem;
-  }
-
-  .swiss-facts div {
-    display: grid;
-    gap: 0.8rem;
-    border-top: 2px solid var(--lab-accent);
-    padding-top: 0.7rem;
-  }
-
-  .swiss-facts span {
-    color: var(--lab-accent);
-    font-size: 0.62rem;
-  }
-
-  .swiss-facts strong {
-    font-size: 0.8rem;
-  }
-
-  /* Direction 04: observatory */
-  .direction-4 {
-    --lab-bg: #080b20;
-    --lab-surface: rgba(15, 21, 51, 0.72);
-    --lab-surface-strong: #161e47;
-    --lab-ink: #e9edff;
-    --lab-muted: #a2acce;
-    --lab-faint: #626d98;
-    --lab-line: #293360;
-    --lab-accent: #6ff6df;
-    --lab-coral: #ff8068;
-    background: radial-gradient(circle at 70% 15%, #1a2b5b 0, transparent 26rem),
-      radial-gradient(circle at 15% 80%, #111841 0, transparent 28rem), var(--lab-bg);
-    color: var(--lab-ink);
-    font-family: var(--font-sans);
-  }
-
-  .direction-4 .lab-topbar {
-    border-color: var(--lab-line);
-  }
-
-  .direction-4 .lab-brand-mark {
-    color: var(--lab-accent);
-  }
-
-  .direction-4 .lab-direction-link.is-current,
-  .direction-4 .lab-direction-link:hover,
-  .direction-4 .lab-direction-link:focus-visible {
-    border-color: var(--lab-accent);
-    background: color-mix(in srgb, var(--lab-accent) 12%, transparent);
-    color: var(--lab-accent);
-  }
-
-  .observatory-layout {
-    position: relative;
-    max-width: 92rem;
-    margin-inline: auto;
-  }
-
-  .observatory-stars {
-    position: absolute;
-    inset: -7rem -10vw 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image: radial-gradient(rgba(233, 237, 255, 0.55) 0.7px, transparent 0.8px),
-      radial-gradient(rgba(111, 246, 223, 0.35) 0.7px, transparent 0.8px);
-    background-position: 0 0, 24px 38px;
-    background-size: 73px 91px, 113px 137px;
-    opacity: 0.3;
-  }
-
-  .observatory-heading-row,
-  .observatory-hero,
-  .observatory-signal-panel,
-  .observatory-footer {
-    position: relative;
-    z-index: 1;
-  }
-
-  .observatory-heading-row,
-  .observatory-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    color: var(--lab-faint);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .observatory-live {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--lab-accent);
-  }
-
-  .observatory-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.75fr);
-    gap: clamp(2rem, 8vw, 9rem);
-    align-items: center;
-    padding: clamp(4rem, 9vw, 9rem) 0;
-  }
-
-  .observatory-overline,
-  .observatory-panel-kicker,
-  .observatory-tool-meta {
-    color: var(--lab-coral);
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .observatory-hero h1 {
-    max-width: 11ch;
-    margin: 1.6rem 0;
-    font-size: clamp(3.9rem, 9vw, 8.7rem);
-    font-weight: 300;
+    gap: 3rem;
+    margin-bottom: clamp(3rem, 7vw, 5rem);
+  }
+
+  .plain-list h1,
+  .sidebar-rail h1,
+  .split-picker h1,
+  .card-index h1,
+  .command-heading h1 {
+    margin: 0.8rem 0 0;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 500;
     letter-spacing: -0.09em;
     line-height: 0.86;
   }
 
-  .observatory-hero h1 em {
-    color: var(--lab-accent);
-    font-style: normal;
-  }
-
-  .observatory-hero-copy > p:not(.observatory-overline) {
-    max-width: 28rem;
+  .plain-list-summary {
+    max-width: 12rem;
     margin: 0;
-    color: var(--lab-muted);
-    font-size: 1rem;
-    line-height: 1.65;
+    color: var(--quiet-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
 
-  .observatory-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+  .plain-list-search {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
     align-items: center;
-    margin-top: 2.2rem;
+    border-bottom: 1px solid var(--quiet-ink);
+    padding: 0 0 0.8rem;
   }
 
-  .observatory-primary,
-  .observatory-secondary {
+  .plain-list-search label {
+    color: var(--quiet-muted);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
   }
 
-  .observatory-primary {
-    border: 1px solid var(--lab-accent);
-    padding: 0.85rem 1rem;
-    color: var(--lab-accent);
-    transition: background-color 160ms ease, color 160ms ease;
-  }
-
-  .observatory-primary:hover {
-    background: var(--lab-accent);
-    color: var(--lab-bg);
-  }
-
-  .observatory-secondary {
-    color: var(--lab-muted);
-    transition: color 160ms ease;
-  }
-
-  .observatory-secondary:hover {
-    color: var(--lab-ink);
-  }
-
-  .observatory-radar {
-    position: relative;
-    aspect-ratio: 1;
-    max-width: 30rem;
-    justify-self: end;
-    width: 100%;
-  }
-
-  .observatory-ring {
-    position: absolute;
-    border: 1px solid color-mix(in srgb, var(--lab-accent) 34%, transparent);
-    border-radius: 50%;
-    inset: 50% auto auto 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .ring-one { width: 32%; height: 32%; }
-  .ring-two { width: 62%; height: 62%; }
-  .ring-three { width: 92%; height: 92%; border-style: dashed; opacity: 0.65; }
-
-  .observatory-crosshair::before,
-  .observatory-crosshair::after {
-    position: absolute;
-    content: "";
-    background: color-mix(in srgb, var(--lab-accent) 35%, transparent);
-  }
-
-  .observatory-crosshair::before {
-    top: 50%;
-    left: 3%;
-    right: 3%;
-    height: 1px;
-  }
-
-  .observatory-crosshair::after {
-    top: 3%;
-    bottom: 3%;
-    left: 50%;
-    width: 1px;
-  }
-
-  .observatory-orbit-dot {
-    position: absolute;
-    width: 0.8rem;
-    height: 0.8rem;
-    border: 2px solid var(--lab-bg);
-    border-radius: 50%;
-    background: var(--lab-accent);
-    box-shadow: 0 0 1.3rem var(--lab-accent);
-  }
-
-  .dot-one { top: 22%; right: 25%; }
-  .dot-two { bottom: 20%; left: 20%; background: var(--lab-coral); box-shadow: 0 0 1.3rem var(--lab-coral); }
-
-  .observatory-radar-label {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--lab-accent);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-  }
-
-  .observatory-signal-panel {
-    border: 1px solid var(--lab-line);
-    background: var(--lab-surface);
-    padding: clamp(1.2rem, 3vw, 2rem);
-    backdrop-filter: blur(12px);
-  }
-
-  .observatory-panel-heading {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    align-items: end;
-    border-bottom: 1px solid var(--lab-line);
-    padding-bottom: 1.5rem;
-  }
-
-  .observatory-panel-heading h2 {
-    margin: 0.55rem 0 0;
-    font-size: clamp(1.7rem, 3vw, 2.8rem);
-    font-weight: 300;
-    letter-spacing: -0.06em;
-  }
-
-  .observatory-search-label {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    border-bottom: 1px solid var(--lab-muted);
-    padding: 0.5rem 0;
-  }
-
-  .observatory-search-label input {
-    width: 12rem;
+  .plain-list-search input,
+  .sidebar-search input,
+  .split-search input,
+  .card-index-search input,
+  .command-input input {
+    min-width: 0;
     border: 0;
     outline: 0;
     background: transparent;
-    color: var(--lab-ink);
-    font: 0.75rem var(--font-mono);
+    color: var(--quiet-ink);
+    font: inherit;
+    font-size: 0.95rem;
   }
 
-  .observatory-search-label input::placeholder {
-    color: var(--lab-faint);
+  .plain-list-search input::placeholder,
+  .sidebar-search input::placeholder,
+  .split-search input::placeholder,
+  .card-index-search input::placeholder,
+  .command-input input::placeholder {
+    color: var(--quiet-faint);
   }
 
-  .observatory-tool-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1px;
-    margin-top: 1.5rem;
-    background: var(--lab-line);
-  }
-
-  .observatory-tool {
-    position: relative;
-    display: flex;
-    min-height: 13rem;
-    flex-direction: column;
-    gap: 0.6rem;
-    background: rgba(8, 11, 32, 0.82);
-    padding: 1rem;
-    transition: background-color 160ms ease, transform 160ms ease;
-  }
-
-  .observatory-tool:hover {
-    z-index: 1;
-    background: var(--lab-surface-strong);
-    transform: translateY(-0.35rem);
-  }
-
-  .observatory-tool-pulse {
-    width: 0.35rem;
-    height: 0.35rem;
-    margin-bottom: auto;
-  }
-
-  .observatory-tool-meta {
-    color: var(--lab-faint);
-    font-size: 0.57rem;
-  }
-
-  .observatory-tool strong {
-    color: var(--lab-ink);
-    font-size: 1.05rem;
-    font-weight: 500;
-  }
-
-  .observatory-tool > span:not(.observatory-tool-pulse):not(.observatory-tool-meta):not(.observatory-tool-arrow) {
-    color: var(--lab-muted);
-    font-size: 0.74rem;
-    line-height: 1.45;
-  }
-
-  .observatory-tool-arrow {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-    color: var(--lab-coral);
-  }
-
-  .observatory-empty {
-    margin: 1.5rem 0 0;
-    color: var(--lab-coral);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-  }
-
-  .observatory-footer {
-    margin-top: 2rem;
-    border-top: 1px solid var(--lab-line);
-    padding-top: 1rem;
-  }
-
-  .observatory-footer a {
-    color: var(--lab-accent);
-  }
-
-  /* Direction 05: tactile workbench */
-  .direction-5 {
-    --lab-bg: #e8dfcc;
-    --lab-surface: #f6f0e2;
-    --lab-surface-strong: #d5c6a9;
-    --lab-ink: #21352d;
-    --lab-muted: #68776d;
-    --lab-faint: #a09580;
-    --lab-line: #b7a98f;
-    --lab-accent: #d4663b;
-    --lab-green: #2e5a45;
-    color-scheme: light;
-    background-color: var(--lab-bg);
-    background-image: linear-gradient(rgba(102, 86, 61, 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(102, 86, 61, 0.07) 1px, transparent 1px);
-    background-size: 24px 24px;
-    color: var(--lab-ink);
-  }
-
-  .direction-5 .lab-topbar {
-    border-color: var(--lab-ink);
-  }
-
-  .direction-5 .lab-brand-mark,
-  .direction-5 .lab-direction-link.is-current,
-  .direction-5 .lab-direction-link:hover,
-  .direction-5 .lab-direction-link:focus-visible {
-    color: var(--lab-accent);
-  }
-
-  .direction-5 .lab-direction-link {
-    border-color: var(--lab-ink);
-  }
-
-  .direction-5 .lab-direction-link.is-current,
-  .direction-5 .lab-direction-link:hover,
-  .direction-5 .lab-direction-link:focus-visible {
-    border-color: var(--lab-accent);
-    background: var(--lab-ink);
-  }
-
-  .bench-layout {
-    max-width: 78rem;
-    margin-inline: auto;
-  }
-
-  .bench-topline,
-  .bench-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    border-bottom: 1px solid var(--lab-ink);
-    padding-bottom: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .bench-logo {
-    font-weight: 700;
-  }
-
-  .bench-logo b {
-    display: inline-grid;
-    width: 1.2rem;
-    height: 1.2rem;
-    margin-right: 0.35rem;
-    place-items: center;
-    background: var(--lab-accent);
-    color: var(--lab-surface);
-    font-size: 0.9rem;
-    text-transform: lowercase;
-  }
-
-  .bench-label,
-  .bench-topline a,
-  .bench-footer a {
-    color: var(--lab-muted);
-  }
-
-  .bench-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 12rem;
-    gap: 2rem;
-    align-items: end;
-    padding: clamp(4rem, 8vw, 8rem) 0 4rem;
-  }
-
-  .bench-kicker,
-  .bench-index {
-    color: var(--lab-accent);
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .bench-hero h1 {
-    margin: 1.2rem 0 1.5rem;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(4rem, 9vw, 9rem);
-    font-weight: 400;
-    letter-spacing: -0.1em;
-    line-height: 0.8;
-  }
-
-  .bench-hero h1 span {
-    color: var(--lab-green);
-  }
-
-  .bench-lede {
-    max-width: 27rem;
-    margin: 0;
-    color: var(--lab-muted);
-    font-size: 1rem;
-    line-height: 1.65;
-  }
-
-  .bench-badge {
-    display: grid;
-    gap: 0.15rem;
-    border: 1px solid var(--lab-ink);
-    background: var(--lab-surface);
-    padding: 1rem;
-    color: var(--lab-green);
-    font-family: var(--font-mono);
-    font-size: 0.63rem;
-    letter-spacing: 0.12em;
-    transform: rotate(3deg);
-  }
-
-  .bench-badge strong {
-    color: var(--lab-accent);
-    font-size: 2.8rem;
-    letter-spacing: -0.12em;
-    line-height: 0.9;
-  }
-
-  .bench-board,
-  .bench-shelf {
-    border: 1px solid var(--lab-ink);
-    background: var(--lab-surface);
-    box-shadow: 0.45rem 0.45rem 0 var(--lab-green);
-  }
-
-  .bench-board-head,
-  .bench-shelf-head {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    border-bottom: 1px solid var(--lab-ink);
-    padding: 1.1rem 1.25rem;
-  }
-
-  .bench-board-head h2,
-  .bench-shelf-head h2 {
-    margin: 0.45rem 0 0;
-    font-family: Georgia, serif;
-    font-size: 2.1rem;
-    font-weight: 400;
-  }
-
-  .bench-board-head > a {
-    color: var(--lab-accent);
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-  }
-
-  .bench-tool-row {
-    display: grid;
-    grid-template-columns: 1.4rem 2.2rem minmax(10rem, 0.8fr) minmax(0, 1.4fr) 1rem;
-    gap: 0.7rem;
-    align-items: center;
-    border-bottom: 1px solid var(--lab-line);
-    padding: 1rem 1.25rem;
-    transition: background-color 160ms ease, padding-left 160ms ease;
-  }
-
-  .bench-tool-row:last-child {
-    border-bottom: 0;
-  }
-
-  .bench-tool-row:hover {
-    background: #e9dfcd;
-    padding-left: 1.7rem;
-  }
-
-  .bench-tool-handle,
-  .bench-tool-number,
-  .bench-tool-open {
-    color: var(--lab-faint);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-  }
-
-  .bench-tool-name {
-    font-weight: 700;
-  }
-
-  .bench-tool-description {
-    color: var(--lab-muted);
-    font-size: 0.78rem;
-    line-height: 1.4;
-  }
-
-  .bench-tool-open {
-    color: var(--lab-accent);
-    font-size: 1rem;
-  }
-
-  .bench-lower-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(15rem, 0.6fr);
-    gap: 3rem;
-    margin-top: 4rem;
-    align-items: start;
-  }
-
-  .bench-shelf {
-    box-shadow: none;
-  }
-
-  .bench-category-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .bench-category {
-    display: grid;
-    gap: 0.65rem;
-    min-height: 8.5rem;
-    border-right: 1px solid var(--lab-line);
-    border-bottom: 1px solid var(--lab-line);
-    padding: 0.9rem;
-    transition: background-color 160ms ease, color 160ms ease;
-  }
-
-  .bench-category:nth-child(4n) {
-    border-right: 0;
-  }
-
-  .bench-category:hover {
-    background: var(--lab-green);
-    color: #f6f0e2;
-  }
-
-  .bench-category span,
-  .bench-category small {
-    color: var(--lab-faint);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-  }
-
-  .bench-category:hover span,
-  .bench-category:hover small {
-    color: #b9d1bd;
-  }
-
-  .bench-category strong {
-    align-self: end;
-    font-size: 0.85rem;
-  }
-
-  .bench-note {
-    position: relative;
-    min-height: 18rem;
-    background: #e5b84e;
-    padding: 2.5rem 1.5rem 1.5rem;
-    color: #45391f;
-    box-shadow: 0.35rem 0.35rem 0 rgba(33, 53, 45, 0.18);
-    transform: rotate(-2deg);
-  }
-
-  .bench-note-pin {
-    position: absolute;
-    top: 0.9rem;
-    left: 50%;
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 50%;
-    background: var(--lab-accent);
-    box-shadow: 0 0.12rem 0 rgba(69, 57, 31, 0.3);
-    transform: translateX(-50%);
-  }
-
-  .bench-note-label {
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .bench-note p {
-    margin: 3rem 0 2rem;
-    font-family: Georgia, serif;
-    font-size: 2.3rem;
-    letter-spacing: -0.07em;
-    line-height: 0.95;
-  }
-
-  .bench-note a {
-    border-bottom: 1px solid currentColor;
-    padding-bottom: 0.25rem;
+  .plain-list-search > span,
+  .card-index-controls > span {
+    color: var(--quiet-muted);
     font-family: var(--font-mono);
     font-size: 0.68rem;
   }
 
-  .bench-footer {
-    margin-top: 4rem;
-    border-top: 1px solid var(--lab-ink);
-    border-bottom: 0;
-    padding-top: 0.8rem;
+  .plain-list-items {
+    margin-top: 0.75rem;
+    padding: 0;
+    list-style: none;
   }
 
-  .bench-footer a {
-    color: var(--lab-accent);
+  .plain-list-item {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto 1rem;
+    gap: 1rem;
+    align-items: start;
+    border-bottom: 1px solid var(--quiet-line);
+    padding: 1.15rem 0;
+    transition: padding 150ms ease, background-color 150ms ease;
   }
 
-  @media (max-width: 900px) {
-    .terminal-layout,
-    .editorial-hero,
-    .observatory-hero,
-    .bench-lower-grid,
-    .swiss-hero {
+  .plain-list-item:hover {
+    margin-inline: -0.75rem;
+    padding-inline: 0.75rem;
+    background: var(--quiet-panel);
+  }
+
+  .plain-list-number,
+  .plain-list-category,
+  .plain-list-arrow {
+    color: var(--quiet-faint);
+    font-size: 0.63rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .plain-list-copy {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .plain-list-copy strong {
+    font-size: 0.98rem;
+    font-weight: 650;
+  }
+
+  .plain-list-copy span {
+    color: var(--quiet-muted);
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .plain-list-category {
+    padding-top: 0.15rem;
+  }
+
+  .plain-list-arrow {
+    color: var(--quiet-accent);
+    font-size: 0.9rem;
+  }
+
+  /* 02. Sidebar */
+  .quiet-direction-2 {
+    --quiet-bg: #111512;
+    --quiet-panel: #171d18;
+    --quiet-ink: #e8eee6;
+    --quiet-muted: #9aa89d;
+    --quiet-faint: #657269;
+    --quiet-line: #2b372e;
+    --quiet-accent: #a8d96f;
+    background: var(--quiet-bg);
+    color-scheme: dark;
+  }
+
+  .quiet-direction-2 .quiet-header {
+    border-color: var(--quiet-line);
+  }
+
+  .quiet-direction-2 .quiet-direction-nav a:hover,
+  .quiet-direction-2 .quiet-direction-nav a:focus-visible,
+  .quiet-direction-2 .quiet-direction-nav a.is-current {
+    border-color: var(--quiet-accent);
+    background: var(--quiet-panel);
+    color: var(--quiet-accent);
+  }
+
+  .quiet-direction-2 .quiet-skip {
+    background: var(--quiet-accent);
+    color: var(--quiet-bg);
+  }
+
+  .sidebar-layout {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: clamp(3rem, 8vw, 8rem);
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+
+  .sidebar-rail {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+  }
+
+  .sidebar-rail h1 {
+    color: var(--quiet-ink);
+    font-size: clamp(3rem, 5vw, 4.8rem);
+  }
+
+  .sidebar-note {
+    max-width: 12rem;
+    margin: 1.6rem 0 2.5rem;
+    color: var(--quiet-muted);
+    font-size: 0.86rem;
+    line-height: 1.6;
+  }
+
+  .sidebar-categories {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .sidebar-categories a {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-left: 1px solid transparent;
+    padding: 0.45rem 0.6rem;
+    color: var(--quiet-muted);
+    font-size: 0.7rem;
+    transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease;
+  }
+
+  .quiet-direction-2 .sidebar-categories a:hover,
+  .quiet-direction-2 .sidebar-categories a:focus-visible,
+  .quiet-direction-2 .sidebar-categories a.is-active {
+    border-color: var(--quiet-accent);
+    background: var(--quiet-panel);
+    color: var(--quiet-ink);
+  }
+
+  .sidebar-categories span {
+    color: var(--quiet-faint);
+  }
+
+  .sidebar-privacy {
+    display: inline-block;
+    margin-top: 3rem;
+    color: var(--quiet-accent);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+  }
+
+  .sidebar-workspace-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    border-bottom: 1px solid var(--quiet-line);
+    padding-bottom: 1.2rem;
+  }
+
+  .sidebar-workspace-head h2 {
+    margin: 0.7rem 0 0;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 500;
+    letter-spacing: -0.07em;
+  }
+
+  .sidebar-search {
+    display: flex;
+    width: 11rem;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--quiet-faint);
+    padding: 0.5rem 0;
+    color: var(--quiet-faint);
+    font-size: 0.68rem;
+  }
+
+  .sidebar-search input {
+    width: 100%;
+    font-size: 0.78rem;
+  }
+
+  .sidebar-groups {
+    display: grid;
+    gap: 2.5rem;
+    padding-top: 2.5rem;
+  }
+
+  .sidebar-group h3 {
+    margin: 0 0 0.65rem;
+    color: var(--quiet-accent);
+    font-size: 0.67rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-group-items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--quiet-line);
+  }
+
+  .sidebar-tool {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+    min-height: 7rem;
+    background: var(--quiet-bg);
+    padding: 0.9rem;
+    transition: background-color 150ms ease;
+  }
+
+  .sidebar-tool:hover {
+    background: var(--quiet-panel);
+  }
+
+  .sidebar-tool strong {
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .sidebar-tool span {
+    max-width: 20rem;
+    color: var(--quiet-muted);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .sidebar-tool .sidebar-tool-arrow {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.8rem;
+    color: var(--quiet-accent);
+  }
+
+  /* 03. Split view */
+  .quiet-direction-3 {
+    --quiet-bg: #e9e9e5;
+    --quiet-panel: #f8f8f5;
+    --quiet-ink: #1d211e;
+    --quiet-muted: #68706b;
+    --quiet-faint: #9ba19c;
+    --quiet-line: #cfd4ce;
+    --quiet-accent: #bc4a35;
+    color-scheme: light;
+  }
+
+  .split-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(18rem, 0.7fr);
+    gap: clamp(2rem, 8vw, 8rem);
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+
+  .split-picker-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    border-bottom: 1px solid var(--quiet-ink);
+    padding-bottom: 1.2rem;
+  }
+
+  .split-picker h1 {
+    color: var(--quiet-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 400;
+  }
+
+  .split-picker-head > span {
+    flex-shrink: 0;
+    color: var(--quiet-muted);
+    font-size: 0.66rem;
+  }
+
+  .split-search {
+    display: block;
+    border-bottom: 1px solid var(--quiet-line);
+    padding: 1rem 0;
+  }
+
+  .split-search input {
+    width: 100%;
+  }
+
+  .split-tool-list {
+    margin-top: 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .split-tool {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    gap: 0.8rem;
+    align-items: center;
+    border-bottom: 1px solid var(--quiet-line);
+    padding: 0.75rem 0;
+    color: var(--quiet-muted);
+    transition: color 150ms ease, padding 150ms ease;
+  }
+
+  .split-tool:hover,
+  .split-tool.is-featured {
+    color: var(--quiet-ink);
+  }
+
+  .split-tool:hover {
+    padding-inline: 0.6rem;
+    background: var(--quiet-panel);
+  }
+
+  .split-tool > span,
+  .split-tool small {
+    color: var(--quiet-faint);
+    font-size: 0.64rem;
+  }
+
+  .split-tool strong {
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .split-tool small {
+    color: var(--quiet-muted);
+    text-transform: uppercase;
+  }
+
+  .split-detail {
+    align-self: start;
+    border-top: 1px solid var(--quiet-ink);
+    padding-top: 1.2rem;
+  }
+
+  .split-detail-mark {
+    margin: clamp(3rem, 8vw, 7rem) 0 2rem;
+    color: var(--quiet-accent);
+    font-family: var(--font-mono);
+    font-size: clamp(4rem, 9vw, 7rem);
+    letter-spacing: -0.16em;
+    line-height: 0.6;
+  }
+
+  .split-detail h2 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-weight: 400;
+    letter-spacing: -0.08em;
+  }
+
+  .split-detail-description {
+    max-width: 20rem;
+    margin: 1rem 0 1.8rem;
+    color: var(--quiet-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .split-open {
+    display: inline-flex;
+    gap: 0.6rem;
+    border-bottom: 1px solid var(--quiet-accent);
+    padding-bottom: 0.35rem;
+    color: var(--quiet-accent);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
+  .split-facts {
+    display: grid;
+    gap: 0.75rem;
+    margin: 4rem 0 0;
+    border-top: 1px solid var(--quiet-line);
+    padding-top: 1rem;
+  }
+
+  .split-facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--quiet-line);
+    padding-bottom: 0.6rem;
+  }
+
+  .split-facts dt,
+  .split-facts dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+  }
+
+  .split-facts dt {
+    color: var(--quiet-faint);
+    text-transform: uppercase;
+  }
+
+  .split-facts dd {
+    color: var(--quiet-muted);
+  }
+
+  /* 04. Card index */
+  .quiet-direction-4 {
+    --quiet-bg: #f4ede1;
+    --quiet-panel: #fffaf2;
+    --quiet-ink: #29251f;
+    --quiet-muted: #766f65;
+    --quiet-faint: #aaa093;
+    --quiet-line: #d8cdbd;
+    --quiet-accent: #a34d35;
+    color-scheme: light;
+  }
+
+  .card-index {
+    max-width: 1080px;
+    margin-inline: auto;
+  }
+
+  .card-index-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: 2rem;
+    align-items: end;
+    border-bottom: 1px solid var(--quiet-ink);
+    padding-bottom: 2rem;
+  }
+
+  .card-index h1 {
+    max-width: 9ch;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3.4rem, 7vw, 7rem);
+    font-weight: 400;
+    letter-spacing: -0.09em;
+  }
+
+  .card-index-summary {
+    margin: 0 0 0.4rem;
+    color: var(--quiet-muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .card-index-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    align-items: center;
+    padding: 1rem 0;
+    color: var(--quiet-muted);
+    font-size: 0.66rem;
+  }
+
+  .card-index-search {
+    display: block;
+    width: min(100%, 22rem);
+    border-bottom: 1px solid var(--quiet-line);
+    padding: 0.5rem 0;
+  }
+
+  .card-index-search input {
+    width: 100%;
+  }
+
+  .card-index-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .tool-card {
+    position: relative;
+    display: flex;
+    min-height: 12.5rem;
+    flex-direction: column;
+    gap: 0.7rem;
+    border: 1px solid var(--quiet-line);
+    background: var(--quiet-panel);
+    padding: 1rem;
+    transition: border-color 150ms ease, transform 150ms ease, background-color 150ms ease;
+  }
+
+  .tool-card:hover {
+    border-color: var(--quiet-accent);
+    background: #fffdf9;
+    transform: translateY(-0.2rem);
+  }
+
+  .tool-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--quiet-faint);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+  }
+
+  .tool-card strong {
+    margin-top: auto;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.65rem;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+  }
+
+  .tool-card > span:not(.tool-card-top):not(.tool-card-arrow) {
+    max-width: 19rem;
+    color: var(--quiet-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .tool-card-arrow {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    color: var(--quiet-accent);
+    font-family: var(--font-mono);
+  }
+
+  /* 05. Command line */
+  .quiet-direction-5 {
+    --quiet-bg: #0f1110;
+    --quiet-panel: #171a18;
+    --quiet-ink: #e4e8e2;
+    --quiet-muted: #a0aaa0;
+    --quiet-faint: #687269;
+    --quiet-line: #303832;
+    --quiet-accent: #d2e982;
+    background: var(--quiet-bg);
+    color-scheme: dark;
+    font-family: var(--font-mono);
+  }
+
+  .quiet-direction-5 .quiet-header {
+    border-color: var(--quiet-line);
+  }
+
+  .quiet-direction-5 .quiet-direction-nav a:hover,
+  .quiet-direction-5 .quiet-direction-nav a:focus-visible,
+  .quiet-direction-5 .quiet-direction-nav a.is-current {
+    border-color: var(--quiet-accent);
+    background: var(--quiet-panel);
+    color: var(--quiet-accent);
+  }
+
+  .quiet-direction-5 .quiet-skip {
+    background: var(--quiet-accent);
+    color: var(--quiet-bg);
+  }
+
+  .command-layout {
+    max-width: 820px;
+    margin-inline: auto;
+  }
+
+  .command-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 1px solid var(--quiet-line);
+    background: var(--quiet-panel);
+    padding: 0.7rem 0.85rem;
+    color: var(--quiet-muted);
+  }
+
+  .command-bar-brand {
+    color: var(--quiet-ink);
+  }
+
+  .command-bar-status {
+    color: var(--quiet-accent);
+  }
+
+  .command-bar-link {
+    color: var(--quiet-muted);
+  }
+
+  .command-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    align-items: end;
+    padding: clamp(4rem, 9vw, 7rem) 0 2.5rem;
+  }
+
+  .command-heading h1 {
+    color: var(--quiet-ink);
+    font-family: var(--font-sans);
+    font-size: clamp(2.8rem, 6vw, 5.5rem);
+    font-weight: 450;
+  }
+
+  .command-heading > p {
+    max-width: 12rem;
+    margin: 0 0 0.2rem;
+    color: var(--quiet-muted);
+    font-family: var(--font-sans);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .command-input {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.8rem;
+    align-items: center;
+    border: 1px solid var(--quiet-line);
+    background: var(--quiet-panel);
+    padding: 1rem;
+    color: var(--quiet-accent);
+  }
+
+  .command-input input {
+    font-family: var(--font-mono);
+  }
+
+  .command-input kbd {
+    border: 1px solid var(--quiet-line);
+    padding: 0.15rem 0.4rem;
+    color: var(--quiet-faint);
+    font: 0.65rem var(--font-mono);
+  }
+
+  .command-list-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--quiet-line);
+    padding: 1.5rem 0 0.7rem;
+    color: var(--quiet-faint);
+    font-size: 0.62rem;
+  }
+
+  .command-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .command-item {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto 1rem;
+    gap: 1rem;
+    align-items: center;
+    border-bottom: 1px solid var(--quiet-line);
+    padding: 0.9rem 0;
+    transition: color 150ms ease, padding 150ms ease, background-color 150ms ease;
+  }
+
+  .command-item:hover {
+    padding-inline: 0.8rem;
+    background: var(--quiet-panel);
+    color: var(--quiet-accent);
+  }
+
+  .command-item-index,
+  .command-item > span:nth-child(3),
+  .command-item-arrow {
+    color: var(--quiet-faint);
+    font-size: 0.64rem;
+    text-transform: uppercase;
+  }
+
+  .command-item strong {
+    color: var(--quiet-ink);
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .command-item:hover strong,
+  .command-item:hover .command-item-arrow {
+    color: var(--quiet-accent);
+  }
+
+  .command-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.2rem;
+    color: var(--quiet-faint);
+    font-size: 0.62rem;
+  }
+
+  .command-footer a {
+    color: var(--quiet-accent);
+  }
+
+  @media (max-width: 800px) {
+    .sidebar-layout,
+    .split-layout {
       grid-template-columns: 1fr;
     }
 
-    .terminal-sidebar,
-    .terminal-signal {
-      display: none;
+    .sidebar-rail {
+      position: static;
     }
 
-    .editorial-feature-card,
-    .observatory-radar {
-      max-width: 31rem;
-      justify-self: start;
+    .sidebar-categories {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
-    .swiss-hero {
-      min-height: 0;
-      gap: 2.5rem;
+    .sidebar-privacy {
+      margin-top: 1rem;
     }
 
-    .swiss-hero-number {
-      font-size: 10rem;
+    .split-detail {
+      border-top: 1px solid var(--quiet-ink);
+      padding-top: 2rem;
     }
 
-    .observatory-tool-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .bench-category-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .bench-category:nth-child(4n) {
-      border-right: 1px solid var(--lab-line);
-    }
-
-    .bench-category:nth-child(2n) {
-      border-right: 0;
+    .split-detail-mark {
+      margin: 3rem 0 1.5rem;
     }
   }
 
   @media (max-width: 640px) {
-    .lab-main,
-    .lab-topbar {
-      width: min(100% - 2rem, 1440px);
+    .quiet-header,
+    .quiet-main {
+      width: min(100% - 2rem, 1180px);
     }
 
-    .lab-topbar {
+    .quiet-header {
       grid-template-columns: 1fr auto;
-      gap: 0.8rem;
     }
 
-    .lab-study-label {
+    .quiet-context,
+    .quiet-privacy {
       display: none;
     }
 
-    .lab-direction-nav {
+    .quiet-header-end {
       grid-column: 1 / -1;
       grid-row: 2;
       justify-self: start;
     }
 
-    .lab-main {
-      padding-top: 3.5rem;
+    .plain-list-intro,
+    .card-index-head,
+    .command-heading {
+      display: block;
     }
 
-    .terminal-content h1,
-    .editorial-hero h1,
-    .observatory-hero h1,
-    .bench-hero h1 {
-      font-size: clamp(3.45rem, 17vw, 5.8rem);
+    .plain-list-summary,
+    .card-index-summary,
+    .command-heading > p {
+      margin-top: 1.5rem;
     }
 
-    .terminal-tool {
-      grid-template-columns: 1.5rem minmax(0, 1fr);
-    }
-
-    .terminal-tool-arrow {
-      display: none;
-    }
-
-    .editorial-masthead,
-    .editorial-footer,
-    .observatory-heading-row,
-    .observatory-footer,
-    .bench-topline,
-    .bench-footer,
-    .swiss-utility-bar {
-      flex-direction: column;
-      gap: 0.45rem;
-    }
-
-    .editorial-hero {
-      padding-top: 5rem;
-    }
-
-    .editorial-catalog {
-      grid-template-columns: 1fr;
-    }
-
-    .editorial-tool-card {
-      min-height: 13rem;
-    }
-
-    .swiss-index-heading {
+    .plain-list-search {
       grid-template-columns: 1fr auto;
     }
 
-    .swiss-index-heading h2 {
-      grid-row: 2;
+    .plain-list-search label {
+      display: none;
     }
 
-    .swiss-index-count {
-      grid-row: 2;
+    .plain-list-item {
+      grid-template-columns: 1.8rem minmax(0, 1fr) 1rem;
+      gap: 0.7rem;
     }
 
-    .swiss-table th,
-    .swiss-table td {
-      min-width: 8rem;
-      padding-inline: 0.5rem;
+    .plain-list-category {
+      display: none;
     }
 
-    .swiss-table th:first-child,
-    .swiss-table td:first-child {
-      min-width: 3rem;
+    .sidebar-categories {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .swiss-bottom-grid {
+    .sidebar-workspace-head {
+      display: block;
+    }
+
+    .sidebar-search {
+      width: 100%;
+      margin-top: 1.5rem;
+    }
+
+    .sidebar-group-items,
+    .card-index-grid {
       grid-template-columns: 1fr;
-      gap: 2.5rem;
     }
 
-    .swiss-facts {
+    .split-picker-head {
+      display: block;
+    }
+
+    .split-picker-head > span {
+      display: block;
+      margin-top: 1rem;
+    }
+
+    .card-index-controls {
+      display: block;
+    }
+
+    .card-index-search {
+      width: 100%;
+      margin-bottom: 0.8rem;
+    }
+
+    .command-bar,
+    .command-footer {
+      align-items: flex-start;
+      flex-direction: column;
       gap: 0.5rem;
     }
 
-    .observatory-panel-heading {
-      align-items: start;
-      flex-direction: column;
+    .command-item {
+      grid-template-columns: 1.8rem minmax(0, 1fr) 1rem;
+      gap: 0.7rem;
     }
 
-    .observatory-search-label,
-    .observatory-search-label input {
-      width: 100%;
-    }
-
-    .observatory-tool-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .bench-hero {
-      grid-template-columns: 1fr;
-    }
-
-    .bench-badge {
-      max-width: 12rem;
-    }
-
-    .bench-tool-row {
-      grid-template-columns: 1.2rem 1.8rem minmax(0, 1fr) 1rem;
-    }
-
-    .bench-tool-description {
+    .command-item > span:nth-child(3) {
       display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .terminal-wave i,
-    .lab-direction-link,
-    .terminal-nav-item,
-    .terminal-tool,
-    .editorial-button,
-    .editorial-tool-card,
-    .observatory-primary,
-    .observatory-secondary,
-    .observatory-tool,
-    .bench-tool-row,
-    .bench-category {
-      animation: none;
+    .quiet-lab a,
+    .quiet-lab input,
+    .quiet-lab .tool-card,
+    .quiet-lab .plain-list-item,
+    .quiet-lab .sidebar-categories a,
+    .quiet-lab .sidebar-tool,
+    .quiet-lab .split-tool,
+    .quiet-lab .command-item {
       scroll-behavior: auto;
       transition: none;
     }
