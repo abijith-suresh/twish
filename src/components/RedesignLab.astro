@@ -1,1431 +1,788 @@
 ---
-import { tools, type Tool } from "@/tools/registry";
+import ToolSearch from "@/components/ToolSearch";
 
 export interface Props {
   direction: 1 | 2 | 3 | 4 | 5;
 }
 
 const { direction } = Astro.props;
-
-function getTool(slug: string): Tool {
-  const match = tools.find((candidate) => candidate.slug === slug);
-  if (!match) throw new Error(`Unknown design lab tool: ${slug}`);
-  return match;
-}
-
-const directionNames = ["Plain list", "Sidebar", "Split view", "Card index", "Command line"];
-const categoryLabels: Record<string, string> = {
-  encoding: "Encoding",
-  security: "Security",
-  text: "Text",
-  generators: "Generators",
-  time: "Time",
-  data: "Data",
-  network: "Network",
-};
-const categories = Array.from(new Set(tools.map((tool) => tool.category)));
-const selectedTool = getTool("json-formatter");
-const featuredTools = [
-  getTool("json-formatter"),
-  getTool("diff"),
-  getTool("base64"),
-  getTool("jwt-decoder"),
-];
+const directionNames = ["Spotlight", "Terminal", "Grid", "Rail", "Palette"];
 ---
 
-<a class="quiet-skip" href="#direction-content">Skip to content</a>
+<a class="study-skip" href="#direction-content">Skip to content</a>
 
-<div class:list={["quiet-lab", `quiet-direction-${direction}`]}>
-  <header class="quiet-header">
-    <a class="quiet-brand" href="/" translate="no">unwrapped.tools</a>
-    <span class="quiet-context">design study {String(direction).padStart(2, "0")} / 05</span>
-    <div class="quiet-header-end">
-      <span class="quiet-privacy">local only · no tracking</span>
-      <nav class="quiet-direction-nav" aria-label="Design directions">
-        {
-          directionNames.map((name, index) => {
-            const page = index + 1;
-            return (
-              <a
-                href={`/${page}`}
-                class:list={{ "is-current": page === direction }}
-                aria-current={page === direction ? "page" : undefined}
-                title={name}
-              >
-                {String(page).padStart(2, "0")}
-              </a>
-            );
-          })
-        }
-      </nav>
-    </div>
+<div class:list={["study-shell", `study-direction-${direction}`]}>
+  <header class="study-header">
+    <a class="study-brand" href="/" translate="no">
+      unwrapped<span class="study-brand-tld">.tools</span>
+    </a>
+    <span class="study-index">study {String(direction).padStart(2, "0")} / 05</span>
+    <nav class="study-nav" aria-label="Design directions">
+      {
+        directionNames.map((name, index) => {
+          const page = index + 1;
+          return (
+            <a
+              href={`/${page}`}
+              class:list={{ "is-current": page === direction }}
+              aria-current={page === direction ? "page" : undefined}
+              aria-label={`Direction ${page}: ${name}`}
+              title={name}
+            >
+              {String(page).padStart(2, "0")}
+            </a>
+          );
+        })
+      }
+    </nav>
   </header>
 
-  <main id="direction-content" class="quiet-main" tabindex="-1">
-    {
-      direction === 1 && (
-        <section class="plain-list" data-quiet-surface>
-          <div class="plain-list-intro">
-            <div>
-              <p class="quiet-eyebrow">Browser utilities</p>
-              <h1>Find a tool.</h1>
-            </div>
-            <p class="plain-list-summary">{tools.length} focused tools. Search, open, work.</p>
-          </div>
-
-          <div class="plain-list-search">
-            <label for="plain-list-query">Search tools</label>
-            <input
-              id="plain-list-query"
-              data-quiet-search
-              type="search"
-              placeholder="Search by name or use…"
-              autocomplete="off"
-            />
-            <span data-search-count>{tools.length} tools</span>
-          </div>
-
-          <ul class="plain-list-items">
-            {
-              tools.map((tool, index) => (
-                <li>
-                  <a class="plain-list-item" data-quiet-tool href={`/tools/${tool.slug}`}>
-                    <span class="plain-list-number">{String(index + 1).padStart(2, "0")}</span>
-                    <span class="plain-list-copy">
-                      <strong>{tool.name}</strong>
-                      <span>{tool.description}</span>
-                    </span>
-                    <span class="plain-list-category">{categoryLabels[tool.category]}</span>
-                    <span class="plain-list-arrow" aria-hidden="true">↗</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
-        </section>
-      )
-    }
-
-    {
-      direction === 2 && (
-        <section class="sidebar-layout" data-quiet-surface>
-          <aside class="sidebar-rail">
-            <p class="quiet-eyebrow">Toolbox</p>
-            <h1>Tools</h1>
-            <p class="sidebar-note">Small utilities for text, data, secrets, and time.</p>
-            <nav class="sidebar-categories" aria-label="Tool categories">
-              <a class="is-active" href="#sidebar-all">All tools <span>{tools.length}</span></a>
-              {
-                categories.map((category) => (
-                  <a href={`#sidebar-${category}`}>
-                    {categoryLabels[category]} <span>{tools.filter((tool) => tool.category === category).length}</span>
-                  </a>
-                ))
-              }
-            </nav>
-            <a class="sidebar-privacy" href="/privacy">How local storage works ↗</a>
-          </aside>
-
-          <div class="sidebar-workspace" id="sidebar-all">
-            <div class="sidebar-workspace-head">
-              <div>
-                <p class="quiet-eyebrow">All tools</p>
-                <h2>Choose one thing.</h2>
-              </div>
-              <label class="sidebar-search">
-                <span class="sr-only">Filter tools</span>
-                <input data-quiet-search type="search" placeholder="Filter…" autocomplete="off" />
-                <span data-search-count>{tools.length}</span>
-              </label>
-            </div>
-
-            <div class="sidebar-groups">
-              {
-                categories.map((category) => (
-                  <section class="sidebar-group" id={`sidebar-${category}`}>
-                    <h3>{categoryLabels[category]}</h3>
-                    <div class="sidebar-group-items">
-                      {
-                        tools
-                          .filter((tool) => tool.category === category)
-                          .map((tool) => (
-                            <a class="sidebar-tool" data-quiet-tool href={`/tools/${tool.slug}`}>
-                              <strong>{tool.name}</strong>
-                              <span>{tool.description}</span>
-                              <span class="sidebar-tool-arrow" aria-hidden="true">↗</span>
-                            </a>
-                          ))
-                      }
-                    </div>
-                  </section>
-                ))
-              }
-            </div>
-            <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
-          </div>
-        </section>
-      )
-    }
-
-    {
-      direction === 3 && (
-        <section class="split-layout" data-quiet-surface>
-          <div class="split-picker">
-            <div class="split-picker-head">
-              <div>
-                <p class="quiet-eyebrow">Tool picker</p>
-                <h1>Pick a tool.</h1>
-              </div>
-              <span data-search-count>{tools.length} available</span>
-            </div>
-            <label class="split-search">
-              <span class="sr-only">Search tools</span>
-              <input data-quiet-search type="search" placeholder="Search tools…" autocomplete="off" />
-            </label>
-            <ul class="split-tool-list">
-              {
-                tools.map((tool, index) => (
-                  <li>
-                    <a
-                      class:list={{ "split-tool": true, "is-featured": featuredTools.some((item) => item.id === tool.id) }}
-                      data-quiet-tool
-                      href={`/tools/${tool.slug}`}
-                    >
-                      <span>{String(index + 1).padStart(2, "0")}</span>
-                      <strong>{tool.name}</strong>
-                      <small>{categoryLabels[tool.category]}</small>
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-            <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
-          </div>
-
-          <aside class="split-detail" aria-labelledby="selected-tool-title">
-            <p class="quiet-eyebrow">Selected tool</p>
-            <div class="split-detail-mark" aria-hidden="true">{ }</div>
-            <h2 id="selected-tool-title">{selectedTool.name}</h2>
-            <p class="split-detail-description">{selectedTool.description}</p>
-            <a class="split-open" href={`/tools/${selectedTool.slug}`}>Open tool <span aria-hidden="true">↗</span></a>
-            <dl class="split-facts">
-              <div><dt>Runs</dt><dd>In your browser</dd></div>
-              <div><dt>Input</dt><dd>Never uploaded</dd></div>
-              <div><dt>Account</dt><dd>Not required</dd></div>
-            </dl>
-          </aside>
-        </section>
-      )
-    }
-
-    {
-      direction === 4 && (
-        <section class="card-index" data-quiet-surface>
-          <div class="card-index-head">
-            <div>
-              <p class="quiet-eyebrow">unwrapped.tools</p>
-              <h1>Useful things, kept close.</h1>
-            </div>
-            <p class="card-index-summary">No account. No server. No input history.</p>
-          </div>
-
-          <div class="card-index-controls">
-            <label class="card-index-search">
-              <span class="sr-only">Search tools</span>
-              <input data-quiet-search type="search" placeholder="Search tools…" autocomplete="off" />
-            </label>
-            <span data-search-count>{tools.length} tools</span>
-          </div>
-
-          <div class="card-index-grid">
-            {
-              tools.map((tool, index) => (
-                <a class="tool-card" data-quiet-tool href={`/tools/${tool.slug}`}>
-                  <span class="tool-card-top"><span>{String(index + 1).padStart(2, "0")}</span><span>{categoryLabels[tool.category]}</span></span>
-                  <strong>{tool.name}</strong>
-                  <span>{tool.description}</span>
-                  <span class="tool-card-arrow" aria-hidden="true">↗</span>
-                </a>
-              ))
-            }
-          </div>
-          <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
-        </section>
-      )
-    }
-
-    {
-      direction === 5 && (
-        <section class="command-layout" data-quiet-surface>
-          <div class="command-bar">
-            <a href="/" class="command-bar-brand" translate="no">unwrapped.tools</a>
-            <span class="command-bar-status">local / ready</span>
-            <a href="/privacy" class="command-bar-link">privacy ↗</a>
-          </div>
-          <div class="command-heading">
-            <div>
-              <p class="quiet-eyebrow">Tool command</p>
-              <h1>What do you need?</h1>
-            </div>
-            <p>Type to filter. Press enter on a tool.</p>
-          </div>
-          <label class="command-input">
-            <span aria-hidden="true">⌕</span>
-            <span class="sr-only">Search tools</span>
-            <input data-quiet-search type="search" placeholder="Search tools…" autocomplete="off" />
-            <kbd>/</kbd>
-          </label>
-          <div class="command-list-head"><span>Tool</span><span data-search-count>{tools.length} results</span></div>
-          <ul class="command-list">
-            {
-              tools.map((tool, index) => (
-                <li>
-                  <a class="command-item" data-quiet-tool href={`/tools/${tool.slug}`}>
-                    <span class="command-item-index">{String(index + 1).padStart(2, "0")}</span>
-                    <strong>{tool.name}</strong>
-                    <span>{categoryLabels[tool.category]}</span>
-                    <span class="command-item-arrow" aria-hidden="true">↗</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <p class="quiet-empty" data-search-empty hidden>No tools match that search.</p>
-          <div class="command-footer"><span>All processing stays in this tab.</span><a href="/about">About the project ↗</a></div>
-        </section>
-      )
-    }
+  <main id="direction-content" class="study-main" tabindex="-1">
+    <section class="search-stage" aria-labelledby="direction-title">
+      <h1 id="direction-title">Find a tool</h1>
+      <ToolSearch client:load />
+    </section>
   </main>
 </div>
 
-<script>
-  document.querySelectorAll("[data-quiet-surface]").forEach((surface) => {
-    const input = surface.querySelector<HTMLInputElement>("[data-quiet-search]");
-    if (!input) return;
-
-    const root = surface.closest(".quiet-lab") ?? document;
-    const items = Array.from(root.querySelectorAll<HTMLElement>("[data-quiet-tool]"));
-    const counts = root.querySelectorAll<HTMLElement>("[data-search-count]");
-    const empty = root.querySelector<HTMLElement>("[data-search-empty]");
-
-    input.addEventListener("input", () => {
-      const query = input.value.trim().toLowerCase();
-      let visible = 0;
-
-      items.forEach((item) => {
-        const match = !query || (item.textContent ?? "").toLowerCase().includes(query);
-        item.hidden = !match;
-        if (match) visible += 1;
-      });
-
-      counts.forEach((count) => {
-        count.textContent = `${visible} ${visible === 1 ? "tool" : "tools"}`;
-      });
-      if (empty) empty.hidden = visible !== 0;
-    });
-  });
-</script>
-
-<style>
-  .quiet-lab {
-    --quiet-bg: #f4f4f1;
-    --quiet-panel: #ffffff;
-    --quiet-ink: #171918;
-    --quiet-muted: #6b716d;
-    --quiet-faint: #9da39e;
-    --quiet-line: #d9ddd8;
-    --quiet-accent: #247452;
+<style is="global">
+  .study-shell {
+    --study-bg: #080b0a;
+    --study-panel: #101614;
+    --study-panel-strong: #151e1a;
+    --study-line: #24312b;
+    --study-ink: #f0f5f1;
+    --study-muted: #99a8a0;
+    --study-faint: #607069;
+    --study-accent: #78e2a4;
+    --study-accent-soft: #244f38;
     min-height: 100dvh;
-    background: var(--quiet-bg);
-    color: var(--quiet-ink);
+    background: var(--study-bg);
+    color: var(--study-ink);
+    color-scheme: dark;
     font-family: var(--font-sans);
   }
 
-  .quiet-header,
-  .quiet-main {
-    width: min(100% - 3rem, 1180px);
+  .study-shell *,
+  .study-shell *::before,
+  .study-shell *::after {
+    box-sizing: border-box;
+  }
+
+  .study-shell a {
+    color: inherit;
+  }
+
+  .study-skip {
+    position: fixed;
+    z-index: 10;
+    top: 0.75rem;
+    left: 0.75rem;
+    transform: translateY(-180%);
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--study-accent);
+    border-radius: 0.35rem;
+    background: var(--study-panel-strong);
+    color: var(--study-ink);
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: transform 150ms ease;
+  }
+
+  .study-skip:focus {
+    transform: translateY(0);
+  }
+
+  .study-header,
+  .study-main {
+    width: min(100% - 3rem, 1160px);
     margin-inline: auto;
   }
 
-  .quiet-header {
+  .study-header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 1.5rem;
-    border-bottom: 1px solid var(--quiet-line);
-    padding: 1.25rem 0;
+    min-height: 4.75rem;
+    border-bottom: 1px solid var(--study-line);
   }
 
-  .quiet-brand,
-  .quiet-direction-nav a,
-  .plain-list-item,
-  .sidebar-categories a,
-  .sidebar-privacy,
-  .sidebar-tool,
-  .split-tool,
-  .split-open,
-  .tool-card,
-  .command-bar-brand,
-  .command-bar-link,
-  .command-item,
-  .command-footer a {
-    color: inherit;
+  .study-brand {
+    width: fit-content;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
     text-decoration: none;
   }
 
-  .quiet-brand {
-    justify-self: start;
+  .study-brand-tld {
+    color: var(--study-accent);
+  }
+
+  .study-index,
+  .study-nav {
+    color: var(--study-faint);
     font-family: var(--font-mono);
-    font-size: 0.86rem;
-    font-weight: 700;
-    letter-spacing: -0.035em;
-  }
-
-  .quiet-context,
-  .quiet-privacy,
-  .quiet-direction-nav,
-  .quiet-eyebrow,
-  .plain-list-category,
-  .plain-list-number,
-  .sidebar-categories,
-  .sidebar-group h3,
-  .sidebar-search,
-  .split-picker-head > span,
-  .split-tool small,
-  .card-index-controls,
-  .tool-card-top,
-  .command-bar,
-  .command-list-head,
-  .command-item-index,
-  .command-footer {
-    font-family: var(--font-mono);
-  }
-
-  .quiet-context,
-  .quiet-privacy,
-  .quiet-eyebrow,
-  .quiet-direction-nav,
-  .command-bar,
-  .command-list-head,
-  .command-footer {
-    font-size: 0.66rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .quiet-context,
-  .quiet-privacy {
-    color: var(--quiet-muted);
-  }
-
-  .quiet-header-end {
-    display: flex;
-    justify-self: end;
-    align-items: center;
-    gap: 1.2rem;
-  }
-
-  .quiet-direction-nav {
-    display: flex;
-    gap: 0.25rem;
-  }
-
-  .quiet-direction-nav a {
-    display: grid;
-    width: 1.8rem;
-    height: 1.8rem;
-    place-items: center;
-    border: 1px solid transparent;
-    color: var(--quiet-faint);
-    font-size: 0.62rem;
-    transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease;
-  }
-
-  .quiet-direction-nav a:hover,
-  .quiet-direction-nav a:focus-visible,
-  .quiet-direction-nav a.is-current {
-    border-color: var(--quiet-ink);
-    background: var(--quiet-panel);
-    color: var(--quiet-ink);
-  }
-
-  .quiet-main {
-    padding: clamp(3.5rem, 7vw, 7rem) 0 5rem;
-  }
-
-  .quiet-skip {
-    position: fixed;
-    z-index: 20;
-    top: 0.75rem;
-    left: 0.75rem;
-    transform: translateY(-150%);
-    padding: 0.65rem 0.8rem;
-    background: var(--quiet-ink, #171918);
-    color: var(--quiet-bg, #f4f4f1);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-  }
-
-  .quiet-skip:focus {
-    transform: translateY(0);
-  }
-
-  .quiet-main:focus {
-    outline: none;
-  }
-
-  .quiet-lab a:focus-visible,
-  .quiet-lab input:focus-visible {
-    outline: 2px solid var(--quiet-accent);
-    outline-offset: 3px;
-  }
-
-  .quiet-eyebrow {
-    margin: 0;
-    color: var(--quiet-accent);
-  }
-
-  .quiet-empty {
-    margin: 2rem 0;
-    color: var(--quiet-muted);
-    font-size: 0.86rem;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* 01. Plain list */
-  .quiet-direction-1 {
-    --quiet-bg: #f3f4f0;
-    --quiet-panel: #ffffff;
-    --quiet-ink: #171918;
-    --quiet-muted: #69716b;
-    --quiet-faint: #a1a8a1;
-    --quiet-line: #d7ddd7;
-    --quiet-accent: #23734f;
-    color-scheme: light;
-  }
-
-  .plain-list {
-    max-width: 940px;
-    margin-inline: auto;
-  }
-
-  .plain-list-intro {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 3rem;
-    margin-bottom: clamp(3rem, 7vw, 5rem);
-  }
-
-  .plain-list h1,
-  .sidebar-rail h1,
-  .split-picker h1,
-  .card-index h1,
-  .command-heading h1 {
-    margin: 0.8rem 0 0;
-    font-size: clamp(3rem, 7vw, 6rem);
-    font-weight: 500;
-    letter-spacing: -0.09em;
-    line-height: 0.86;
-  }
-
-  .plain-list-summary {
-    max-width: 12rem;
-    margin: 0;
-    color: var(--quiet-muted);
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-
-  .plain-list-search {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 1rem;
-    align-items: center;
-    border-bottom: 1px solid var(--quiet-ink);
-    padding: 0 0 0.8rem;
-  }
-
-  .plain-list-search label {
-    color: var(--quiet-muted);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    text-transform: uppercase;
-  }
-
-  .plain-list-search input,
-  .sidebar-search input,
-  .split-search input,
-  .card-index-search input,
-  .command-input input {
-    min-width: 0;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: var(--quiet-ink);
-    font: inherit;
-    font-size: 0.95rem;
-  }
-
-  .plain-list-search input::placeholder,
-  .sidebar-search input::placeholder,
-  .split-search input::placeholder,
-  .card-index-search input::placeholder,
-  .command-input input::placeholder {
-    color: var(--quiet-faint);
-  }
-
-  .plain-list-search > span,
-  .card-index-controls > span {
-    color: var(--quiet-muted);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-  }
-
-  .plain-list-items {
-    margin-top: 0.75rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  .plain-list-item {
-    display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr) auto 1rem;
-    gap: 1rem;
-    align-items: start;
-    border-bottom: 1px solid var(--quiet-line);
-    padding: 1.15rem 0;
-    transition: padding 150ms ease, background-color 150ms ease;
-  }
-
-  .plain-list-item:hover {
-    margin-inline: -0.75rem;
-    padding-inline: 0.75rem;
-    background: var(--quiet-panel);
-  }
-
-  .plain-list-number,
-  .plain-list-category,
-  .plain-list-arrow {
-    color: var(--quiet-faint);
-    font-size: 0.63rem;
+    font-size: 0.64rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  .plain-list-copy {
-    display: grid;
-    gap: 0.4rem;
+  .study-index {
+    justify-self: center;
   }
 
-  .plain-list-copy strong {
-    font-size: 0.98rem;
+  .study-nav {
+    display: flex;
+    justify-self: end;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .study-nav a {
+    display: inline-flex;
+    min-width: 2rem;
+    justify-content: center;
+    padding: 0.4rem 0.25rem;
+    border-bottom: 1px solid transparent;
+    color: inherit;
+    text-decoration: none;
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+
+  .study-nav a:hover,
+  .study-nav a:focus-visible,
+  .study-nav a.is-current {
+    border-color: var(--study-accent);
+    color: var(--study-accent);
+  }
+
+  .study-main {
+    min-height: calc(100dvh - 4.75rem);
+  }
+
+  .search-stage > h1 {
+    margin: 0;
+    color: var(--study-ink);
+    font-size: clamp(2.5rem, 5vw, 4.75rem);
     font-weight: 650;
+    letter-spacing: -0.065em;
+    line-height: 0.98;
   }
 
-  .plain-list-copy span {
-    color: var(--quiet-muted);
-    font-size: 0.82rem;
-    line-height: 1.45;
+  .study-shell .lp {
+    width: 100%;
   }
 
-  .plain-list-category {
-    padding-top: 0.15rem;
+  .study-shell .lp-search {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 3.5rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--study-line);
+    border-radius: 0.55rem;
+    background: var(--study-panel);
+    transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
   }
 
-  .plain-list-arrow {
-    color: var(--quiet-accent);
-    font-size: 0.9rem;
+  .study-shell .lp-search:focus-within {
+    border-color: var(--study-accent);
+    background: var(--study-panel-strong);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--study-accent) 11%, transparent);
   }
 
-  /* 02. Sidebar */
-  .quiet-direction-2 {
-    --quiet-bg: #111512;
-    --quiet-panel: #171d18;
-    --quiet-ink: #e8eee6;
-    --quiet-muted: #9aa89d;
-    --quiet-faint: #657269;
-    --quiet-line: #2b372e;
-    --quiet-accent: #a8d96f;
-    background: var(--quiet-bg);
-    color-scheme: dark;
+  .study-shell .lp-search-icon {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    color: var(--study-muted);
   }
 
-  .quiet-direction-2 .quiet-header {
-    border-color: var(--quiet-line);
+  .study-shell .lp-search-input {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--study-ink);
+    font: 0.95rem var(--font-sans);
   }
 
-  .quiet-direction-2 .quiet-direction-nav a:hover,
-  .quiet-direction-2 .quiet-direction-nav a:focus-visible,
-  .quiet-direction-2 .quiet-direction-nav a.is-current {
-    border-color: var(--quiet-accent);
-    background: var(--quiet-panel);
-    color: var(--quiet-accent);
+  .study-shell .lp-search-input::placeholder {
+    color: var(--study-faint);
   }
 
-  .quiet-direction-2 .quiet-skip {
-    background: var(--quiet-accent);
-    color: var(--quiet-bg);
+  .study-shell .lp-search-clear {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--study-muted);
+    cursor: pointer;
+    font: 1.2rem/1 var(--font-sans);
   }
 
-  .sidebar-layout {
-    display: grid;
-    grid-template-columns: 14rem minmax(0, 1fr);
-    gap: clamp(3rem, 8vw, 8rem);
-    max-width: 1040px;
-    margin-inline: auto;
+  .study-shell .lp-search-clear:hover {
+    color: var(--study-ink);
   }
 
-  .sidebar-rail {
-    position: sticky;
-    top: 2rem;
-    align-self: start;
-  }
-
-  .sidebar-rail h1 {
-    color: var(--quiet-ink);
-    font-size: clamp(3rem, 5vw, 4.8rem);
-  }
-
-  .sidebar-note {
-    max-width: 12rem;
-    margin: 1.6rem 0 2.5rem;
-    color: var(--quiet-muted);
-    font-size: 0.86rem;
-    line-height: 1.6;
-  }
-
-  .sidebar-categories {
-    display: grid;
+  .study-shell .lp-search-hint {
+    display: inline-flex;
+    flex: 0 0 auto;
     gap: 0.25rem;
   }
 
-  .sidebar-categories a {
+  .study-shell .lp-search-hint kbd {
+    min-width: 1.35rem;
+    padding: 0.14rem 0.3rem;
+    border: 1px solid var(--study-line);
+    border-radius: 0.25rem;
+    color: var(--study-faint);
+    font: 0.62rem var(--font-mono);
+    text-align: center;
+  }
+
+  .study-shell .lp-results {
+    margin-top: 0.8rem;
+  }
+
+  .study-shell .lp-row {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: 0.85rem;
+    row-gap: 0.28rem;
+    align-items: start;
+    padding: 0.9rem 0.7rem;
+    border-bottom: 1px solid var(--study-line);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+
+  .study-shell .lp-row:hover,
+  .study-shell .lp-row--active {
+    background: color-mix(in srgb, var(--study-accent) 8%, transparent);
+  }
+
+  .study-shell .lp-row-icon {
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    border-left: 1px solid transparent;
-    padding: 0.45rem 0.6rem;
-    color: var(--quiet-muted);
-    font-size: 0.7rem;
-    transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border: 1px solid var(--study-line);
+    border-radius: 0.38rem;
+    color: var(--study-muted);
+    transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease;
   }
 
-  .quiet-direction-2 .sidebar-categories a:hover,
-  .quiet-direction-2 .sidebar-categories a:focus-visible,
-  .quiet-direction-2 .sidebar-categories a.is-active {
-    border-color: var(--quiet-accent);
-    background: var(--quiet-panel);
-    color: var(--quiet-ink);
+  .study-shell .lp-row-icon svg {
+    width: 0.88rem;
+    height: 0.88rem;
   }
 
-  .sidebar-categories span {
-    color: var(--quiet-faint);
+  .study-shell .lp-row:where(:hover, .lp-row--active) .lp-row-icon {
+    border-color: var(--study-accent-soft);
+    background: var(--study-panel-strong);
+    color: var(--study-accent);
   }
 
-  .sidebar-privacy {
-    display: inline-block;
-    margin-top: 3rem;
-    color: var(--quiet-accent);
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
+  .study-shell .lp-row-name {
+    display: inline-flex;
+    grid-column: 2;
+    grid-row: 1;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--study-ink);
+    font-size: 0.9rem;
+    font-weight: 650;
+    transition: color 140ms ease;
   }
 
-  .sidebar-workspace-head {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    border-bottom: 1px solid var(--quiet-line);
-    padding-bottom: 1.2rem;
+  .study-shell .lp-row:where(:hover, .lp-row--active) .lp-row-name {
+    color: var(--study-accent);
   }
 
-  .sidebar-workspace-head h2 {
-    margin: 0.7rem 0 0;
-    font-size: clamp(1.8rem, 4vw, 3rem);
-    font-weight: 500;
-    letter-spacing: -0.07em;
+  .study-shell .lp-row-cat {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    color: var(--study-faint);
+    font: 0.62rem var(--font-mono);
+    letter-spacing: 0.04em;
+    text-align: right;
+    text-transform: lowercase;
   }
 
-  .sidebar-search {
-    display: flex;
-    width: 11rem;
-    justify-content: space-between;
-    gap: 0.75rem;
-    border-bottom: 1px solid var(--quiet-faint);
-    padding: 0.5rem 0;
-    color: var(--quiet-faint);
-    font-size: 0.68rem;
-  }
-
-  .sidebar-search input {
-    width: 100%;
+  .study-shell .lp-row-desc {
+    grid-column: 2;
+    grid-row: 2;
+    color: var(--study-muted);
     font-size: 0.78rem;
-  }
-
-  .sidebar-groups {
-    display: grid;
-    gap: 2.5rem;
-    padding-top: 2.5rem;
-  }
-
-  .sidebar-group h3 {
-    margin: 0 0 0.65rem;
-    color: var(--quiet-accent);
-    font-size: 0.67rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .sidebar-group-items {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--quiet-line);
-  }
-
-  .sidebar-tool {
-    position: relative;
-    display: grid;
-    gap: 0.4rem;
-    min-height: 7rem;
-    background: var(--quiet-bg);
-    padding: 0.9rem;
-    transition: background-color 150ms ease;
-  }
-
-  .sidebar-tool:hover {
-    background: var(--quiet-panel);
-  }
-
-  .sidebar-tool strong {
-    font-size: 0.88rem;
-    font-weight: 600;
-  }
-
-  .sidebar-tool span {
-    max-width: 20rem;
-    color: var(--quiet-muted);
-    font-size: 0.76rem;
     line-height: 1.45;
   }
 
-  .sidebar-tool .sidebar-tool-arrow {
-    position: absolute;
-    right: 0.9rem;
-    bottom: 0.8rem;
-    color: var(--quiet-accent);
+  .study-shell .lp-empty {
+    margin: 1rem 0;
+    color: var(--study-muted);
+    font-size: 0.85rem;
   }
 
-  /* 03. Split view */
-  .quiet-direction-3 {
-    --quiet-bg: #e9e9e5;
-    --quiet-panel: #f8f8f5;
-    --quiet-ink: #1d211e;
-    --quiet-muted: #68706b;
-    --quiet-faint: #9ba19c;
-    --quiet-line: #cfd4ce;
-    --quiet-accent: #bc4a35;
-    color-scheme: light;
+  /* 01. Spotlight. A single calm column with the search field as the anchor. */
+  .study-direction-1 {
+    --study-bg: #080b0a;
+    --study-panel: #111815;
+    --study-panel-strong: #17231c;
+    --study-line: #25342c;
+    --study-accent: #7be2a2;
+    --study-accent-soft: #285d40;
+    background:
+      radial-gradient(circle at 50% 15%, rgba(55, 112, 78, 0.13), transparent 34rem),
+      var(--study-bg);
   }
 
-  .split-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(18rem, 0.7fr);
-    gap: clamp(2rem, 8vw, 8rem);
-    max-width: 1040px;
-    margin-inline: auto;
+  .study-direction-1 .search-stage {
+    width: min(100%, 760px);
+    margin: 0 auto;
+    padding-top: clamp(5rem, 17vh, 10rem);
   }
 
-  .split-picker-head {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    border-bottom: 1px solid var(--quiet-ink);
-    padding-bottom: 1.2rem;
+  .study-direction-1 .search-stage > h1 {
+    margin-bottom: 2rem;
   }
 
-  .split-picker h1 {
-    color: var(--quiet-ink);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(3rem, 6vw, 5.5rem);
+  .study-direction-1 .lp-search {
+    min-height: 4.25rem;
+    padding-inline: 1.25rem;
+    border-radius: 0.75rem;
+  }
+
+  .study-direction-1 .lp-search-input {
+    font-size: 1.05rem;
+  }
+
+  .study-direction-1 .lp-results {
+    margin-top: 1.2rem;
+  }
+
+  /* 02. Terminal. Dense rows, monospaced controls, no decorative framing. */
+  .study-direction-2 {
+    --study-bg: #0b0d10;
+    --study-panel: #101419;
+    --study-panel-strong: #171d24;
+    --study-line: #27313a;
+    --study-ink: #eaf0f3;
+    --study-muted: #9aa8b0;
+    --study-faint: #65727a;
+    --study-accent: #8fd6ff;
+    --study-accent-soft: #28506a;
+  }
+
+  .study-direction-2 .study-brand,
+  .study-direction-2 .study-index,
+  .study-direction-2 .study-nav,
+  .study-direction-2 .search-stage > h1,
+  .study-direction-2 .lp-search-input,
+  .study-direction-2 .lp-row-cat {
+    font-family: var(--font-mono);
+  }
+
+  .study-direction-2 .search-stage {
+    width: min(100%, 980px);
+    margin: 0 auto;
+    padding-top: clamp(4rem, 12vh, 7rem);
+  }
+
+  .study-direction-2 .search-stage > h1 {
+    margin-bottom: 1.75rem;
+    font-size: clamp(2rem, 4vw, 3.25rem);
     font-weight: 400;
+    letter-spacing: -0.07em;
   }
 
-  .split-picker-head > span {
-    flex-shrink: 0;
-    color: var(--quiet-muted);
-    font-size: 0.66rem;
+  .study-direction-2 .lp-search {
+    border-radius: 0.2rem;
+    background: transparent;
   }
 
-  .split-search {
-    display: block;
-    border-bottom: 1px solid var(--quiet-line);
-    padding: 1rem 0;
+  .study-direction-2 .lp-search:focus-within {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--study-accent) 12%, transparent);
   }
 
-  .split-search input {
-    width: 100%;
-  }
-
-  .split-tool-list {
-    margin-top: 1rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  .split-tool {
-    display: grid;
+  .study-direction-2 .lp-row {
     grid-template-columns: 2rem minmax(0, 1fr) auto;
-    gap: 0.8rem;
+    grid-template-rows: auto;
     align-items: center;
-    border-bottom: 1px solid var(--quiet-line);
-    padding: 0.75rem 0;
-    color: var(--quiet-muted);
-    transition: color 150ms ease, padding 150ms ease;
+    padding-block: 0.72rem;
+    border-bottom-color: color-mix(in srgb, var(--study-line) 80%, transparent);
   }
 
-  .split-tool:hover,
-  .split-tool.is-featured {
-    color: var(--quiet-ink);
+  .study-shell.study-direction-2 .lp-row-icon {
+    grid-row: 1;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 0.2rem;
   }
 
-  .split-tool:hover {
-    padding-inline: 0.6rem;
-    background: var(--quiet-panel);
-  }
-
-  .split-tool > span,
-  .split-tool small {
-    color: var(--quiet-faint);
-    font-size: 0.64rem;
-  }
-
-  .split-tool strong {
-    font-size: 0.88rem;
-    font-weight: 600;
-  }
-
-  .split-tool small {
-    color: var(--quiet-muted);
-    text-transform: uppercase;
-  }
-
-  .split-detail {
-    align-self: start;
-    border-top: 1px solid var(--quiet-ink);
-    padding-top: 1.2rem;
-  }
-
-  .split-detail-mark {
-    margin: clamp(3rem, 8vw, 7rem) 0 2rem;
-    color: var(--quiet-accent);
-    font-family: var(--font-mono);
-    font-size: clamp(4rem, 9vw, 7rem);
-    letter-spacing: -0.16em;
-    line-height: 0.6;
-  }
-
-  .split-detail h2 {
-    margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(2.2rem, 5vw, 4.5rem);
+  .study-shell.study-direction-2 .lp-row-name {
+    grid-row: 1;
+    font-size: 0.82rem;
     font-weight: 400;
-    letter-spacing: -0.08em;
   }
 
-  .split-detail-description {
-    max-width: 20rem;
-    margin: 1rem 0 1.8rem;
-    color: var(--quiet-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
+  .study-direction-2 .lp-row-desc {
+    display: none;
   }
 
-  .split-open {
-    display: inline-flex;
-    gap: 0.6rem;
-    border-bottom: 1px solid var(--quiet-accent);
-    padding-bottom: 0.35rem;
-    color: var(--quiet-accent);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+  .study-direction-2 .lp-row-cat {
+    grid-row: 1;
   }
 
-  .split-facts {
-    display: grid;
-    gap: 0.75rem;
-    margin: 4rem 0 0;
-    border-top: 1px solid var(--quiet-line);
-    padding-top: 1rem;
+  /* 03. Grid. Icons carry the visual weight while search stays at the top. */
+  .study-direction-3 {
+    --study-bg: #0d0d0f;
+    --study-panel: #151519;
+    --study-panel-strong: #1b1b21;
+    --study-line: #2b2b33;
+    --study-ink: #f2f1f0;
+    --study-muted: #a19ea5;
+    --study-faint: #6e6a75;
+    --study-accent: #f0b179;
+    --study-accent-soft: #67452d;
   }
 
-  .split-facts div {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    border-bottom: 1px solid var(--quiet-line);
-    padding-bottom: 0.6rem;
+  .study-direction-3 .search-stage {
+    width: min(100%, 1080px);
+    margin: 0 auto;
+    padding-top: clamp(4rem, 10vh, 7rem);
   }
 
-  .split-facts dt,
-  .split-facts dd {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
+  .study-direction-3 .search-stage > h1 {
+    margin-bottom: 1.7rem;
   }
 
-  .split-facts dt {
-    color: var(--quiet-faint);
-    text-transform: uppercase;
+  .study-direction-3 .lp-search {
+    max-width: 680px;
+    border-radius: 0.3rem;
   }
 
-  .split-facts dd {
-    color: var(--quiet-muted);
-  }
-
-  /* 04. Card index */
-  .quiet-direction-4 {
-    --quiet-bg: #f4ede1;
-    --quiet-panel: #fffaf2;
-    --quiet-ink: #29251f;
-    --quiet-muted: #766f65;
-    --quiet-faint: #aaa093;
-    --quiet-line: #d8cdbd;
-    --quiet-accent: #a34d35;
-    color-scheme: light;
-  }
-
-  .card-index {
-    max-width: 1080px;
-    margin-inline: auto;
-  }
-
-  .card-index-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 14rem;
-    gap: 2rem;
-    align-items: end;
-    border-bottom: 1px solid var(--quiet-ink);
-    padding-bottom: 2rem;
-  }
-
-  .card-index h1 {
-    max-width: 9ch;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(3.4rem, 7vw, 7rem);
-    font-weight: 400;
-    letter-spacing: -0.09em;
-  }
-
-  .card-index-summary {
-    margin: 0 0 0.4rem;
-    color: var(--quiet-muted);
-    font-size: 0.9rem;
-    line-height: 1.55;
-  }
-
-  .card-index-controls {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    align-items: center;
-    padding: 1rem 0;
-    color: var(--quiet-muted);
-    font-size: 0.66rem;
-  }
-
-  .card-index-search {
-    display: block;
-    width: min(100%, 22rem);
-    border-bottom: 1px solid var(--quiet-line);
-    padding: 0.5rem 0;
-  }
-
-  .card-index-search input {
-    width: 100%;
-  }
-
-  .card-index-grid {
+  .study-direction-3 .lp-results {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.65rem;
-  }
-
-  .tool-card {
-    position: relative;
-    display: flex;
-    min-height: 12.5rem;
-    flex-direction: column;
-    gap: 0.7rem;
-    border: 1px solid var(--quiet-line);
-    background: var(--quiet-panel);
-    padding: 1rem;
-    transition: border-color 150ms ease, transform 150ms ease, background-color 150ms ease;
-  }
-
-  .tool-card:hover {
-    border-color: var(--quiet-accent);
-    background: #fffdf9;
-    transform: translateY(-0.2rem);
-  }
-
-  .tool-card-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    color: var(--quiet-faint);
-    font-size: 0.62rem;
-    text-transform: uppercase;
-  }
-
-  .tool-card strong {
-    margin-top: auto;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 1.65rem;
-    font-weight: 400;
-    letter-spacing: -0.05em;
-  }
-
-  .tool-card > span:not(.tool-card-top):not(.tool-card-arrow) {
-    max-width: 19rem;
-    color: var(--quiet-muted);
-    font-size: 0.78rem;
-    line-height: 1.5;
-  }
-
-  .tool-card-arrow {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-    color: var(--quiet-accent);
-    font-family: var(--font-mono);
-  }
-
-  /* 05. Command line */
-  .quiet-direction-5 {
-    --quiet-bg: #0f1110;
-    --quiet-panel: #171a18;
-    --quiet-ink: #e4e8e2;
-    --quiet-muted: #a0aaa0;
-    --quiet-faint: #687269;
-    --quiet-line: #303832;
-    --quiet-accent: #d2e982;
-    background: var(--quiet-bg);
-    color-scheme: dark;
-    font-family: var(--font-mono);
-  }
-
-  .quiet-direction-5 .quiet-header {
-    border-color: var(--quiet-line);
-  }
-
-  .quiet-direction-5 .quiet-direction-nav a:hover,
-  .quiet-direction-5 .quiet-direction-nav a:focus-visible,
-  .quiet-direction-5 .quiet-direction-nav a.is-current {
-    border-color: var(--quiet-accent);
-    background: var(--quiet-panel);
-    color: var(--quiet-accent);
-  }
-
-  .quiet-direction-5 .quiet-skip {
-    background: var(--quiet-accent);
-    color: var(--quiet-bg);
-  }
-
-  .command-layout {
-    max-width: 820px;
-    margin-inline: auto;
-  }
-
-  .command-bar {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    border: 1px solid var(--quiet-line);
-    background: var(--quiet-panel);
-    padding: 0.7rem 0.85rem;
-    color: var(--quiet-muted);
-  }
-
-  .command-bar-brand {
-    color: var(--quiet-ink);
-  }
-
-  .command-bar-status {
-    color: var(--quiet-accent);
-  }
-
-  .command-bar-link {
-    color: var(--quiet-muted);
-  }
-
-  .command-heading {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    align-items: end;
-    padding: clamp(4rem, 9vw, 7rem) 0 2.5rem;
-  }
-
-  .command-heading h1 {
-    color: var(--quiet-ink);
-    font-family: var(--font-sans);
-    font-size: clamp(2.8rem, 6vw, 5.5rem);
-    font-weight: 450;
-  }
-
-  .command-heading > p {
-    max-width: 12rem;
-    margin: 0 0 0.2rem;
-    color: var(--quiet-muted);
-    font-family: var(--font-sans);
-    font-size: 0.86rem;
-    line-height: 1.5;
-  }
-
-  .command-input {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 0.8rem;
-    align-items: center;
-    border: 1px solid var(--quiet-line);
-    background: var(--quiet-panel);
+    margin-top: 1.5rem;
+  }
+
+  .study-direction-3 .lp-row {
+    display: flex;
+    min-height: 11rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
     padding: 1rem;
-    color: var(--quiet-accent);
+    border: 1px solid var(--study-line);
+    border-radius: 0.65rem;
+    background: var(--study-panel);
   }
 
-  .command-input input {
-    font-family: var(--font-mono);
+  .study-direction-3 .lp-row:hover,
+  .study-direction-3 .lp-row--active {
+    border-color: var(--study-accent-soft);
+    background: var(--study-panel-strong);
   }
 
-  .command-input kbd {
-    border: 1px solid var(--quiet-line);
-    padding: 0.15rem 0.4rem;
-    color: var(--quiet-faint);
+  .study-shell.study-direction-3 .lp-row-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.5rem;
+  }
+
+  .study-shell.study-direction-3 .lp-row-name,
+  .study-shell.study-direction-3 .lp-row-desc,
+  .study-shell.study-direction-3 .lp-row-cat {
+    display: block;
+    width: 100%;
+  }
+
+  .study-shell.study-direction-3 .lp-row-name {
+    margin-top: 0.2rem;
+  }
+
+  .study-shell.study-direction-3 .lp-row-desc {
+    margin-top: auto;
+  }
+
+  .study-shell.study-direction-3 .lp-row-cat {
+    order: 3;
+    color: var(--study-faint);
+    text-align: left;
+  }
+
+  /* 04. Rail. The title stays quiet on the left while the tool list does the work. */
+  .study-direction-4 {
+    --study-bg: #090b0d;
+    --study-panel: #11161b;
+    --study-panel-strong: #182027;
+    --study-line: #27343d;
+    --study-ink: #edf2f3;
+    --study-muted: #a0adb2;
+    --study-faint: #68767c;
+    --study-accent: #d4e875;
+    --study-accent-soft: #52602c;
+  }
+
+  .study-direction-4 .search-stage {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.52fr) minmax(0, 1.48fr);
+    gap: clamp(2.5rem, 8vw, 8rem);
+    align-items: start;
+    padding-top: clamp(5rem, 15vh, 9rem);
+  }
+
+  .study-direction-4 .search-stage > h1 {
+    position: sticky;
+    top: 2rem;
+    max-width: 9rem;
+    font-size: clamp(2.25rem, 4vw, 3.75rem);
+  }
+
+  .study-direction-4 .lp-search {
+    border-width: 0 0 1px;
+    border-radius: 0;
+    background: transparent;
+    padding-inline: 0;
+  }
+
+  .study-direction-4 .lp-search:focus-within {
+    box-shadow: none;
+  }
+
+  .study-direction-4 .lp-results {
+    margin-top: 0.6rem;
+  }
+
+  .study-direction-4 .lp-row {
+    padding-inline: 0;
+    border-bottom-color: var(--study-line);
+  }
+
+  .study-direction-4 .lp-row:hover,
+  .study-direction-4 .lp-row--active {
+    background: transparent;
+  }
+
+  .study-direction-4 .lp-row:where(:hover, .lp-row--active) .lp-row-name {
+    color: var(--study-accent);
+  }
+
+  /* 05. Palette. A focused panel for people who want a command-menu feel. */
+  .study-direction-5 {
+    --study-bg: #0a0a09;
+    --study-panel: #151512;
+    --study-panel-strong: #1d1d18;
+    --study-line: #33332b;
+    --study-ink: #f3f2e9;
+    --study-muted: #aaa89a;
+    --study-faint: #777568;
+    --study-accent: #f0c674;
+    --study-accent-soft: #6b582d;
+    background:
+      linear-gradient(135deg, rgba(86, 73, 33, 0.12), transparent 32rem),
+      var(--study-bg);
+  }
+
+  .study-direction-5 .search-stage {
+    width: min(100%, 900px);
+    margin: 0 auto;
+    padding: clamp(4rem, 13vh, 8rem) clamp(1rem, 4vw, 3rem) 3rem;
+    border-inline: 1px solid color-mix(in srgb, var(--study-line) 65%, transparent);
+  }
+
+  .study-direction-5 .search-stage > h1 {
+    margin-bottom: 1.5rem;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+  }
+
+  .study-direction-5 .lp-search {
+    min-height: 4.5rem;
+    padding-inline: 1.25rem;
+    border-radius: 0.25rem;
+    background: var(--study-panel-strong);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.24);
+  }
+
+  .study-direction-5 .lp-search-input {
+    font-size: 1.05rem;
+  }
+
+  .study-direction-5 .lp-results {
+    counter-reset: palette-row;
+    margin-top: 1rem;
+  }
+
+  .study-direction-5 .lp-row {
+    counter-increment: palette-row;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    align-items: center;
+    padding-block: 0.75rem;
+  }
+
+  .study-direction-5 .lp-row::before {
+    grid-column: 1;
+    grid-row: 1;
+    color: var(--study-faint);
+    content: counter(palette-row, decimal-leading-zero);
     font: 0.65rem var(--font-mono);
   }
 
-  .command-list-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    border-bottom: 1px solid var(--quiet-line);
-    padding: 1.5rem 0 0.7rem;
-    color: var(--quiet-faint);
-    font-size: 0.62rem;
+  .study-shell.study-direction-5 .lp-row-icon {
+    display: none;
   }
 
-  .command-list {
-    display: grid;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+  .study-shell.study-direction-5 .lp-row-name {
+    grid-column: 2;
+    grid-row: 1;
+    font-weight: 550;
   }
 
-  .command-item {
-    display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr) auto 1rem;
-    gap: 1rem;
-    align-items: center;
-    border-bottom: 1px solid var(--quiet-line);
-    padding: 0.9rem 0;
-    transition: color 150ms ease, padding 150ms ease, background-color 150ms ease;
+  .study-shell.study-direction-5 .lp-row-desc {
+    display: none;
   }
 
-  .command-item:hover {
-    padding-inline: 0.8rem;
-    background: var(--quiet-panel);
-    color: var(--quiet-accent);
+  .study-shell.study-direction-5 .lp-row-cat {
+    grid-column: 3;
+    grid-row: 1;
   }
 
-  .command-item-index,
-  .command-item > span:nth-child(3),
-  .command-item-arrow {
-    color: var(--quiet-faint);
-    font-size: 0.64rem;
-    text-transform: uppercase;
-  }
+  @media (max-width: 760px) {
+    .study-header,
+    .study-main {
+      width: min(100% - 2rem, 1160px);
+    }
 
-  .command-item strong {
-    color: var(--quiet-ink);
-    font-family: var(--font-sans);
-    font-size: 0.92rem;
-    font-weight: 600;
-  }
+    .study-header {
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      min-height: 4.25rem;
+    }
 
-  .command-item:hover strong,
-  .command-item:hover .command-item-arrow {
-    color: var(--quiet-accent);
-  }
+    .study-index {
+      display: none;
+    }
 
-  .command-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-top: 1.2rem;
-    color: var(--quiet-faint);
-    font-size: 0.62rem;
-  }
+    .study-nav {
+      gap: 0.1rem;
+    }
 
-  .command-footer a {
-    color: var(--quiet-accent);
-  }
+    .study-nav a {
+      min-width: 1.75rem;
+      padding-inline: 0.15rem;
+    }
 
-  @media (max-width: 800px) {
-    .sidebar-layout,
-    .split-layout {
+    .study-main {
+      min-height: calc(100dvh - 4.25rem);
+    }
+
+    .study-shell .lp-row {
+      grid-template-columns: 1.75rem minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      column-gap: 0.7rem;
+      padding-inline: 0.25rem;
+    }
+
+    .study-shell .lp-row-cat {
+      display: none;
+    }
+
+    .study-direction-1 .search-stage,
+    .study-direction-2 .search-stage,
+    .study-direction-3 .search-stage,
+    .study-direction-5 .search-stage {
+      padding-top: 4rem;
+    }
+
+    .study-direction-1 .search-stage > h1,
+    .study-direction-2 .search-stage > h1,
+    .study-direction-3 .search-stage > h1,
+    .study-direction-5 .search-stage > h1 {
+      margin-bottom: 1.4rem;
+    }
+
+    .study-direction-1 .lp-row-desc {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .study-direction-2 .lp-row {
+      grid-template-rows: auto;
+    }
+
+    .study-direction-2 .lp-row-desc,
+    .study-direction-2 .lp-row-cat {
+      display: none;
+    }
+
+    .study-direction-3 .lp-results {
       grid-template-columns: 1fr;
     }
 
-    .sidebar-rail {
+    .study-direction-3 .lp-row {
+      min-height: 0;
+    }
+
+    .study-direction-4 .search-stage {
+      display: block;
+      padding-top: 4rem;
+    }
+
+    .study-direction-4 .search-stage > h1 {
       position: static;
+      max-width: none;
+      margin-bottom: 1.8rem;
     }
 
-    .sidebar-categories {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+    .study-direction-5 .search-stage {
+      padding-inline: 0.25rem;
+      border-inline: 0;
     }
 
-    .sidebar-privacy {
-      margin-top: 1rem;
+    .study-direction-5 .lp-row {
+      grid-template-columns: 2rem minmax(0, 1fr);
     }
 
-    .split-detail {
-      border-top: 1px solid var(--quiet-ink);
-      padding-top: 2rem;
+    .study-direction-5 .lp-row::before {
+      grid-column: 1;
     }
 
-    .split-detail-mark {
-      margin: 3rem 0 1.5rem;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .quiet-header,
-    .quiet-main {
-      width: min(100% - 2rem, 1180px);
+    .study-direction-5 .lp-row-name {
+      grid-column: 2;
     }
 
-    .quiet-header {
-      grid-template-columns: 1fr auto;
-    }
-
-    .quiet-context,
-    .quiet-privacy {
-      display: none;
-    }
-
-    .quiet-header-end {
-      grid-column: 1 / -1;
-      grid-row: 2;
-      justify-self: start;
-    }
-
-    .plain-list-intro,
-    .card-index-head,
-    .command-heading {
-      display: block;
-    }
-
-    .plain-list-summary,
-    .card-index-summary,
-    .command-heading > p {
-      margin-top: 1.5rem;
-    }
-
-    .plain-list-search {
-      grid-template-columns: 1fr auto;
-    }
-
-    .plain-list-search label {
-      display: none;
-    }
-
-    .plain-list-item {
-      grid-template-columns: 1.8rem minmax(0, 1fr) 1rem;
-      gap: 0.7rem;
-    }
-
-    .plain-list-category {
-      display: none;
-    }
-
-    .sidebar-categories {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .sidebar-workspace-head {
-      display: block;
-    }
-
-    .sidebar-search {
-      width: 100%;
-      margin-top: 1.5rem;
-    }
-
-    .sidebar-group-items,
-    .card-index-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .split-picker-head {
-      display: block;
-    }
-
-    .split-picker-head > span {
-      display: block;
-      margin-top: 1rem;
-    }
-
-    .card-index-controls {
-      display: block;
-    }
-
-    .card-index-search {
-      width: 100%;
-      margin-bottom: 0.8rem;
-    }
-
-    .command-bar,
-    .command-footer {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .command-item {
-      grid-template-columns: 1.8rem minmax(0, 1fr) 1rem;
-      gap: 0.7rem;
-    }
-
-    .command-item > span:nth-child(3) {
+    .study-direction-5 .lp-row-cat {
       display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .quiet-lab a,
-    .quiet-lab input,
-    .quiet-lab .tool-card,
-    .quiet-lab .plain-list-item,
-    .quiet-lab .sidebar-categories a,
-    .quiet-lab .sidebar-tool,
-    .quiet-lab .split-tool,
-    .quiet-lab .command-item {
+    .study-shell a,
+    .study-shell input,
+    .study-shell .lp-row,
+    .study-shell .lp-row-icon,
+    .study-shell .lp-row-name,
+    .study-shell .lp-search,
+    .study-shell .study-nav a,
+    .study-shell .study-skip {
       scroll-behavior: auto;
       transition: none;
     }
