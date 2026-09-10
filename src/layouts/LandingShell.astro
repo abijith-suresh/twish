@@ -27,12 +27,17 @@ const FOOTER_LINKS = [
     <ClientRouter />
   </Fragment>
 
-  <!--
-    Single wrapper owns all horizontal padding.
-    main and footer are direct siblings — left edges guaranteed to align.
-  -->
+  <a class="ls-skip-link" href="#main-content">Skip to content</a>
+
+  <!-- One shared content rail keeps the header, page content, and footer aligned. -->
   <div class="ls-page">
-    <main class="ls-main">
+    <header class="ls-header">
+      <a class="ls-brand" href="/" translate="no">
+        unwrapped<span class="ls-brand-tld">.tools</span>
+      </a>
+    </header>
+
+    <main id="main-content" class="ls-main" tabindex="-1">
       <slot />
     </main>
 
@@ -55,25 +60,70 @@ const FOOTER_LINKS = [
 </Base>
 
 <style>
-  /*
-   * ls-page: one flex column, one source of horizontal padding.
-   * Full-viewport-width — background fills edge to edge, no island effect.
-   * Both main and footer share the same left/right edges.
-   */
+  /* One flex column and one source of horizontal padding for the landing shell. */
   .ls-page {
+    --ls-content-max-width: 1120px;
     display: flex;
     flex-direction: column;
     min-height: 100dvh;
-    padding-inline: clamp(2rem, 6vw, 7rem);
+    padding-inline: clamp(1.25rem, 6vw, 7rem);
+  }
+
+  .ls-header,
+  .ls-main,
+  .ls-footer {
+    width: min(100%, var(--ls-content-max-width));
+    margin-inline: auto;
+  }
+
+  .ls-skip-link {
+    position: fixed;
+    z-index: 20;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--accent-primary);
+    border-radius: 0.4rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    text-decoration: none;
+    transform: translateY(-200%);
+    transition: transform 120ms ease;
+  }
+
+  .ls-skip-link:focus {
+    transform: translateY(0);
+  }
+
+  .ls-header {
+    display: flex;
+    align-items: center;
+    min-height: 4.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ls-brand {
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .ls-brand-tld {
+    color: var(--accent-primary);
   }
 
   .ls-main {
     flex: 1;
-    padding-top: clamp(2.5rem, 8vh, 5rem);
+    padding-top: clamp(2rem, 5vh, 3.5rem);
   }
 
   .ls-footer {
-    padding: 2rem 0 2.5rem;
+    padding: 2.5rem 0 2.75rem;
     border-top: 1px solid var(--border);
   }
 
@@ -100,6 +150,7 @@ const FOOTER_LINKS = [
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .ls-skip-link,
     .ls-footer-link {
       transition: none;
     }

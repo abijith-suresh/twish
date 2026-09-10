@@ -5,12 +5,9 @@ import ToolSearch from "@/components/ToolSearch";
 
 <LandingShell title="unwrapped.tools">
   <div class="lp-home">
-    <header class="lp-home-header">
-      <a class="lp-home-brand" href="/" translate="no">
-        unwrapped<span class="lp-home-brand-tld">.tools</span>
-      </a>
-      <h1 id="tool-search-title">Find a tool</h1>
-    </header>
+    <section class="lp-home-heading" aria-labelledby="tool-search-title">
+      <h1 id="tool-search-title">Search tools</h1>
+    </section>
 
     <section class="lp-home-search" id="tool-search" aria-labelledby="tool-search-title">
       <ToolSearch client:load />
@@ -29,44 +26,26 @@ import ToolSearch from "@/components/ToolSearch";
     --lp-home-muted: var(--text-muted);
     --lp-home-accent: var(--accent-primary);
     --lp-home-accent-soft: color-mix(in srgb, var(--accent-primary) 28%, var(--bg-secondary));
-    width: min(100%, 1120px);
-    margin-inline: auto;
+    width: 100%;
+    padding-bottom: clamp(4rem, 9vh, 6.5rem);
     color: var(--lp-home-text);
   }
 
-  .lp-home-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: clamp(3rem, 9vh, 5.5rem);
-    padding: 0 0 1.75rem;
-    border-bottom: 1px solid var(--lp-home-border);
+  .lp-home-heading {
+    padding: clamp(1.5rem, 4vh, 3rem) 0 clamp(2rem, 5vh, 3.5rem);
   }
 
-  .lp-home-brand {
-    color: var(--lp-home-text);
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    text-decoration: none;
-  }
-
-  .lp-home-brand-tld {
-    color: var(--lp-home-accent);
-  }
-
-  .lp-home-header h1 {
+  .lp-home-heading h1 {
     margin: 0;
     color: var(--lp-home-text);
-    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-size: clamp(2.75rem, 6vw, 4.75rem);
     font-weight: 650;
     letter-spacing: -0.075em;
-    line-height: 0.94;
+    line-height: 0.98;
   }
 
   .lp-home-search {
-    padding-top: 1.25rem;
+    padding-top: 0;
   }
 
   .lp-home-search .lp {
@@ -180,6 +159,12 @@ import ToolSearch from "@/components/ToolSearch";
     transform: translateY(-1px);
   }
 
+  .lp-home-search .lp-row:focus-visible {
+    border-color: var(--lp-home-accent);
+    outline: 2px solid var(--lp-home-accent);
+    outline-offset: 2px;
+  }
+
   .lp-home-search .lp-row-icon {
     display: flex;
     width: 2.25rem;
@@ -250,10 +235,6 @@ import ToolSearch from "@/components/ToolSearch";
   }
 
   @media (max-width: 620px) {
-    .lp-home-header {
-      gap: 3.5rem;
-    }
-
     .lp-home-search .lp-search {
       top: 0.5rem;
       min-height: 3.75rem;
