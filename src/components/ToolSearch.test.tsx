@@ -8,28 +8,28 @@ describe("ToolSearch", () => {
   it("renders every registered tool with the curated tools ordered first", () => {
     const { getAllByRole } = render(() => <ToolSearch />);
 
-    const options = getAllByRole("option");
-    expect(options).toHaveLength(tools.length);
-    expect(options[0]).toHaveTextContent("JSON Formatter");
+    const links = getAllByRole("link");
+    expect(links).toHaveLength(tools.length);
+    expect(links[0]).toHaveTextContent("JSON Formatter");
   });
 
   it("filters results by name, description, and keywords", () => {
     const { getByRole, getAllByRole } = render(() => <ToolSearch />);
-    const input = getByRole("combobox", { name: "Search tools" });
+    const input = getByRole("textbox", { name: "Search tools" });
 
     fireEvent.input(input, { target: { value: "cron" } });
-    let options = getAllByRole("option");
-    expect(options).toHaveLength(1);
-    expect(options[0]).toHaveTextContent("Cron Schedule");
+    let links = getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveTextContent("Cron Schedule");
 
     fireEvent.input(input, { target: { value: "sha256" } });
-    options = getAllByRole("option");
-    expect(options[0]).toHaveTextContent("Hash Generator");
+    links = getAllByRole("link");
+    expect(links[0]).toHaveTextContent("Hash Generator");
   });
 
   it("shows an empty state when nothing matches", () => {
     const { getByRole, getByText } = render(() => <ToolSearch />);
-    const input = getByRole("combobox", { name: "Search tools" });
+    const input = getByRole("textbox", { name: "Search tools" });
 
     fireEvent.input(input, { target: { value: "blockchain" } });
 
@@ -38,26 +38,24 @@ describe("ToolSearch", () => {
 
   it("moves the keyboard selection with arrow keys", () => {
     const { getByRole, getAllByRole } = render(() => <ToolSearch />);
-    const input = getByRole("combobox", { name: "Search tools" });
-
-    expect(input).not.toHaveAttribute("aria-activedescendant");
+    const input = getByRole("textbox", { name: "Search tools" });
 
     fireEvent.keyDown(input, { key: "ArrowDown" });
 
-    const options = getAllByRole("option");
-    expect(input).toHaveAttribute("aria-activedescendant", options[0].id);
-    expect(options[0]).toHaveAttribute("aria-selected", "true");
+    const links = getAllByRole("link");
+    expect(links[0]).toHaveClass("lp-row--active");
   });
 
   it("clears the query on Escape", () => {
-    const { getByRole, queryByRole } = render(() => <ToolSearch />);
-    const input = getByRole("combobox", { name: "Search tools" });
+    const { getByRole, getAllByRole } = render(() => <ToolSearch />);
+    const input = getByRole("textbox", { name: "Search tools" });
 
     fireEvent.input(input, { target: { value: "diff" } });
-    expect(queryByRole("option")).not.toBeNull();
+    expect(getAllByRole("link")).toHaveLength(1);
 
     fireEvent.keyDown(input, { key: "Escape" });
 
-    expect(queryByRole("option", { selected: true })).toBeNull();
+    expect(input).toHaveValue("");
+    expect(getAllByRole("link")).toHaveLength(tools.length);
   });
 });

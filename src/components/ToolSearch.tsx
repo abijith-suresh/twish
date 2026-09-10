@@ -114,7 +114,7 @@ export default function ToolSearch() {
   }
 
   return (
-    <div class="lp">
+    <search class="lp">
       {/* ── Search input ── */}
       <div classList={{ "lp-search": true, "lp-search--focused": focused() }}>
         <svg
@@ -137,7 +137,7 @@ export default function ToolSearch() {
           ref={inputRef}
           class="lp-search-input"
           type="text"
-          placeholder="search tools…"
+          placeholder="Search tools…"
           value={query()}
           onInput={(e) => setQuery(e.currentTarget.value)}
           onFocus={() => setFocused(true)}
@@ -146,12 +146,6 @@ export default function ToolSearch() {
           autocomplete="off"
           spellcheck={false}
           aria-label="Search tools"
-          role="combobox"
-          aria-expanded="true"
-          aria-controls="lp-results"
-          aria-activedescendant={
-            activeIndex() >= 0 ? `lp-tool-${filtered()[activeIndex()]?.slug ?? ""}` : undefined
-          }
         />
 
         <Show when={query().length > 0}>
@@ -178,7 +172,7 @@ export default function ToolSearch() {
       </div>
 
       {/* ── Filtered results ── */}
-      <div class="lp-results" id="lp-results" role="listbox">
+      <div class="lp-results" id="lp-results">
         <Show
           when={filtered().length > 0}
           fallback={<p class="lp-empty">no tools match &ldquo;{query()}&rdquo;</p>}
@@ -194,8 +188,7 @@ export default function ToolSearch() {
                     "lp-row--active": activeIndex() === idx(),
                   }}
                   id={`lp-tool-${tool.slug}`}
-                  role="option"
-                  aria-selected={activeIndex() === idx()}
+                  onFocus={() => setActiveIndex(idx())}
                   onMouseEnter={() => {
                     setActiveIndex(idx());
                     const link = document.createElement("link");
@@ -206,7 +199,9 @@ export default function ToolSearch() {
                   }}
                   onMouseLeave={() => setActiveIndex(-1)}
                 >
-                  <span class="lp-row-icon">{Icon ? <Icon size={15} /> : null}</span>
+                  <span class="lp-row-icon" aria-hidden="true">
+                    {Icon ? <Icon size={15} /> : null}
+                  </span>
                   <span class="lp-row-name">{tool.name}</span>
                   <span class="lp-row-cat">{tool.category}</span>
                   <span class="lp-row-desc">{tool.description}</span>
@@ -216,6 +211,6 @@ export default function ToolSearch() {
           </For>
         </Show>
       </div>
-    </div>
+    </search>
   );
 }
